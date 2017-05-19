@@ -7,7 +7,7 @@
 	<version>1.0.00</version>
 	<packaging>jar</packaging>
 
-	<name>Angelia</name>
+	<name>Angelia-core</name>
 	<url>https://github.com/maxopoly/angelia-core</url>
 
 	<properties>
