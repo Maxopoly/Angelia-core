@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.github.maxopoly</groupId>
-	<artifactId>Angelia-core</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>angelia-core</artifactId>
+	<version>1.0.00</version>
 	<packaging>jar</packaging>
 
-	<name>MineApp</name>
+	<name>Angelia</name>
 	<url>https://github.com/maxopoly/angelia-core</url>
 
 	<properties>
