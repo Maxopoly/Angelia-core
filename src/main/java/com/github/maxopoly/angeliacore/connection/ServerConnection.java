@@ -8,6 +8,7 @@ import com.github.maxopoly.angeliacore.connection.play.IncomingPlayPacketHandler
 import com.github.maxopoly.angeliacore.connection.play.PlayerStatus;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.ClientSettingPacket;
 import com.github.maxopoly.angeliacore.encryption.AES_CFB8_Encrypter;
+import com.github.maxopoly.angeliacore.event.EventBroadcaster;
 import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
 import java.io.DataInputStream;
@@ -28,6 +29,7 @@ public class ServerConnection {
 	private Socket socket;
 	private IncomingPlayPacketHandler playPacketHandler;
 	private PlayerStatus playerStatus;
+	private EventBroadcaster eventHandler;
 
 	private String playerName;
 	private boolean encryptionEnabled;
@@ -43,6 +45,7 @@ public class ServerConnection {
 		this.logger = logger;
 		this.encryptionEnabled = false;
 		this.compressionEnabled = false;
+		this.eventHandler = new EventBroadcaster(logger);
 	}
 
 	public ServerConnection(String adress, Logger logger, AuthenticationHandler auth) {
