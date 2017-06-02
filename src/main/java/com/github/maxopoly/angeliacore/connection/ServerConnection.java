@@ -265,4 +265,12 @@ public class ServerConnection {
 	public int getPort() {
 		return port;
 	}
+
+	/**
+	 * 
+	 * @return EventHandler for registering listeners and calling events
+	 */
+	public EventBroadcaster getEventHandler() {
+		return eventHandler;
+	}
 }

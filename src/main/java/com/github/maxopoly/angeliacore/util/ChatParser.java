@@ -6,19 +6,19 @@ public class ChatParser {
 
 	public static String getRawText(String json) {
 		JSONObject jsonObject = new JSONObject(json);
-		StringBuilder sb = new StringBuilder();
-		if (jsonObject.has("text")) {
-			sb.append(jsonObject.getString("text"));
+		return getRecursiveRawText(new StringBuilder(), jsonObject).toString();
+	}
+
+	private static StringBuilder getRecursiveRawText(StringBuilder currentString, JSONObject json) {
+		if (json.has("text")) {
+			currentString.append(json.getString("text"));
 		}
-		if (jsonObject.has("extra")) {
-			for (Object currentJ : jsonObject.getJSONArray("extra")) {
-				JSONObject currentObject = (JSONObject) currentJ;
-				if (currentObject.has("text")) {
-					sb.append(currentObject.getString("text"));
-				}
+		if (json.has("extra")) {
+			for (Object currentJ : json.getJSONArray("extra")) {
+				currentString.append(getRecursiveRawText(currentString, (JSONObject) currentJ));
 			}
 		}
-		return sb.toString();
+		return currentString;
 	}
 
 }
