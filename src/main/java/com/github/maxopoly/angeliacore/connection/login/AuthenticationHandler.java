@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.net.URL;
+import java.security.SecureRandom;
 import javax.net.ssl.HttpsURLConnection;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -13,25 +15,107 @@ public class AuthenticationHandler {
 
 	private final static String authServerAdress = "https://authserver.mojang.com";
 	private final static String sessionServerAdress = "https://sessionserver.mojang.com/session/minecraft/join";
+	private final static String separator = ";;;;";
 
 	private String accessToken;
 	private String clientToken;
 	private String playerName;
 	private String playerID;
+	private SecureRandom random = new SecureRandom();
+
+	public AuthenticationHandler(String userName, String password, Logger logger) throws IOException {
+		authenticate(userName, password, logger);
+	}
+
+	/**
+	 * Constructs an instance from a serialize line containing an accesstoken, client token, player name and player uuid
+	 * which all belong together.
+	 * 
+	 * @param serialized
+	 * @throws IOException
+	 *           If the String wasnt properly formatted
+	 */
+	public AuthenticationHandler(String serialized) throws IOException {
+		if (serialized == null) {
+			throw new IOException("Can't deserialize null?");
+		}
+		String[] split = serialized.split(separator);
+		if (split.length != 4) {
+			throw new IOException("Invalid serialization format");
+		}
+		this.accessToken = split[0];
+		this.clientToken = split[1];
+		this.playerName = split[2];
+		this.playerID = split[3];
+	}
+
+	/**
+	 * Serializes this instances accessToken, clientToken, playerName and playerID so they can be used across sessions
+	 * 
+	 * @return Serialization of this instance
+	 */
+	public String serialize() {
+		return accessToken + separator + clientToken + separator + playerName + separator + playerID;
+	}
 
 	public void authenticate(String userName, String password, Logger logger) throws IOException {
-		String result = sendPost(constructAuthenticationJSON(userName, password), authServerAdress + "/authenticate",
-				logger);
+		clientToken = new BigInteger(130, random).toString(32);
+		String result = sendPost(constructAuthenticationJSON(userName, password, clientToken), authServerAdress
+				+ "/authenticate", logger);
 		JSONObject jsonResult = new JSONObject(result);
 		accessToken = jsonResult.getString("accessToken");
-		clientToken = jsonResult.getString("clientToken");
+		String receivedClientToken = jsonResult.getString("clientToken");
+		if (!clientToken.equals(receivedClientToken)) {
+			throw new IOException("Received different client token during auth");
+		}
 		JSONObject selectedProfile = jsonResult.getJSONObject("selectedProfile");
 		playerName = selectedProfile.getString("name");
 		playerID = selectedProfile.getString("id");
+		logger.info("Successfully authenticated " + playerName + " with UUID " + playerID);
+	}
 
+	/**
+	 * Attempts to refresh the current access token. Note that even though a token might no longer be valid, it may still
+	 * be possible to refresh it
+	 * 
+	 * @param logger
+	 *          Logger used
+	 * @throws IOException
+	 */
+	public void refreshToken(Logger logger) throws IOException {
+		if (accessToken == null || playerID == null || playerName == null || clientToken == null) {
+			throw new IOException("Can not refresh auth token with missing auth information");
+		}
+		String result = sendPost(constructRefreshJSON(accessToken, playerID, playerName, clientToken), authServerAdress
+				+ "/refresh", logger);
+		JSONObject jsonResult = new JSONObject(result);
+		accessToken = jsonResult.getString("accessToken");
+		String receivedClientToken = jsonResult.getString("clientToken");
+		if (!clientToken.equals(receivedClientToken)) {
+			throw new IOException("Received different client token during access token refresh");
+		}
+		logger.info("Successfully refreshed access token for " + playerName);
+	}
+
+	public boolean validateToken(Logger logger) throws IOException {
+		try {
+			sendPost(constructValidationJSON(accessToken, clientToken), authServerAdress + "/validate", logger);
+		} catch (IOException e) {
+			if (e.getMessage().startsWith("POST to")) {
+				// 403 response code
+				return false;
+			} else {
+				throw e;
+			}
+		}
+		// we dont have an actual response in this case, just a 204 response
+		return true;
 	}
 
 	public void authAgainstSessionServer(String sha, Logger logger) throws IOException {
+		if (accessToken == null || playerID == null) {
+			throw new IOException("Access token isn't available yet");
+		}
 		JSONObject json = new JSONObject();
 		json.put("accessToken", accessToken);
 		json.put("selectedProfile", playerID);
@@ -88,7 +172,7 @@ public class AuthenticationHandler {
 		}
 	}
 
-	private static String constructAuthenticationJSON(String userName, String password) {
+	private static String constructAuthenticationJSON(String userName, String password, String clientToken) {
 		JSONObject json1 = new JSONObject();
 		json1.put("name", "Minecraft");
 		json1.put("version", 1);
@@ -96,6 +180,25 @@ public class AuthenticationHandler {
 		json.put("agent", json1);
 		json.put("username", userName);
 		json.put("password", password);
+		json.put("clientToken", clientToken);
+		return json.toString();
+	}
+
+	private static String constructRefreshJSON(String oldToken, String playerUUID, String playerName, String clientToken) {
+		JSONObject json1 = new JSONObject();
+		json1.put("id", playerUUID);
+		json1.put("name", playerName);
+		JSONObject json = new JSONObject();
+		json.put("selectedProfile", json1);
+		json.put("accessToken", oldToken);
+		json.put("clientToken", clientToken);
+		return json.toString();
+	}
+
+	private static String constructValidationJSON(String accessToken, String clientToken) {
+		JSONObject json = new JSONObject();
+		json.put("accessToken", accessToken);
+		json.put("clientToken", clientToken);
 		return json.toString();
 	}
 

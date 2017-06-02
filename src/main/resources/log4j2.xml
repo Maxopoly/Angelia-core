@@ -28,7 +28,7 @@
 
 	<Loggers>
 
-		<Logger name="MineAppLogger" additivity="false"/>
+		<Logger name="Angelia-Logger" additivity="false"/>
 
 		<Root level="info">
 

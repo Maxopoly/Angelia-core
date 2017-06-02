@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore;
+package com.github.maxopoly.angeliacore.util;
 
 import org.json.JSONObject;
 

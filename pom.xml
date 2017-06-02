@@ -4,7 +4,7 @@
 
 	<groupId>com.github.maxopoly</groupId>
 	<artifactId>angelia-core</artifactId>
-	<version>1.0.00</version>
+	<version>1.0.01</version>
 	<packaging>jar</packaging>
 
 	<name>Angelia-core</name>

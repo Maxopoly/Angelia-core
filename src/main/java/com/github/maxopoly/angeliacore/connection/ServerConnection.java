@@ -10,7 +10,6 @@ import com.github.maxopoly.angeliacore.connection.play.packets.out.ClientSetting
 import com.github.maxopoly.angeliacore.encryption.AES_CFB8_Encrypter;
 import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -31,8 +30,6 @@ public class ServerConnection {
 	private PlayerStatus playerStatus;
 
 	private String playerName;
-	private String email;
-	private String userPassword;
 	private boolean encryptionEnabled;
 	private boolean compressionEnabled;
 	private int maximumUncompressedPacketSize;
@@ -40,18 +37,16 @@ public class ServerConnection {
 	private DataInputStream input;
 	private DataOutputStream output;
 
-	public ServerConnection(String adress, int port, String email, String password, Logger logger) {
+	public ServerConnection(String adress, int port, Logger logger, AuthenticationHandler auth) {
 		this.serverAdress = adress;
 		this.port = port;
-		this.email = email;
-		this.userPassword = password;
 		this.logger = logger;
 		this.encryptionEnabled = false;
 		this.compressionEnabled = false;
 	}
 
-	public ServerConnection(String adress, String email, String password, Logger logger) {
-		this(adress, 25565, email, password, logger); // default port
+	public ServerConnection(String adress, Logger logger, AuthenticationHandler auth) {
+		this(adress, 25565, logger, auth); // default port
 	}
 
 	/**
@@ -77,12 +72,8 @@ public class ServerConnection {
 	 *           If something goes wrong
 	 */
 	public void connect() throws IOException {
-		logger.info("Initializing connection process for account " + email + " to " + serverAdress + ":" + port);
-		// auth first
-		authHandler = new AuthenticationHandler();
-		authHandler.authenticate(email, userPassword, logger);
-		this.playerName = authHandler.getPlayerName();
-		logger.info("Successfully authenticated as " + playerName + " with UUID " + authHandler.getPlayerID());
+		logger.info("Initializing connection process for account " + authHandler.getPlayerName() + " to " + serverAdress
+				+ ":" + port);
 		// connect
 		reestablishConnection();
 		logger.info("Connected socket to " + serverAdress);
