@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,10 +23,12 @@ public class SessionManager {
 
 	private Map<String, AuthenticationHandler> auths;
 
-	public SessionManager(Logger logger) {
+	public SessionManager(Logger logger, boolean loadFromFile) {
 		auths = new HashMap<String, AuthenticationHandler>();
 		this.logger = logger;
-		loadTokens();
+		if (loadFromFile) {
+			loadTokens();
+		}
 	}
 
 	public AuthenticationHandler getAccount(String accountName) {
@@ -70,11 +73,6 @@ public class SessionManager {
 	}
 
 	private void loadTokens() {
-		File f = new File(System.getProperty("user.dir"));
-		if (!f.exists()) {
-			logger.info("No access tokens were loaded from save file as safe file didn't exist");
-			return;
-		}
 		try {
 			// praise progress in java for making this so easy
 			for (String line : Files.readAllLines(FileSystems.getDefault().getPath(saveFile))) {
@@ -99,6 +97,9 @@ public class SessionManager {
 				logger.info("Successfully loaded authentication for " + authHandler.getPlayerName());
 				auths.put(authHandler.getPlayerName(), authHandler);
 			}
+		} catch (NoSuchFileException e) {
+			logger.info("No access tokens were loaded from save file as safe file didn't exist");
+			return;
 		} catch (IOException e) {
 			logger.error("Failed to parse token file", e);
 		}

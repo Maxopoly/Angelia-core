@@ -4,7 +4,6 @@ import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.encryption.PKCSEncrypter;
 import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.Key;
@@ -50,11 +49,14 @@ public class EncryptionHandler {
 		}
 	}
 
-	public void sendEncryptionResponse() throws IOException {
-		WriteOnlyPacket encPacket = new WriteOnlyPacket(0x01);
+	public void genSecretKey() {
 		SecureRandom rng = new SecureRandom();
 		sharedSecret = new byte[16];
 		rng.nextBytes(sharedSecret); // gen random secret
+	}
+
+	public void sendEncryptionResponse() throws IOException {
+		WriteOnlyPacket encPacket = new WriteOnlyPacket(0x01);
 		byte[] encryptedSharedSecret = PKCSEncrypter.encrypt(sharedSecret, serverPubKey);
 		byte[] encryptedVerifyToken = PKCSEncrypter.encrypt(serverVerifyToken, serverPubKey);
 		try {

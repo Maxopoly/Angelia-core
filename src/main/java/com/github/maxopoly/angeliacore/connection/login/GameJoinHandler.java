@@ -3,7 +3,6 @@ package com.github.maxopoly.angeliacore.connection.login;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.packet.EndOfPacketException;
 import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
-
 import java.io.IOException;
 
 public class GameJoinHandler {
@@ -32,14 +31,14 @@ public class GameJoinHandler {
 	}
 
 	private void handleDisconnectPacket(ReadOnlyPacket loginPacket) throws IOException {
-		String msg;
+		String msg = null;
 		try {
 			msg = loginPacket.readString();
 			connection.getLogger().error("Server disconnected with reason: " + msg);
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse disconnect package", e);
 		}
-		throw new IOException("Server disconnected");
+		throw new IOException("Server disconnected: " + msg);
 
 	}
 

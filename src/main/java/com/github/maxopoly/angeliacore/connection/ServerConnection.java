@@ -31,10 +31,10 @@ public class ServerConnection {
 	private PlayerStatus playerStatus;
 	private EventBroadcaster eventHandler;
 
-	private String playerName;
 	private boolean encryptionEnabled;
 	private boolean compressionEnabled;
 	private int maximumUncompressedPacketSize;
+	private int protocolVersion;
 
 	private DataInputStream input;
 	private DataOutputStream output;
@@ -45,6 +45,8 @@ public class ServerConnection {
 		this.logger = logger;
 		this.encryptionEnabled = false;
 		this.compressionEnabled = false;
+		this.authHandler = auth;
+		this.protocolVersion = -1;
 		this.eventHandler = new EventBroadcaster(logger);
 	}
 
@@ -75,31 +77,40 @@ public class ServerConnection {
 	 *           If something goes wrong
 	 */
 	public void connect() throws IOException {
+		this.encryptionEnabled = false;
+		this.compressionEnabled = false;
+		if (!authHandler.validateToken(logger)) {
+			logger.info("Token for " + authHandler.getPlayerName() + " is no longer valid, refreshing it");
+			authHandler.refreshToken(logger);
+		}
 		logger.info("Initializing connection process for account " + authHandler.getPlayerName() + " to " + serverAdress
 				+ ":" + port);
 		// connect
 		reestablishConnection();
-		logger.info("Connected socket to " + serverAdress);
-		// handshake
 		HandShake shake = new HandShake(this);
-		logger.info("Requesting protocol version from " + serverAdress);
-		int protocolVersion = shake.requestProtocolVersion();
-		// we need to set up a new socket after protocol test handshaking as we want to properly connect now, which the
-		// server wouldnt allow right away on the same connection
-		reestablishConnection();
+		if (protocolVersion == -1) {
+			logger.info("Connected socket to " + serverAdress);
+			// handshake
+			logger.info("Requesting protocol version from " + serverAdress);
+			protocolVersion = shake.requestProtocolVersion();
+			// we need to set up a new socket after protocol test handshaking as we want to properly connect now, which the
+			// server wouldnt allow right away on the same connection
+			reestablishConnection();
+		}
 		logger.info("Sending handshake to " + serverAdress);
 		shake.send(true, protocolVersion);
 		// begin login
 		logger.info("Beginning login to " + serverAdress);
-		shake.sendLoginStartMessage(playerName);
+		shake.sendLoginStartMessage(authHandler.getPlayerName());
 		// figure out encryption secret
 		logger.info("Parsing encryption request from " + serverAdress);
 		EncryptionHandler asyncEncHandler = new EncryptionHandler(this);
 		asyncEncHandler.parseEncryptionRequest();
-		logger.info("Sending encryption reply to " + serverAdress);
-		asyncEncHandler.sendEncryptionResponse();
+		asyncEncHandler.genSecretKey();
 		logger.info("Authenticating connection attempt to " + serverAdress + " against Yggdrassil session server");
 		authHandler.authAgainstSessionServer(asyncEncHandler.generateKeyHash(), logger);
+		logger.info("Sending encryption reply to " + serverAdress);
+		asyncEncHandler.sendEncryptionResponse();
 		// everything from here on is encrypted
 		logger.info("Enabling sync encryption with " + serverAdress);
 		encryptionEnabled = true;
