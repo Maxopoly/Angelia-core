@@ -1,7 +1,8 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.out;
 
-import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
+import com.github.maxopoly.angeliacore.model.Location;
 
+import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
 import java.io.IOException;
 
 public class PlayerPositionAndLookPacket extends WriteOnlyPacket {
@@ -16,6 +17,10 @@ public class PlayerPositionAndLookPacket extends WriteOnlyPacket {
 		writeFloat(pitch);
 		// this bool specifies whether the client is on the ground or not
 		writeBoolean(onGround);
+	}
+
+	public PlayerPositionAndLookPacket(Location loc, boolean onGround) throws IOException {
+		this(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch(), onGround);
 	}
 
 }

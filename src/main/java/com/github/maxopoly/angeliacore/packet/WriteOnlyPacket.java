@@ -1,5 +1,6 @@
 package com.github.maxopoly.angeliacore.packet;
 
+import com.github.maxopoly.angeliacore.model.ItemStack;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -84,6 +85,26 @@ public class WriteOnlyPacket {
 	public void writeBoolean(boolean bool) throws IOException {
 		byte toWrite = (byte) (bool ? 0x01 : 0x00);
 		writeByte(toWrite);
+	}
+
+	public void writePosition(int x, int y, int z) throws IOException {
+		long value = (((long) x & 0x3FFFFFF) << 38) | (((long) y & 0xFFF) << 26) | ((long) z & 0x3FFFFFF);
+		writeLong(value);
+	}
+
+	public void writeItemStack(ItemStack is) throws IOException {
+		short id = is.getID();
+		writeShort(id);
+		if (id == -1) {
+			return;
+		}
+		writeByte(is.getAmount());
+		writeShort(is.getDamage());
+		if (is.getNBT() != null) {
+			writeBytes(is.getNBT().serialize());
+		} else {
+			writeByte((byte) 0);
+		}
 	}
 
 	public byte[] toByteArrayIncludingLength() throws IOException {

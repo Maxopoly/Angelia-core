@@ -1,7 +1,6 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.out;
 
 import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
-
 import java.io.IOException;
 
 public class ClientSettingPacket extends WriteOnlyPacket {
@@ -15,7 +14,7 @@ public class ClientSettingPacket extends WriteOnlyPacket {
 		// chat mode
 		writeVarInt(0);
 		// do we want chat colors?
-		writeBoolean(true);
+		writeBoolean(false);
 		// displayed skin parts, for now nothing
 		writeByte((byte) 0);
 		// mainhand, default to right one

@@ -6,7 +6,7 @@ public class ChatMessageReceivedEvent implements AngeliaEvent {
 	private String message;
 
 	public ChatMessageReceivedEvent(String rawJson, String msg) {
-		this.rawJson = this.rawJson;
+		this.rawJson = rawJson;
 		this.message = msg;
 	}
 

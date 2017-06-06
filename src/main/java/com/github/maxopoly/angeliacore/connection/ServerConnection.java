@@ -1,22 +1,26 @@
 package com.github.maxopoly.angeliacore.connection;
 
+import com.github.maxopoly.angeliacore.actions.ActionQueue;
 import com.github.maxopoly.angeliacore.connection.login.AuthenticationHandler;
 import com.github.maxopoly.angeliacore.connection.login.EncryptionHandler;
 import com.github.maxopoly.angeliacore.connection.login.GameJoinHandler;
 import com.github.maxopoly.angeliacore.connection.login.HandShake;
-import com.github.maxopoly.angeliacore.connection.play.IncomingPlayPacketHandler;
-import com.github.maxopoly.angeliacore.connection.play.PlayerStatus;
+import com.github.maxopoly.angeliacore.connection.play.Heartbeat;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.ClientSettingPacket;
 import com.github.maxopoly.angeliacore.encryption.AES_CFB8_Encrypter;
 import com.github.maxopoly.angeliacore.event.EventBroadcaster;
+import com.github.maxopoly.angeliacore.model.PlayerStatus;
 import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Arrays;
+import java.util.Timer;
 import org.apache.logging.log4j.Logger;
 
 public class ServerConnection {
@@ -27,25 +31,31 @@ public class ServerConnection {
 	private Logger logger;
 	private int port;
 	private Socket socket;
-	private IncomingPlayPacketHandler playPacketHandler;
+	private Heartbeat playPacketHandler;
 	private PlayerStatus playerStatus;
 	private EventBroadcaster eventHandler;
+	private ActionQueue actionQueue;
+	private Timer tickTimer;
 
 	private boolean encryptionEnabled;
 	private boolean compressionEnabled;
 	private int maximumUncompressedPacketSize;
 	private int protocolVersion;
+	private int tickDelay; // in ms
 
 	private DataInputStream input;
 	private DataOutputStream output;
+	private boolean closed;
 
 	public ServerConnection(String adress, int port, Logger logger, AuthenticationHandler auth) {
 		this.serverAdress = adress;
 		this.port = port;
 		this.logger = logger;
+		this.closed = false;
 		this.encryptionEnabled = false;
 		this.compressionEnabled = false;
 		this.authHandler = auth;
+		this.tickDelay = 50;
 		this.protocolVersion = -1;
 		this.eventHandler = new EventBroadcaster(logger);
 	}
@@ -64,6 +74,8 @@ public class ServerConnection {
 			socket.connect(host, 3000);
 			input = new DataInputStream(socket.getInputStream());
 			output = new DataOutputStream(socket.getOutputStream());
+		} catch (ConnectException e) {
+			throw new IOException("Failed to connect to " + serverAdress + ":" + port);
 		} catch (IOException e) {
 			logger.error("Exception occured", e);
 			throw new IOException("Failed to connect to " + serverAdress + ":" + port);
@@ -77,8 +89,6 @@ public class ServerConnection {
 	 *           If something goes wrong
 	 */
 	public void connect() throws IOException {
-		this.encryptionEnabled = false;
-		this.compressionEnabled = false;
 		if (!authHandler.validateToken(logger)) {
 			logger.info("Token for " + authHandler.getPlayerName() + " is no longer valid, refreshing it");
 			authHandler.refreshToken(logger);
@@ -120,12 +130,13 @@ public class ServerConnection {
 		// if we reach this point, we successfully logged in and the connection state switches to PLAY, so from now on
 		// everything is handled by our standard packet handler
 		logger.info("Switching connection to play state");
-		playPacketHandler = new IncomingPlayPacketHandler(this);
+		playPacketHandler = new Heartbeat(this);
 		playerStatus = new PlayerStatus();
-		new Thread(playPacketHandler).start();
+		actionQueue = new ActionQueue();
+		tickTimer = new Timer("Angelia tick");
+		tickTimer.schedule(playPacketHandler, tickDelay, tickDelay);
 		// still have to do this
 		sendPacket(new ClientSettingPacket());
-
 	}
 
 	/**
@@ -162,7 +173,11 @@ public class ServerConnection {
 			if (encryptionEnabled) {
 				data = syncEncryptionHandler.encrypt(data);
 			}
-			output.write(data);
+			try {
+				output.write(data);
+			} catch (SocketException e) {
+				close();
+			}
 		}
 	}
 
@@ -235,6 +250,21 @@ public class ServerConnection {
 		}
 	}
 
+	/**
+	 * Closes this connection irrevertably
+	 */
+	public void close() {
+		try {
+			logger.info("Closing socket with " + serverAdress);
+			socket.close();
+			tickTimer.cancel();
+			tickTimer.purge();
+			closed = true;
+		} catch (IOException e) {
+			logger.error("Failed to close socket", e);
+		}
+	}
+
 	public void activateCompression(int maximumUncompressedSize) {
 		logger.info("Enabling compression with " + maximumUncompressedSize
 				+ " as compression threshhold for connection to " + serverAdress);
@@ -259,7 +289,7 @@ public class ServerConnection {
 	/**
 	 * @return Handler for incoming packets while connection is in play state
 	 */
-	public IncomingPlayPacketHandler getIncomingPlayPacketHandler() {
+	public Heartbeat getIncomingPlayPacketHandler() {
 		return playPacketHandler;
 	}
 
@@ -275,6 +305,20 @@ public class ServerConnection {
 	 */
 	public int getPort() {
 		return port;
+	}
+
+	/**
+	 * @return Whether this connection was closed
+	 */
+	public boolean isClosed() {
+		return closed;
+	}
+
+	/**
+	 * @return Connections action queue
+	 */
+	public ActionQueue getActionQueue() {
+		return actionQueue;
 	}
 
 	/**

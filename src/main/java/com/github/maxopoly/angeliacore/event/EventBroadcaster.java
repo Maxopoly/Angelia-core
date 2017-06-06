@@ -1,9 +1,9 @@
 package com.github.maxopoly.angeliacore.event;
 
 import com.github.maxopoly.angeliacore.event.events.AngeliaEvent;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,8 +22,8 @@ public class EventBroadcaster {
 
 	public void registerListener(AngeliaListener listener) {
 		for (Method method : listener.getClass().getMethods()) {
-			if (!method.isAccessible()) {
-				// method should be accessible, so public for any outside use case
+			if (!Modifier.isPublic(method.getModifiers())) {
+				// method should be public for any outside use case
 				continue;
 			}
 			if (!method.getReturnType().equals(Void.TYPE)) {
