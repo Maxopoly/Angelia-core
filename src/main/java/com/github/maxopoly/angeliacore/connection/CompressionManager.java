@@ -7,8 +7,21 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Handles standard gzip compression as used in packets
+ *
+ */
 public class CompressionManager {
 
+	/**
+	 * Compresses the given data
+	 * 
+	 * @param data
+	 *          Data to compress
+	 * @return Compressed data
+	 * @throws IOException
+	 *           In case something goes wrong with the stream internally used
+	 */
 	public static byte[] compress(byte[] data) throws IOException {
 		Deflater deflater = new Deflater();
 		deflater.setInput(data);
@@ -24,6 +37,17 @@ public class CompressionManager {
 		return output;
 	}
 
+	/**
+	 * Decompresses the given data
+	 * 
+	 * @param data
+	 *          Data to decompress
+	 * @param logger
+	 *          Logger to use in case something goes wrong
+	 * @return Decompressed data
+	 * @throws IOException
+	 *           If the dataformat is invalid
+	 */
 	public static byte[] decompress(byte[] data, Logger logger) throws IOException {
 		Inflater inflater = new Inflater();
 		inflater.setInput(data);

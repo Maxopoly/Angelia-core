@@ -30,4 +30,9 @@ public class NBTFloat extends NBTElement {
 		return ID;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof NBTFloat && ((NBTFloat) o).value == value;
+	}
+
 }

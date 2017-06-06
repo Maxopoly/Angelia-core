@@ -22,6 +22,10 @@ public class NBTList<E extends NBTElement> extends NBTElement implements Iterabl
 		elements.add(element);
 	}
 
+	public E getElement(int index) {
+		return elements.get(index);
+	}
+
 	public int getLength() {
 		return elements.size();
 	}
@@ -66,4 +70,26 @@ public class NBTList<E extends NBTElement> extends NBTElement implements Iterabl
 		return ID;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof NBTList)) {
+			return false;
+		}
+		NBTList<E> other;
+		try {
+			other = (NBTList<E>) o;
+		} catch (ClassCastException e) {
+			// if anyone actually knows how to check whether generic are equal let me now, because I dont
+			return false;
+		}
+		if (getLength() != other.getLength()) {
+			return false;
+		}
+		for (int i = 0; i < getLength(); i++) {
+			if (!other.getElement(i).equals(getElement(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
 }

@@ -43,4 +43,28 @@ public class ItemStack {
 		return tag;
 	}
 
+	/**
+	 * @return Whether this instance represents an empty item slot
+	 */
+	public boolean isEmpty() {
+		return id == -1;
+	}
+
+	@Override
+	public String toString() {
+		return amount + " " + id + ":" + damage;
+	}
+
+	/**
+	 * Checks whether the type of item is equals and ignores the amount
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof ItemStack)) {
+			return false;
+		}
+		ItemStack is = (ItemStack) o;
+		return is.id == id && is.damage == damage && tag.equals(is.tag);
+	}
+
 }

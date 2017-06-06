@@ -33,4 +33,7 @@ public abstract class NBTElement {
 
 	public abstract byte getID();
 
+	@Override
+	public abstract boolean equals(Object o);
+
 }

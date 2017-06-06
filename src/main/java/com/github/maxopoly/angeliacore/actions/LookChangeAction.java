@@ -1,10 +1,9 @@
 package com.github.maxopoly.angeliacore.actions;
 
-import com.github.maxopoly.angeliacore.model.Location;
-
-import com.github.maxopoly.angeliacore.model.PlayerStatus;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionAndLookPacket;
+import com.github.maxopoly.angeliacore.model.Location;
+import com.github.maxopoly.angeliacore.model.PlayerStatus;
 import java.io.IOException;
 
 public class LookChangeAction extends AbstractAction {
@@ -40,7 +39,6 @@ public class LookChangeAction extends AbstractAction {
 		this.totalTicksToTake = ticksToTake;
 		this.ticksLeft = ticksToTake;
 		Location loc = connection.getPlayerStatus().getHeadLocation();
-		System.out.println(loc.toString());
 		double deltaX = loc.getX() - offSet.getX();
 		double deltaY = loc.getY() - offSet.getY();
 		double deltaZ = loc.getZ() - offSet.getZ();
@@ -57,8 +55,6 @@ public class LookChangeAction extends AbstractAction {
 		if (yaw > 180) {
 			yaw -= 360;
 		}
-		System.out.println(offSet.toString());
-		System.out.println(yaw + " " + pitch);
 		yawPerTick = (float) (yaw - loc.getYaw()) / ticksToTake;
 		pitchPerTick = (float) (pitch - loc.getPitch()) / ticksToTake;
 
@@ -72,7 +68,6 @@ public class LookChangeAction extends AbstractAction {
 		PlayerStatus status = connection.getPlayerStatus();
 		status.updateLookingDirection(status.getLocation().getYaw() + yawPerTick, status.getLocation().getPitch()
 				+ pitchPerTick);
-		System.out.println(status.getLocationString());
 		try {
 			PlayerPositionAndLookPacket packet = new PlayerPositionAndLookPacket(status.getLocation(), true);
 			connection.sendPacket(packet);

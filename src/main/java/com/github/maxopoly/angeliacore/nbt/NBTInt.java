@@ -30,4 +30,9 @@ public class NBTInt extends NBTElement {
 		return ID;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof NBTInt && ((NBTInt) o).value == value;
+	}
+
 }

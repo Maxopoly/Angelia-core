@@ -19,9 +19,10 @@ public class WindowItemsPacketHandler extends AbstractIncomingPacketHandler {
 			ItemStack[] items = new ItemStack[count];
 			for (int i = 0; i < count; i++) {
 				items[i] = packet.readItemStack();
+				System.out.println("Setting " + items[i].toString() + " for " + i);
 			}
 			if (windowID == 0) {
-				connection.getPlayerStatus().getInventory().setSlots(items);
+				connection.getPlayerStatus().getPlayerInventory().setSlots(items);
 			}
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse window items packet", e);

@@ -1,6 +1,7 @@
 package com.github.maxopoly.angeliacore.packet;
 
 import com.github.maxopoly.angeliacore.model.ItemStack;
+import com.github.maxopoly.angeliacore.model.Location;
 import com.github.maxopoly.angeliacore.nbt.NBTCompound;
 import com.github.maxopoly.angeliacore.nbt.NBTParser;
 import java.io.IOException;
@@ -138,6 +139,19 @@ public class ReadOnlyPacket {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Parses an encoded position, only including flat integer coords for x, y and z
+	 * 
+	 * @return
+	 */
+	public Location readPosition() throws EndOfPacketException {
+		long val = readLong();
+		int x = (int) (val >> 38);
+		int y = (int) ((val >> 26) & 0xFFF);
+		int z = (int) (val << 38 >> 38);
+		return new Location(x, y, z);
 	}
 
 	/**

@@ -29,4 +29,9 @@ public class NBTLong extends NBTElement {
 	public byte getID() {
 		return ID;
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof NBTLong && ((NBTLong) o).value == value;
+	}
 }

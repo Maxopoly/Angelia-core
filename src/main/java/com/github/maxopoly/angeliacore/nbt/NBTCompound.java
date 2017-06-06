@@ -60,4 +60,9 @@ public class NBTCompound extends NBTElement {
 		return COMPOUND_START_ID;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof NBTCompound && ((NBTCompound) o).content.equals(content);
+	}
+
 }

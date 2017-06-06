@@ -1,20 +1,20 @@
 package com.github.maxopoly.angeliacore.actions;
 
-import com.github.maxopoly.angeliacore.model.Location;
-
-import com.github.maxopoly.angeliacore.model.PlayerStatus;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionAndLookPacket;
+import com.github.maxopoly.angeliacore.model.Location;
+import com.github.maxopoly.angeliacore.model.PlayerStatus;
 import java.io.IOException;
 
 public class MovementAction extends AbstractAction {
 
 	private Location destination;
 	private double movementSpeed;
-	private int ticksPerSecond;
+	private double ticksPerSecond;
 	private final static double errorMargin = 0.001;
+	public static final double SPRINTING_SPEED = 5.4;
 
-	public MovementAction(ServerConnection connection, Location desto, double movementSpeed, int ticksPerSecond) {
+	public MovementAction(ServerConnection connection, Location desto, double movementSpeed, double ticksPerSecond) {
 		super(connection);
 		this.destination = desto;
 		this.movementSpeed = movementSpeed;
@@ -30,7 +30,7 @@ public class MovementAction extends AbstractAction {
 	 *          The speed at which the player is supposed to move
 	 * @return
 	 */
-	public Location getNextLocation(Location current, double movementSpeed, int ticksPerSecond) {
+	public Location getNextLocation(Location current, double movementSpeed, double ticksPerSecond) {
 		double xDiff = destination.getX() - current.getX();
 		double zDiff = destination.getZ() - current.getZ();
 		// TODO y?

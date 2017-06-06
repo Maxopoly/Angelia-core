@@ -29,4 +29,9 @@ public class NBTDouble extends NBTElement {
 	public byte getID() {
 		return ID;
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof NBTDouble && ((NBTDouble) o).value == value;
+	}
 }

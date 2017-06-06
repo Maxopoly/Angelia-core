@@ -46,6 +46,35 @@ public class Location {
 	}
 
 	/**
+	 * Drops yaw and pitch and rounds all coordinates to integers
+	 * 
+	 * @return
+	 */
+	public Location toBlockLocation() {
+		return new Location((int) x, (int) y, (int) z);
+	}
+
+	/**
+	 * If this location represents a block (using full integer coords), then this method will return the center of the
+	 * block
+	 * 
+	 * @return Block center
+	 */
+	public Location getBlockCenter() {
+		return new Location(x + 0.5, y + 0.5, z + 0.5, yaw, pitch);
+	}
+
+	/**
+	 * If this location represents a block (using full integer coords), then this method will return the center of the
+	 * block, while leaving y unchanged
+	 * 
+	 * @return Block center only for the x and z coordinate
+	 */
+	public Location getBlockCenterXZ() {
+		return new Location(x + 0.5, y, z + 0.5, yaw, pitch);
+	}
+
+	/**
 	 * @return current yaw, used to calculate the direction the entity is facing
 	 */
 	public float getYaw() {

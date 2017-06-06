@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.logging.log4j.Logger;
 
 public class EventBroadcaster {
@@ -20,7 +21,7 @@ public class EventBroadcaster {
 		this.logger = logger;
 	}
 
-	public void registerListener(AngeliaListener listener) {
+	public synchronized void registerListener(AngeliaListener listener) {
 		for (Method method : listener.getClass().getMethods()) {
 			if (!Modifier.isPublic(method.getModifiers())) {
 				// method should be public for any outside use case
@@ -60,7 +61,7 @@ public class EventBroadcaster {
 		}
 	}
 
-	public void broadcast(AngeliaEvent e) {
+	public synchronized void broadcast(AngeliaEvent e) {
 		List<MethodListenerTuple> listeners = listenerMapping.get(e.getClass());
 		if (listeners == null) {
 			return;
@@ -72,6 +73,19 @@ public class EventBroadcaster {
 				// catching just any kind of exception isnt nice behavior, but this is where code outside of the core will run
 				// and we dont want the exceptions of that code to mess with the core
 				logger.error("Executing listener in class " + tuple.listener.getClass() + " threw exception ", ex);
+			}
+		}
+	}
+
+	public synchronized void unregisterListener(AngeliaListener lis) {
+		for (Entry<Class<? extends AngeliaEvent>, List<MethodListenerTuple>> entry : listenerMapping.entrySet()) {
+			List<MethodListenerTuple> currList = entry.getValue();
+			for (int i = 0; i < currList.size(); i++) {
+				MethodListenerTuple curr = currList.get(i);
+				if (curr.listener == lis) {
+					currList.remove(curr);
+					i--;
+				}
 			}
 		}
 	}

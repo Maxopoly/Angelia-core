@@ -25,4 +25,9 @@ public class NBTByte extends NBTElement {
 		return ID;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof NBTByte && ((NBTByte) o).value == value;
+	}
+
 }

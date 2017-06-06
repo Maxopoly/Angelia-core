@@ -8,6 +8,7 @@ import com.github.maxopoly.angeliacore.connection.play.packets.in.HealthChangeHa
 import com.github.maxopoly.angeliacore.connection.play.packets.in.KeepAlivePacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.PlayerPositionLookPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.SetSlotPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.TransActionConfirmationPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.WindowItemsPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.XPChangeHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerStatePacket;
@@ -31,6 +32,9 @@ public class Heartbeat extends TimerTask {
 		registerAllHandler();
 	}
 
+	/**
+	 * Used to setup all native handlers for incoming packets
+	 */
 	private void registerAllHandler() {
 		registerPacketHandler(new KeepAlivePacketHandler(connection));
 		registerPacketHandler(new PlayerPositionLookPacketHandler(connection));
@@ -40,8 +44,17 @@ public class Heartbeat extends TimerTask {
 		registerPacketHandler(new DisconnectPacketHandler(connection));
 		registerPacketHandler(new WindowItemsPacketHandler(connection));
 		registerPacketHandler(new SetSlotPacketHandler(connection));
+		registerPacketHandler(new TransActionConfirmationPacketHandler(connection));
+		// no use for block break animation right now, as it only tells us about other peoples breaking
+		// registerPacketHandler(new BlockBreakAnimationPacketHandler(connection));
 	}
 
+	/**
+	 * Handles an incoming packet by forwarding it to the right handler based on it's id, if one exists
+	 * 
+	 * @param packet
+	 *          Packet to handle
+	 */
 	private void processPacket(ReadOnlyPacket packet) {
 		int packetID = packet.getPacketID();
 		AbstractIncomingPacketHandler properHandler = handlerMap.get(packetID);
@@ -51,15 +64,31 @@ public class Heartbeat extends TimerTask {
 		// we just skip the packet if we dont have a proper handler
 	}
 
+	/**
+	 * Registers a new packet handler for a specific packet id
+	 * 
+	 * @param handler
+	 *          Handler to register
+	 */
 	private void registerPacketHandler(AbstractIncomingPacketHandler handler) {
 		// handler should only be registered in the method for registering all handlers, not during runtime
 		handlerMap.put(handler.getIDHandled(), handler);
 	}
 
+	/**
+	 * Checks whether an explicit handler exists for the given packet id
+	 * 
+	 * @param packetID
+	 *          ID to check for
+	 * @return True if a handler was registered for the given ID, false otherwise
+	 */
 	public boolean hasHandler(int packetID) {
 		return handlerMap.get(packetID) != null;
 	}
 
+	/**
+	 * Updates the timestamp of the last contact with the server to the current time
+	 */
 	public void updateKeepAlive() {
 		lastKeepAlive = System.currentTimeMillis();
 	}

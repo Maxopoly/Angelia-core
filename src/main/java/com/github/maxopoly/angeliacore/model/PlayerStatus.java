@@ -1,7 +1,12 @@
 package com.github.maxopoly.angeliacore.model;
 
+import com.github.maxopoly.angeliacore.connection.ServerConnection;
+import com.github.maxopoly.angeliacore.event.events.HungerChangeEvent;
+import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
 import java.text.DecimalFormat;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class PlayerStatus {
 
@@ -9,8 +14,9 @@ public class PlayerStatus {
 
 	private boolean initialized = false;
 
+	private Map<Byte, Inventory> openInventories;
+
 	private Location location;
-	private PlayerInventory inventory;
 	private int selectedHotbarSlot;
 
 	private int totalEXP;
@@ -23,10 +29,14 @@ public class PlayerStatus {
 
 	private DecimalFormat format;
 
-	public PlayerStatus() {
+	private ServerConnection connection;
+
+	public PlayerStatus(ServerConnection connection) {
 		this.location = new Location(0, 0, 0);
 		this.format = new DecimalFormat("#.##");
-		this.inventory = new PlayerInventory();
+		this.openInventories = new TreeMap<Byte, Inventory>();
+		this.openInventories.put((byte) 0, new PlayerInventory());
+		this.connection = connection;
 	}
 
 	public void updateXP(float progress, int level, int totalXP) {
@@ -51,6 +61,9 @@ public class PlayerStatus {
 
 	public void updateHealth(float health, int hunger, float saturation) {
 		this.health = health;
+		if (this.hunger != hunger) {
+			connection.getEventHandler().broadcast(new HungerChangeEvent(this.hunger, hunger));
+		}
 		this.hunger = hunger;
 		this.saturation = saturation;
 	}
@@ -112,8 +125,20 @@ public class PlayerStatus {
 	/**
 	 * @return Players inventory
 	 */
-	public PlayerInventory getInventory() {
-		return inventory;
+	public PlayerInventory getPlayerInventory() {
+		return (PlayerInventory) openInventories.get((byte) 0);
+	}
+
+	public Inventory getInventory(int id) {
+		if (id == -1) {
+			// -1 is used to access the cursor slot, so we can just use the player inventory, which will always be present
+			id = 0;
+		}
+		return openInventories.get(id);
+	}
+
+	public void addInventory(Inventory inv, byte id) {
+		openInventories.put(id, inv);
 	}
 
 	/**

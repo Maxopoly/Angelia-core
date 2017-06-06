@@ -30,4 +30,9 @@ public class NBTShort extends NBTElement {
 		return ID;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof NBTShort && ((NBTShort) o).value == value;
+	}
+
 }

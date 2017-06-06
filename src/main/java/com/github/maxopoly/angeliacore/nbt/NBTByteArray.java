@@ -2,6 +2,7 @@ package com.github.maxopoly.angeliacore.nbt;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 public class NBTByteArray extends NBTElement {
 
@@ -40,5 +41,10 @@ public class NBTByteArray extends NBTElement {
 	@Override
 	public byte getID() {
 		return ID;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof NBTByteArray && Arrays.equals(((NBTByteArray) o).value, value);
 	}
 }

@@ -6,6 +6,7 @@ import com.github.maxopoly.angeliacore.connection.login.EncryptionHandler;
 import com.github.maxopoly.angeliacore.connection.login.GameJoinHandler;
 import com.github.maxopoly.angeliacore.connection.login.HandShake;
 import com.github.maxopoly.angeliacore.connection.play.Heartbeat;
+import com.github.maxopoly.angeliacore.connection.play.ItemTransactionManager;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.ClientSettingPacket;
 import com.github.maxopoly.angeliacore.encryption.AES_CFB8_Encrypter;
 import com.github.maxopoly.angeliacore.event.EventBroadcaster;
@@ -23,6 +24,11 @@ import java.util.Arrays;
 import java.util.Timer;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Represents a connection to a server. Attributes may contain invalid/null values before the connect() method was
+ * called and should only be accessed afterwards (except for constructor fields)
+ *
+ */
 public class ServerConnection {
 
 	private String serverAdress;
@@ -36,6 +42,7 @@ public class ServerConnection {
 	private EventBroadcaster eventHandler;
 	private ActionQueue actionQueue;
 	private Timer tickTimer;
+	private ItemTransactionManager transActionManager;
 
 	private boolean encryptionEnabled;
 	private boolean compressionEnabled;
@@ -47,6 +54,18 @@ public class ServerConnection {
 	private DataOutputStream output;
 	private boolean closed;
 
+	/**
+	 * Standard Constructor
+	 * 
+	 * @param adress
+	 *          IP or domain of the server
+	 * @param port
+	 *          Port of the server
+	 * @param logger
+	 *          Logger to use
+	 * @param auth
+	 *          Account authentication to use
+	 */
 	public ServerConnection(String adress, int port, Logger logger, AuthenticationHandler auth) {
 		this.serverAdress = adress;
 		this.port = port;
@@ -58,8 +77,19 @@ public class ServerConnection {
 		this.tickDelay = 50;
 		this.protocolVersion = -1;
 		this.eventHandler = new EventBroadcaster(logger);
+		this.transActionManager = new ItemTransactionManager();
 	}
 
+	/**
+	 * Constructor with the default port 25565
+	 * 
+	 * @param adress
+	 *          IP or domain of the server
+	 * @param logger
+	 *          Logger to use
+	 * @param auth
+	 *          Account authentication to use
+	 */
 	public ServerConnection(String adress, Logger logger, AuthenticationHandler auth) {
 		this(adress, 25565, logger, auth); // default port
 	}
@@ -83,7 +113,15 @@ public class ServerConnection {
 	}
 
 	/**
-	 * Takes all the steps from authenticating, over connecting up to setting up future packet handling
+	 * Does everything from 0 to 100 needed for a working connection to a server. Initially this checks whether the
+	 * provided account auth is still valid, refreshes it if needed and returns if it can't be refreshed. Next it
+	 * handshakes the server to get its protocol version, resets the connection and begin a new login handshake with the
+	 * retrieved protocol version. Note that no actual adjustments are made based on the protocol version sent by the
+	 * server, it's just copied and assumed to be our version. After the initial version handshake, we exchange encryption
+	 * details, authenticate the connection attempt against Yggdrassil's (minecraft auth) server, enable sync encryption,
+	 * enable compression if requested by the server, join the game and finally setup packet handlers for all kinds of
+	 * incoming packets. The packet handling happens in a freshly spawned thread, which also handles consuming actions
+	 * from the ActionQueue, this method will return once the connection is fully set up
 	 * 
 	 * @throws IOException
 	 *           If something goes wrong
@@ -131,8 +169,8 @@ public class ServerConnection {
 		// everything is handled by our standard packet handler
 		logger.info("Switching connection to play state");
 		playPacketHandler = new Heartbeat(this);
-		playerStatus = new PlayerStatus();
-		actionQueue = new ActionQueue();
+		playerStatus = new PlayerStatus(this);
+		actionQueue = new ActionQueue(this);
 		tickTimer = new Timer("Angelia tick");
 		tickTimer.schedule(playPacketHandler, tickDelay, tickDelay);
 		// still have to do this
@@ -242,11 +280,13 @@ public class ServerConnection {
 	}
 
 	public boolean dataAvailable() {
-		try {
-			return input.available() != 0;
-		} catch (IOException e) {
-			logger.error("Failed to check for available data", e);
-			return false;
+		synchronized (input) {
+			try {
+				return input.available() != 0;
+			} catch (IOException e) {
+				logger.error("Failed to check for available data", e);
+				return false;
+			}
 		}
 	}
 
@@ -301,6 +341,13 @@ public class ServerConnection {
 	}
 
 	/**
+	 * @return Manager for item transactions
+	 */
+	public ItemTransactionManager getItemTransActionManager() {
+		return transActionManager;
+	}
+
+	/**
 	 * @return Port used, 25565 is default
 	 */
 	public int getPort() {
@@ -327,5 +374,12 @@ public class ServerConnection {
 	 */
 	public EventBroadcaster getEventHandler() {
 		return eventHandler;
+	}
+
+	/**
+	 * @return How often the connection is ticked per second
+	 */
+	public double getTicksPerSecond() {
+		return 1 / (double) tickDelay;
 	}
 }
