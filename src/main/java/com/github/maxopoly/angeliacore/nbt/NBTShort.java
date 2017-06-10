@@ -35,4 +35,9 @@ public class NBTShort extends NBTElement {
 		return o instanceof NBTShort && ((NBTShort) o).value == value;
 	}
 
+	@Override
+	public NBTElement clone() {
+		return new NBTShort(name, value);
+	}
+
 }

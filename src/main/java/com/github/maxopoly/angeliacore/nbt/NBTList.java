@@ -15,6 +15,7 @@ public class NBTList<E extends NBTElement> extends NBTElement implements Iterabl
 
 	public NBTList(String name, byte type) {
 		super(name);
+		this.elements = new LinkedList<E>();
 		this.elementID = type;
 	}
 
@@ -79,7 +80,7 @@ public class NBTList<E extends NBTElement> extends NBTElement implements Iterabl
 		try {
 			other = (NBTList<E>) o;
 		} catch (ClassCastException e) {
-			// if anyone actually knows how to check whether generic are equal let me now, because I dont
+			// if anyone actually knows how to check whether generics are equal let me now, because I dont
 			return false;
 		}
 		if (getLength() != other.getLength()) {
@@ -91,5 +92,14 @@ public class NBTList<E extends NBTElement> extends NBTElement implements Iterabl
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public NBTElement clone() {
+		NBTList<E> list = new NBTList<E>(name, elementID);
+		for (E e : elements) {
+			list.add((E) e.clone());
+		}
+		return list;
 	}
 }

@@ -14,6 +14,7 @@ public class JoinGamePacketHandler extends AbstractIncomingPacketHandler {
 	public void handlePacket(ReadOnlyPacket packet) {
 		try {
 			int playerEntityID = packet.readSignedInt();
+			connection.getPlayerStatus().setEntityID(playerEntityID);
 			byte gameMode = packet.readUnsignedByte();
 			int dimension = packet.readSignedInt();
 			byte difficulty = packet.readUnsignedByte();

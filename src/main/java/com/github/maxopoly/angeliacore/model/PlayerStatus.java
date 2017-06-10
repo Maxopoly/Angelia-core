@@ -1,6 +1,7 @@
 package com.github.maxopoly.angeliacore.model;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
+import com.github.maxopoly.angeliacore.event.events.HealthChangeEvent;
 import com.github.maxopoly.angeliacore.event.events.HungerChangeEvent;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
@@ -26,6 +27,9 @@ public class PlayerStatus {
 	private float health;
 	private int hunger;
 	private float saturation;
+	private boolean midAir;
+
+	private int entityID;
 
 	private DecimalFormat format;
 
@@ -37,6 +41,7 @@ public class PlayerStatus {
 		this.openInventories = new TreeMap<Byte, Inventory>();
 		this.openInventories.put((byte) 0, new PlayerInventory());
 		this.connection = connection;
+		this.midAir = false;
 	}
 
 	public void updateXP(float progress, int level, int totalXP) {
@@ -60,6 +65,9 @@ public class PlayerStatus {
 	}
 
 	public void updateHealth(float health, int hunger, float saturation) {
+		if (this.health != health) {
+			connection.getEventHandler().broadcast(new HealthChangeEvent(this.health, health));
+		}
 		this.health = health;
 		if (this.hunger != hunger) {
 			connection.getEventHandler().broadcast(new HungerChangeEvent(this.hunger, hunger));
@@ -123,13 +131,30 @@ public class PlayerStatus {
 	}
 
 	/**
+	 * @return Whether the player is falling/flying
+	 */
+	public boolean isMidAir() {
+		return midAir;
+	}
+
+	/**
+	 * Sets the flying/falling state
+	 * 
+	 * @param air
+	 *          Whether the player is not on the ground
+	 */
+	public void setMidAir(boolean air) {
+		this.midAir = air;
+	}
+
+	/**
 	 * @return Players inventory
 	 */
 	public PlayerInventory getPlayerInventory() {
 		return (PlayerInventory) openInventories.get((byte) 0);
 	}
 
-	public Inventory getInventory(int id) {
+	public Inventory getInventory(byte id) {
 		if (id == -1) {
 			// -1 is used to access the cursor slot, so we can just use the player inventory, which will always be present
 			id = 0;
@@ -164,6 +189,17 @@ public class PlayerStatus {
 
 	public String getLocationString() {
 		return location.toString();
+	}
+
+	/**
+	 * @return The players entity id
+	 */
+	public int getEntityID() {
+		return entityID;
+	}
+
+	public void setEntityID(int id) {
+		this.entityID = id;
 	}
 
 	public String getHealthString() {

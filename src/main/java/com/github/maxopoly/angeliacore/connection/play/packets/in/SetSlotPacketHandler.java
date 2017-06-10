@@ -18,7 +18,6 @@ public class SetSlotPacketHandler extends AbstractIncomingPacketHandler {
 			short slot = packet.readSignedShort();
 			ItemStack is = packet.readItemStack();
 			if (windowID == 0) {
-				System.out.println("Setting " + is.toString() + " for " + slot);
 				connection.getPlayerStatus().getPlayerInventory().updateSlot(slot, is);
 			}
 		} catch (EndOfPacketException e) {

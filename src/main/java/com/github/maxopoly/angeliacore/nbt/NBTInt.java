@@ -35,4 +35,9 @@ public class NBTInt extends NBTElement {
 		return o instanceof NBTInt && ((NBTInt) o).value == value;
 	}
 
+	@Override
+	public NBTElement clone() {
+		return new NBTInt(name, value);
+	}
+
 }

@@ -9,10 +9,10 @@ import java.io.IOException;
  */
 public class PlayerStatePacket extends WriteOnlyPacket {
 
-	public PlayerStatePacket() throws IOException {
+	public PlayerStatePacket(boolean onGround) throws IOException {
 		super(0x0F);
 		// this bool specifies whether the client is on the ground or not
-		writeBoolean(true);
+		writeBoolean(onGround);
 	}
 
 }

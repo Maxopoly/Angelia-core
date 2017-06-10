@@ -2,6 +2,7 @@ package com.github.maxopoly.angeliacore.packet;
 
 import com.github.maxopoly.angeliacore.model.ItemStack;
 import com.github.maxopoly.angeliacore.model.Location;
+import com.github.maxopoly.angeliacore.model.Material;
 import com.github.maxopoly.angeliacore.nbt.NBTCompound;
 import com.github.maxopoly.angeliacore.nbt.NBTParser;
 import java.io.IOException;
@@ -95,14 +96,14 @@ public class ReadOnlyPacket {
 	public ItemStack readItemStack() throws EndOfPacketException {
 		short id = readSignedShort();
 		if (id == -1) {
-			return new ItemStack(id);
+			return new ItemStack(Material.EMPTY_SLOT);
 		}
 		byte count = readUnsignedByte();
 		short dmg = readSignedShort();
 		NBTParser parser = new NBTParser(Arrays.copyOfRange(data, dataPointer, data.length));
 		NBTCompound compound = parser.parse();
 		dataPointer += parser.getLength();
-		return new ItemStack(id, count, dmg, compound);
+		return new ItemStack(Material.getByID(id), count, dmg, compound);
 	}
 
 	public byte[] readByteArray() throws EndOfPacketException {

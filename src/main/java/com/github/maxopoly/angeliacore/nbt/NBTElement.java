@@ -34,6 +34,9 @@ public abstract class NBTElement {
 	public abstract byte getID();
 
 	@Override
+	public abstract NBTElement clone();
+
+	@Override
 	public abstract boolean equals(Object o);
 
 }

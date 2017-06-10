@@ -2,7 +2,7 @@ package com.github.maxopoly.angeliacore.model;
 
 import java.text.DecimalFormat;
 
-public class Location {
+public final class Location {
 
 	private static DecimalFormat format = new DecimalFormat("#.##");
 
@@ -46,12 +46,48 @@ public class Location {
 	}
 
 	/**
+	 * @return x coordinate rounded down to an int
+	 */
+	public int getBlockX() {
+		return (int) Math.floor(x);
+	}
+
+	/**
+	 * @return y coordinate rounded down to an int
+	 */
+	public int getBlockY() {
+		return (int) Math.floor(y);
+	}
+
+	/**
+	 * @return z coordinate rounded down to an int
+	 */
+	public int getBlockZ() {
+		return (int) Math.floor(z);
+	}
+
+	/**
 	 * Drops yaw and pitch and rounds all coordinates to integers
 	 * 
 	 * @return
 	 */
 	public Location toBlockLocation() {
-		return new Location((int) x, (int) y, (int) z);
+		return new Location(Math.floor(x), Math.floor(y), Math.floor(z), 0.0f, 0.0f);
+	}
+
+	/**
+	 * Returns a copy of this location with each coordinate modified by the given amount
+	 * 
+	 * @param x
+	 *          Number to add to x coord
+	 * @param y
+	 *          Number to add to y coord
+	 * @param z
+	 *          Number to add to z coord
+	 * @return Modified location
+	 */
+	public Location relativeBlock(double x, double y, double z) {
+		return new Location(this.x + x, this.y + y, this.z + z, this.yaw, this.pitch);
 	}
 
 	/**
@@ -95,6 +131,16 @@ public class Location {
 		sb.append(", Yaw: " + format.format(yaw));
 		sb.append(", Pitch: " + format.format(pitch));
 		return sb.toString();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Location)) {
+			return false;
+		}
+		Location loc = (Location) o;
+		// view and pitch dont really matter for location comparison
+		return loc.x == x && loc.y == y && loc.z == z;
 	}
 
 }

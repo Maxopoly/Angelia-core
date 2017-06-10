@@ -15,11 +15,11 @@ public class ActionQueue {
 		this.connection = connection;
 	}
 
-	public void queue(AbstractAction action) {
+	public synchronized void queue(AbstractAction action) {
 		actions.add(action);
 	}
 
-	public void tick() {
+	public synchronized void tick() {
 		if (actions.size() == 0) {
 			return;
 		}
@@ -31,5 +31,9 @@ public class ActionQueue {
 				connection.getEventHandler().broadcast(new ActionQueueEmptiedEvent());
 			}
 		}
+	}
+
+	public synchronized void clear() {
+		actions.clear();
 	}
 }

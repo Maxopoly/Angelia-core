@@ -1,6 +1,6 @@
 package com.github.maxopoly.angeliacore.model;
 
-public class Vector {
+public final class Vector {
 
 	private double x;
 	private double y;

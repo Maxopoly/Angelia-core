@@ -30,4 +30,9 @@ public class NBTByte extends NBTElement {
 		return o instanceof NBTByte && ((NBTByte) o).value == value;
 	}
 
+	@Override
+	public NBTElement clone() {
+		return new NBTByte(name, value);
+	}
+
 }

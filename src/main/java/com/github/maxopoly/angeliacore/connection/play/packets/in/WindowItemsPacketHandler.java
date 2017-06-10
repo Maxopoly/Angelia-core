@@ -19,7 +19,6 @@ public class WindowItemsPacketHandler extends AbstractIncomingPacketHandler {
 			ItemStack[] items = new ItemStack[count];
 			for (int i = 0; i < count; i++) {
 				items[i] = packet.readItemStack();
-				System.out.println("Setting " + items[i].toString() + " for " + i);
 			}
 			if (windowID == 0) {
 				connection.getPlayerStatus().getPlayerInventory().setSlots(items);

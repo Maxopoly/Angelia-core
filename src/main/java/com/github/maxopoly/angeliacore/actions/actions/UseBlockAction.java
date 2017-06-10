@@ -1,31 +1,28 @@
-package com.github.maxopoly.angeliacore.actions;
+package com.github.maxopoly.angeliacore.actions.actions;
 
+import com.github.maxopoly.angeliacore.actions.AbstractAction;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.connection.play.packets.out.BlockPlacementPacket;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.BreakAnimationPacket;
 import com.github.maxopoly.angeliacore.model.Location;
 import java.io.IOException;
 
-public class BlockPlaceAction extends AbstractAction {
+public class UseBlockAction extends AbstractAction {
 
 	private Location location;
-	private int face;
 
-	public BlockPlaceAction(ServerConnection connection, Location loc, int face) {
+	public UseBlockAction(ServerConnection connection, Location loc) {
 		super(connection);
 		this.location = loc;
-		this.face = face;
 	}
 
 	@Override
 	public void execute() {
 		try {
+			new ChangeViewingDirection(connection, location).execute();
 			connection.sendPacket(new BreakAnimationPacket());
-			connection.sendPacket(new BlockPlacementPacket(location, face));
 		} catch (IOException e) {
-			connection.getLogger().error("Failed to send blockplace packet", e);
+			connection.getLogger().error("Failed to send block usage", e);
 		}
-
 	}
 
 	@Override

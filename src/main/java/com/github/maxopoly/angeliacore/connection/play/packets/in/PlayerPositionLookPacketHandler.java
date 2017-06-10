@@ -1,10 +1,10 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
-import com.github.maxopoly.angeliacore.model.Location;
-
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionAndLookPacket;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.TeleportConfirmPacket;
+import com.github.maxopoly.angeliacore.event.events.TeleportByServerEvent;
+import com.github.maxopoly.angeliacore.model.Location;
 import com.github.maxopoly.angeliacore.packet.EndOfPacketException;
 import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import java.io.IOException;
@@ -47,9 +47,11 @@ public class PlayerPositionLookPacketHandler extends AbstractIncomingPacketHandl
 			}
 			connection.getPlayerStatus().updatePosition(x, y, z);
 			connection.getPlayerStatus().updateLookingDirection(yaw, pitch);
+			Location dictatedLocation = new Location(x, y, z, yaw, pitch);
 			int teleID = packet.readVarInt();
 			connection.sendPacket(new TeleportConfirmPacket(teleID));
 			connection.sendPacket(new PlayerPositionAndLookPacket(x, y, z, yaw, pitch, true));
+			connection.getEventHandler().broadcast(new TeleportByServerEvent(status, dictatedLocation));
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse PlayerPositionAndLookPacket", e);
 		} catch (IOException e) {

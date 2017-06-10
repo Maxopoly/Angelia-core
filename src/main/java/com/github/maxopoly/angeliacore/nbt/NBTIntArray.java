@@ -42,4 +42,9 @@ public class NBTIntArray extends NBTElement {
 	public boolean equals(Object o) {
 		return o instanceof NBTIntArray && Arrays.equals(((NBTIntArray) o).value, value);
 	}
+
+	@Override
+	public NBTElement clone() {
+		return new NBTIntArray(name, Arrays.copyOf(value, value.length));
+	}
 }

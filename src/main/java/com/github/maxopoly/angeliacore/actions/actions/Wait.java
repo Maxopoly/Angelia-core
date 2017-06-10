@@ -1,12 +1,14 @@
-package com.github.maxopoly.angeliacore.actions;
+package com.github.maxopoly.angeliacore.actions.actions;
+
+import com.github.maxopoly.angeliacore.actions.AbstractAction;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 
-public class WaitingAction extends AbstractAction {
+public class Wait extends AbstractAction {
 
 	private int ticksLeft;
 
-	public WaitingAction(ServerConnection connection, int ticksToWait) {
+	public Wait(ServerConnection connection, int ticksToWait) {
 		super(connection);
 		ticksLeft = ticksToWait;
 	}

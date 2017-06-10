@@ -1,18 +1,12 @@
 package com.github.maxopoly.angeliacore.model.inventory;
 
 import com.github.maxopoly.angeliacore.model.ItemStack;
+import java.util.Arrays;
 
-public class PlayerInventory extends Inventory {
+public class PlayerInventory extends Inventory implements CraftingInventory {
 
 	public PlayerInventory() {
 		super(46);
-	}
-
-	public ItemStack getHotbar(int slot) {
-		if (slot < 0 || slot > 8) {
-			throw new IllegalArgumentException("Slot must be between 0 and 8");
-		}
-		return slots[36 + slot];
 	}
 
 	public void setOffHand(ItemStack is) {
@@ -23,22 +17,55 @@ public class PlayerInventory extends Inventory {
 		return slots[45];
 	}
 
-	/**
-	 * Looks for the given item in any slot of the player hotbar. If the item is found, the index of the first find is
-	 * returned, otherwise -1 is returned. Note that in other context the slot -1 might stand for the cursor, but that's
-	 * not the case here. Note that the hotbar slot (0-8) is returned here and not the total slot!
-	 * 
-	 * @param is
-	 *          ItemStack to look for
-	 * @return Hotbar slot of the first find of the stack or -1 if none was found
-	 */
-	public short findHotbarSlot(ItemStack is) {
-		for (short i = 0; i < 9; i++) {
-			if (getHotbar(i).equals(is)) {
-				return i;
-			}
+	@Override
+	public short translateStorageSlotToTotal(int slot) {
+		if (slot < 0 || slot > 26) {
+			throw new IllegalArgumentException("Invalid slot " + slot + " is not a storage slot");
 		}
-		return -1;
+		return (short) (slot + 9);
+	}
+
+	@Override
+	public short translateHotbarToTotal(int slot) {
+		if (slot < 0 || slot > 8) {
+			throw new IllegalArgumentException("Invalid slot " + slot + " is not a hotbar slot");
+		}
+		return (short) (slot + 36);
+	}
+
+	@Override
+	public DummyInventory getHotbar() {
+		return new DummyInventory(Arrays.copyOfRange(slots, 36, 44));
+	}
+
+	@Override
+	public DummyInventory getPlayerStorage() {
+		return new DummyInventory(Arrays.copyOfRange(slots, 9, 44));
+	}
+
+	@Override
+	public DummyInventory getPlayerStorageWithoutHotbar() {
+		return new DummyInventory(Arrays.copyOfRange(slots, 9, 35));
+	}
+
+	@Override
+	public DummyInventory getCraftingSlots() {
+		return new DummyInventory(Arrays.copyOfRange(slots, 1, 4));
+	}
+
+	@Override
+	public ItemStack getCraftingResult() {
+		return slots[0];
+	}
+
+	@Override
+	public short getCraftingResultID() {
+		return 0;
+	}
+
+	@Override
+	public short translateCraftingSlotToTotal(int slot) {
+		return (short) (slot + 1);
 	}
 
 }

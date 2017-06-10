@@ -38,4 +38,9 @@ public class NBTString extends NBTElement {
 	public boolean equals(Object o) {
 		return o instanceof NBTString && ((NBTString) o).value.equals(value);
 	}
+
+	@Override
+	public NBTElement clone() {
+		return new NBTString(name, value);
+	}
 }

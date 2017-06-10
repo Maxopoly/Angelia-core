@@ -1,4 +1,6 @@
-package com.github.maxopoly.angeliacore.actions;
+package com.github.maxopoly.angeliacore.actions.actions;
+
+import com.github.maxopoly.angeliacore.actions.AbstractAction;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionAndLookPacket;
@@ -6,7 +8,7 @@ import com.github.maxopoly.angeliacore.model.Location;
 import com.github.maxopoly.angeliacore.model.PlayerStatus;
 import java.io.IOException;
 
-public class LookChangeAction extends AbstractAction {
+public class ChangeViewingDirection extends AbstractAction {
 
 	private Location target;
 	private int totalTicksToTake;
@@ -21,7 +23,7 @@ public class LookChangeAction extends AbstractAction {
 	 * @param offset
 	 *          The block the player should be looking at
 	 */
-	public LookChangeAction(ServerConnection connection, Location offset) {
+	public ChangeViewingDirection(ServerConnection connection, Location offset) {
 		this(connection, offset, 1);
 	}
 
@@ -33,7 +35,7 @@ public class LookChangeAction extends AbstractAction {
 	 * @param ticksToTake
 	 *          Time that should be taken to turn the head
 	 */
-	public LookChangeAction(ServerConnection connection, Location offSet, int ticksToTake) {
+	public ChangeViewingDirection(ServerConnection connection, Location offSet, int ticksToTake) {
 		super(connection);
 		this.target = offSet;
 		this.totalTicksToTake = ticksToTake;
@@ -46,9 +48,8 @@ public class LookChangeAction extends AbstractAction {
 		deltaX /= radius;
 		deltaY /= radius;
 		deltaZ /= radius;
-		double yaw = Math.atan2((-1) * deltaZ, (-1) * deltaX) / Math.PI * 180.0;
+		double yaw = Math.atan2(deltaX, -deltaZ) / Math.PI * 180.0;
 		double pitch = Math.asin(deltaY) / Math.PI * 180.0;
-		yaw -= 90;
 		if (yaw < -180) {
 			yaw += 360;
 		}

@@ -34,4 +34,9 @@ public class NBTLong extends NBTElement {
 	public boolean equals(Object o) {
 		return o instanceof NBTLong && ((NBTLong) o).value == value;
 	}
+
+	@Override
+	public NBTElement clone() {
+		return new NBTLong(name, value);
+	}
 }

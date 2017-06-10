@@ -1,7 +1,5 @@
 package com.github.maxopoly.angeliacore.nbt;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -25,14 +23,14 @@ public class NBTParser {
 		if (startingByte != NBTCompound.COMPOUND_START_ID) {
 			throw new IllegalArgumentException("Compound started with invalid id " + startingByte);
 		}
-		return parseCompound(false);
+		return parseNBTCompound(false);
 	}
 
 	public int getLength() {
 		return dataPointer;
 	}
 
-	private NBTCompound parseCompound(boolean inList) {
+	private NBTCompound parseNBTCompound(boolean inList) {
 		String name = inList ? null : readString();
 		NBTCompound compound = new NBTCompound(name);
 		boolean endFound = false;
@@ -71,7 +69,7 @@ public class NBTParser {
 					foundElement = parseNBTList(false);
 					break;
 				case NBTCompound.COMPOUND_START_ID:
-					foundElement = parseCompound(false);
+					foundElement = parseNBTCompound(false);
 					break;
 				case NBTIntArray.ID:
 					foundElement = parseNBTIntArray(false);
@@ -153,8 +151,9 @@ public class NBTParser {
 		if (length < 0) {
 			length = 0;
 		}
-		Method parsingMethod = null;
-		try {
+		for (int i = 0; i < length; i++) {
+			NBTElement parsedElement = null;
+
 			switch (typeID) {
 				case NBTCompound.COMPOUND_END_ID:
 					if (length > 0) {
@@ -162,55 +161,40 @@ public class NBTParser {
 					}
 					break;
 				case NBTByte.ID:
-					parsingMethod = this.getClass().getMethod("parseNBTByte", boolean.class);
+					parsedElement = parseNBTByte(true);
 					break;
 				case NBTShort.ID:
-					parsingMethod = this.getClass().getMethod("parseNBTShort", boolean.class);
+					parsedElement = parseNBTShort(true);
 					break;
 				case NBTInt.ID:
-					parsingMethod = this.getClass().getMethod("parseNBTInt", boolean.class);
+					parsedElement = parseNBTInt(true);
 					break;
 				case NBTLong.ID:
-					parsingMethod = this.getClass().getMethod("parseNBTLong", boolean.class);
+					parsedElement = parseNBTLong(true);
 					break;
 				case NBTFloat.ID:
-					parsingMethod = this.getClass().getMethod("parseNBTFloat", boolean.class);
+					parsedElement = parseNBTFloat(true);
 					break;
 				case NBTDouble.ID:
-					parsingMethod = this.getClass().getMethod("parseNBTDouble", boolean.class);
+					parsedElement = parseNBTDouble(true);
 					break;
 				case NBTByteArray.ID:
-					parsingMethod = this.getClass().getMethod("parseNBTByteArray", boolean.class);
+					parsedElement = parseNBTByteArray(true);
 					break;
 				case NBTString.ID:
-					parsingMethod = this.getClass().getMethod("parseNBTString", boolean.class);
+					parsedElement = parseNBTString(true);
 					break;
 				case NBTList.ID:
-					parsingMethod = this.getClass().getMethod("parseNBTList", boolean.class);
+					parsedElement = parseNBTList(true);
 					break;
 				case NBTCompound.COMPOUND_START_ID:
-					parsingMethod = this.getClass().getMethod("parseCompound", boolean.class);
+					parsedElement = parseNBTCompound(true);
 					break;
 				case NBTIntArray.ID:
-					parsingMethod = this.getClass().getMethod("parseNBTIntArray", boolean.class);
+					parsedElement = parseNBTIntArray(true);
 					break;
 				default:
 					throw new IllegalArgumentException("NBT Type id " + typeID + " is not valid");
-			}
-		} catch (NoSuchMethodException e) {
-			// should never happen
-			e.printStackTrace();
-		}
-		for (int i = 0; i < length; i++) {
-			NBTElement parsedElement = null;
-			try {
-				parsedElement = (NBTElement) parsingMethod.invoke(this, true);
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
 			}
 			if (parsedElement != null) {
 				list.add(parsedElement);

@@ -1,5 +1,6 @@
-package com.github.maxopoly.angeliacore.actions;
+package com.github.maxopoly.angeliacore.actions.actions.inventory;
 
+import com.github.maxopoly.angeliacore.actions.AbstractAction;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.ItemTransactionManager;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.ClickWindowPacket;
@@ -13,7 +14,7 @@ import java.io.IOException;
  * action, but does not update the client side model, which has to be done by whatever is using this class
  *
  */
-public class InventoryClickAction extends AbstractAction {
+public class ClickInventory extends AbstractAction {
 
 	private byte windowID;
 	private short slot;
@@ -25,7 +26,7 @@ public class InventoryClickAction extends AbstractAction {
 	private boolean done;
 	private short clickID;
 
-	public InventoryClickAction(ServerConnection connection, byte windowID, short slot, byte button, int mode,
+	public ClickInventory(ServerConnection connection, byte windowID, short slot, byte button, int mode,
 			ItemStack clickedSlot) {
 		super(connection);
 		this.windowID = windowID;
@@ -33,6 +34,7 @@ public class InventoryClickAction extends AbstractAction {
 		this.button = button;
 		this.mode = mode;
 		this.done = false;
+		this.clickedSlot = clickedSlot;
 	}
 
 	@Override

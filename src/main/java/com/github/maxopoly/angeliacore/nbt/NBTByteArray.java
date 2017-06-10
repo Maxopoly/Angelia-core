@@ -47,4 +47,9 @@ public class NBTByteArray extends NBTElement {
 	public boolean equals(Object o) {
 		return o instanceof NBTByteArray && Arrays.equals(((NBTByteArray) o).value, value);
 	}
+
+	@Override
+	public NBTElement clone() {
+		return new NBTByteArray(name, Arrays.copyOf(value, value.length));
+	}
 }

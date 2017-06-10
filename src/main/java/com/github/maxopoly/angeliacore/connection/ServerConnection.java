@@ -168,8 +168,8 @@ public class ServerConnection {
 		// if we reach this point, we successfully logged in and the connection state switches to PLAY, so from now on
 		// everything is handled by our standard packet handler
 		logger.info("Switching connection to play state");
-		playPacketHandler = new Heartbeat(this);
 		playerStatus = new PlayerStatus(this);
+		playPacketHandler = new Heartbeat(this);
 		actionQueue = new ActionQueue(this);
 		tickTimer = new Timer("Angelia tick");
 		tickTimer.schedule(playPacketHandler, tickDelay, tickDelay);
@@ -380,6 +380,6 @@ public class ServerConnection {
 	 * @return How often the connection is ticked per second
 	 */
 	public double getTicksPerSecond() {
-		return 1 / (double) tickDelay;
+		return 1000 / (double) tickDelay;
 	}
 }

@@ -35,4 +35,9 @@ public class NBTFloat extends NBTElement {
 		return o instanceof NBTFloat && ((NBTFloat) o).value == value;
 	}
 
+	@Override
+	public NBTElement clone() {
+		return new NBTFloat(name, value);
+	}
+
 }

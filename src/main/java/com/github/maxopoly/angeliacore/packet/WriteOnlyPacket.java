@@ -93,12 +93,12 @@ public class WriteOnlyPacket {
 	}
 
 	public void writeItemStack(ItemStack is) throws IOException {
-		short id = is.getID();
+		short id = is.getMaterial().getID();
 		writeShort(id);
 		if (id == -1) {
 			return;
 		}
-		writeByte(is.getAmount());
+		writeByte((byte) is.getAmount());
 		writeShort(is.getDamage());
 		if (is.getNBT() != null) {
 			writeBytes(is.getNBT().serialize());

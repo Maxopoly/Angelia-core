@@ -5,6 +5,7 @@ import com.github.maxopoly.angeliacore.connection.play.packets.in.AbstractIncomi
 import com.github.maxopoly.angeliacore.connection.play.packets.in.ChatMessagePacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.DisconnectPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.HealthChangeHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.JoinGamePacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.KeepAlivePacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.PlayerPositionLookPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.SetSlotPacketHandler;
@@ -45,6 +46,7 @@ public class Heartbeat extends TimerTask {
 		registerPacketHandler(new WindowItemsPacketHandler(connection));
 		registerPacketHandler(new SetSlotPacketHandler(connection));
 		registerPacketHandler(new TransActionConfirmationPacketHandler(connection));
+		registerPacketHandler(new JoinGamePacketHandler(connection));
 		// no use for block break animation right now, as it only tells us about other peoples breaking
 		// registerPacketHandler(new BlockBreakAnimationPacketHandler(connection));
 	}
@@ -106,7 +108,7 @@ public class Heartbeat extends TimerTask {
 				connection.close();
 			}
 			try {
-				connection.sendPacket(new PlayerStatePacket());
+				connection.sendPacket(new PlayerStatePacket(!connection.getPlayerStatus().isMidAir()));
 			} catch (IOException e1) {
 				connection.getLogger().error("Failed to send player state packet", e1);
 				// TODO break here?

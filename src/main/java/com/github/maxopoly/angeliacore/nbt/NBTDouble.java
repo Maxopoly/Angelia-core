@@ -34,4 +34,9 @@ public class NBTDouble extends NBTElement {
 	public boolean equals(Object o) {
 		return o instanceof NBTDouble && ((NBTDouble) o).value == value;
 	}
+
+	@Override
+	public NBTElement clone() {
+		return new NBTDouble(name, value);
+	}
 }

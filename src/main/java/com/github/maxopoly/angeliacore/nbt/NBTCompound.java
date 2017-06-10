@@ -65,4 +65,12 @@ public class NBTCompound extends NBTElement {
 		return o instanceof NBTCompound && ((NBTCompound) o).content.equals(content);
 	}
 
+	@Override
+	public NBTElement clone() {
+		NBTCompound comp = new NBTCompound(name);
+		for (NBTElement element : content.values()) {
+			comp.add(element.clone());
+		}
+		return comp;
+	}
 }

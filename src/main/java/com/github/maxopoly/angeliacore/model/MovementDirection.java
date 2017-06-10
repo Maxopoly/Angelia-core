@@ -1,6 +1,5 @@
-package com.github.maxopoly.angeliacore.api;
+package com.github.maxopoly.angeliacore.model;
 
-import com.github.maxopoly.angeliacore.model.Vector;
 
 /**
  * Models all 26 directions an entity can move in

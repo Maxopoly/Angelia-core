@@ -1,14 +1,16 @@
-package com.github.maxopoly.angeliacore.actions;
+package com.github.maxopoly.angeliacore.actions.actions.inventory;
+
+import com.github.maxopoly.angeliacore.actions.AbstractAction;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.HeldItemChangePacket;
 import java.io.IOException;
 
-public class SlotSelectionAction extends AbstractAction {
+public class ChangeSelectedItem extends AbstractAction {
 
 	private int slot;
 
-	public SlotSelectionAction(ServerConnection connection, int slot) {
+	public ChangeSelectedItem(ServerConnection connection, int slot) {
 		super(connection);
 		this.slot = slot;
 	}

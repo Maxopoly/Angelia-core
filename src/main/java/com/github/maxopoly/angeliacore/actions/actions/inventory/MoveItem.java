@@ -1,20 +1,22 @@
-package com.github.maxopoly.angeliacore.actions;
+package com.github.maxopoly.angeliacore.actions.actions.inventory;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.model.ItemStack;
+import com.github.maxopoly.angeliacore.model.Material;
+import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
 
-public class ItemMoveAction extends AbstractAction {
+public class MoveItem extends InventoryAction {
 
 	private int originSlot;
 	private int targetSlot;
 	private byte windowID;
 	private boolean done;
-	private boolean successfull;
-	private InventoryClickAction pickUp;
-	private InventoryClickAction layDown;
-	private InventoryClickAction revert;
+	private ClickInventory pickUp;
+	private ClickInventory layDown;
+	private ClickInventory revert;
+	private ItemStack toMove;
 
-	public ItemMoveAction(ServerConnection connection, byte windowID, int originSlot, int targetSlot) {
+	public MoveItem(ServerConnection connection, byte windowID, int originSlot, int targetSlot) {
 		super(connection);
 		this.windowID = windowID;
 		this.originSlot = originSlot;
@@ -28,21 +30,21 @@ public class ItemMoveAction extends AbstractAction {
 		}
 		if (pickUp == null) {
 			// nothing was done so far, so we create the actions and begin the pickUp;
-			ItemStack toMove = connection.getPlayerStatus().getInventory(windowID).getSlot(originSlot);
+			toMove = connection.getPlayerStatus().getInventory(windowID).getSlot(originSlot);
 			if (toMove.isEmpty()) {
 				done = true;
 				successfull = false;
 				return;
 			}
-			this.pickUp = new InventoryClickAction(connection, windowID, (short) originSlot, (byte) 0, 0, toMove);
-			ItemStack target = connection.getPlayerStatus().getInventory(windowID).getSlot(originSlot);
+			this.pickUp = new ClickInventory(connection, windowID, (short) originSlot, (byte) 0, 0, toMove);
+			ItemStack target = connection.getPlayerStatus().getInventory(windowID).getSlot(targetSlot);
 			if (!target.isEmpty()) {
 				done = true;
 				successfull = false;
 				return;
 			}
-			this.layDown = new InventoryClickAction(connection, windowID, (short) targetSlot, (byte) 0, 0, new ItemStack(
-					(short) -1));
+			this.layDown = new ClickInventory(connection, windowID, (short) targetSlot, (byte) 0, 0, new ItemStack(
+					Material.EMPTY_SLOT));
 			this.pickUp.execute();
 		}
 		if (!pickUp.isDone()) {
@@ -64,8 +66,8 @@ public class ItemMoveAction extends AbstractAction {
 		if (!layDown.wasSuccessfull()) {
 			if (revert == null) {
 				// couldnt put it back down, lets put the item back where we got it from
-				revert = new InventoryClickAction(connection, windowID, (short) originSlot, (byte) 0, 0, new ItemStack(
-						(short) -1));
+				revert = new ClickInventory(connection, windowID, (short) originSlot, (byte) 0, 0, new ItemStack(
+						Material.EMPTY_SLOT));
 			}
 			if (revert.isDone()) {
 				if (!revert.wasSuccessfull()) {
@@ -82,18 +84,10 @@ public class ItemMoveAction extends AbstractAction {
 		// laydown was successfull, everything worked
 		done = true;
 		successfull = true;
-
-	}
-
-	/**
-	 * An item transaction may be denied by the server or simply not work because the slot was empty. This method can be
-	 * used afterwards to determine whether everything worked. Note that this will always return false while the
-	 * transaction is unfinished.
-	 * 
-	 * @return True only if the item was successfully moved, false otherwise
-	 */
-	public boolean wasSuccessfull() {
-		return successfull;
+		// update clientside model
+		PlayerInventory inv = connection.getPlayerStatus().getPlayerInventory();
+		inv.updateSlot(originSlot, new ItemStack(Material.EMPTY_SLOT));
+		inv.updateSlot(targetSlot, toMove);
 	}
 
 	@Override

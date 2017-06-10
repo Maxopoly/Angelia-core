@@ -1,20 +1,22 @@
-package com.github.maxopoly.angeliacore.actions;
+package com.github.maxopoly.angeliacore.actions.actions;
 
-import com.github.maxopoly.angeliacore.model.Location;
+import com.github.maxopoly.angeliacore.actions.AbstractAction;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.BreakAnimationPacket;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerDiggingPacket;
+import com.github.maxopoly.angeliacore.model.BlockFace;
+import com.github.maxopoly.angeliacore.model.Location;
 import java.io.IOException;
 
-public class BreakAction extends AbstractAction {
+public class BreakBlock extends AbstractAction {
 
 	private Location blockLocation;
 	private int breakingTicksTotal;
 	private int remainingTicks;
-	private byte face;
+	private BlockFace face;
 
-	public BreakAction(ServerConnection connection, Location loc, int breakingTicks, byte face) {
+	public BreakBlock(ServerConnection connection, Location loc, int breakingTicks, BlockFace face) {
 		super(connection);
 		this.blockLocation = loc;
 		this.breakingTicksTotal = breakingTicks;
@@ -27,22 +29,20 @@ public class BreakAction extends AbstractAction {
 	}
 
 	/**
-	 * 0 = bottom, 1 = top, 2 = North, 3 = South, 4 = West, 5 = East, 255 = Special
 	 * 
 	 * @return Face the block is being broken from
 	 */
-	public byte getFace() {
+	public BlockFace getFace() {
 		return face;
 	}
 
 	@Override
 	public void execute() {
 		int status = -1;
-		remainingTicks--;
-		if (isDone()) {
+		if (remainingTicks == 0) {
 			// break it
 			status = 2;
-		} else if ((breakingTicksTotal - 1) == remainingTicks) {
+		} else if ((breakingTicksTotal) == remainingTicks) {
 			// started digging
 			status = 0;
 		} else {
@@ -59,11 +59,12 @@ public class BreakAction extends AbstractAction {
 		} catch (IOException e) {
 			connection.getLogger().error("Failed to send digging packet", e);
 		}
+		remainingTicks--;
 	}
 
 	@Override
 	public boolean isDone() {
-		return remainingTicks <= 0;
+		return remainingTicks < 0;
 	}
 
 }
