@@ -7,15 +7,17 @@ import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 
 public abstract class CraftingRecipe {
 
-	public static final CraftingRecipe STONE_PICK = new CraftingRecipe3x3(new Material[] { Material.COBBLESTONE,
+	public static final CraftingRecipe3x3 STONE_PICK = new CraftingRecipe3x3(new Material[] { Material.COBBLESTONE,
 			Material.COBBLESTONE, Material.COBBLESTONE, Material.EMPTY_SLOT, Material.STICK, Material.EMPTY_SLOT,
 			Material.EMPTY_SLOT, Material.STICK, Material.EMPTY_SLOT }, new ItemStack(Material.STONE_PICKAXE));
-	public static final CraftingRecipe IRON_PICK = new CraftingRecipe3x3(new Material[] { Material.IRON_INGOT,
+	public static final CraftingRecipe3x3 IRON_PICK = new CraftingRecipe3x3(new Material[] { Material.IRON_INGOT,
 			Material.IRON_INGOT, Material.IRON_INGOT, Material.EMPTY_SLOT, Material.STICK, Material.EMPTY_SLOT,
 			Material.EMPTY_SLOT, Material.STICK, Material.EMPTY_SLOT }, new ItemStack(Material.STONE_PICKAXE));
-	public static final CraftingRecipe DIAMOND_PICK = new CraftingRecipe3x3(new Material[] { Material.DIAMOND,
+	public static final CraftingRecipe3x3 DIAMOND_PICK = new CraftingRecipe3x3(new Material[] { Material.DIAMOND,
 			Material.DIAMOND, Material.DIAMOND, Material.EMPTY_SLOT, Material.STICK, Material.EMPTY_SLOT,
 			Material.EMPTY_SLOT, Material.STICK, Material.EMPTY_SLOT }, new ItemStack(Material.STONE_PICKAXE));
+	public static final CraftingRecipe2x2 CLAY_BLOCK = new CraftingRecipe2x2(new Material[] { Material.CLAY_BALL,
+			Material.CLAY_BALL, Material.CLAY_BALL, Material.CLAY_BALL }, new ItemStack(Material.CLAY));
 
 	private Inventory items;
 	private Inventory combinedItems;

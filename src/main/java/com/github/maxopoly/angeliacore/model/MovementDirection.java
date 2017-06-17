@@ -1,6 +1,5 @@
 package com.github.maxopoly.angeliacore.model;
 
-
 /**
  * Models all 26 directions an entity can move in
  *
@@ -70,6 +69,25 @@ public enum MovementDirection {
 			default:
 				// this will never happen and is only needed so this compiles
 				return new Vector(1, 0, 0);
+		}
+	}
+
+	public BlockFace toBlockFace() {
+		switch (this) {
+			case UP:
+				return BlockFace.TOP;
+			case DOWN:
+				return BlockFace.BOTTOM;
+			case NORTH:
+				return BlockFace.NORTH;
+			case WEST:
+				return BlockFace.WEST;
+			case EAST:
+				return BlockFace.EAST;
+			case SOUTH:
+				return BlockFace.SOUTH;
+			default:
+				throw new IllegalArgumentException(this.name() + " cant be converted to BlockFace");
 		}
 	}
 

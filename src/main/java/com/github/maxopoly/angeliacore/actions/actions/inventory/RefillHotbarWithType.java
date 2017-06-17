@@ -13,16 +13,16 @@ import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
  */
 public class RefillHotbarWithType extends InventoryAction {
 
-	private short id;
+	private Material mat;
 	private MoveItem move;
 	private int originSlot;
 	private int targetSlot;
 	private ItemStack movedStack;
 	private boolean done;
 
-	public RefillHotbarWithType(ServerConnection connection, short id) {
+	public RefillHotbarWithType(ServerConnection connection, Material mat) {
 		super(connection);
-		this.id = id;
+		this.mat = mat;
 		this.done = false;
 	}
 
@@ -31,7 +31,7 @@ public class RefillHotbarWithType extends InventoryAction {
 		if (move == null) {
 			PlayerInventory playerInv = connection.getPlayerStatus().getPlayerInventory();
 			Inventory storage = playerInv.getPlayerStorageWithoutHotbar();
-			int index = storage.findSlotByType(new ItemStack(Material.getByID(id)));
+			int index = storage.findSlotByType(new ItemStack(mat));
 			if (index == -1) {
 				successfull = false;
 				done = true;

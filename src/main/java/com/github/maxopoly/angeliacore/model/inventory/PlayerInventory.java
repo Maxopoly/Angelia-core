@@ -19,7 +19,7 @@ public class PlayerInventory extends Inventory implements CraftingInventory {
 
 	@Override
 	public short translateStorageSlotToTotal(int slot) {
-		if (slot < 0 || slot > 26) {
+		if (slot < 0 || slot > 35) {
 			throw new IllegalArgumentException("Invalid slot " + slot + " is not a storage slot");
 		}
 		return (short) (slot + 9);

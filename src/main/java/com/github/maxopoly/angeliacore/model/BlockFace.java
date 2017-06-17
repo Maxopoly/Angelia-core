@@ -25,6 +25,27 @@ public enum BlockFace {
 		}
 	}
 
+	public Vector toVector() {
+		switch (this) {
+			case BOTTOM:
+				return new Vector(0, -0.5, 0.0);
+			case EAST:
+				return new Vector(0.5, 0.0, 0.0);
+			case NORTH:
+				return new Vector(0, 0.0, -0.5);
+			case SOUTH:
+				return new Vector(0, 0.0, 0.5);
+			case SPECIAL:
+				throw new IllegalAccessError("Cant convert special blockface to vector");
+			case TOP:
+				return new Vector(0, 0.5, 0.0);
+			case WEST:
+				return new Vector(-0.5, 0.0, 0.0);
+			default:
+				throw new IllegalAccessError("Cant convert unknown blockface to vector");
+		}
+	}
+
 	/**
 	 * Calculates which blockside is the primary one the player is seeing
 	 * 
@@ -60,5 +81,38 @@ public enum BlockFace {
 			return SOUTH;
 		}
 		return NORTH;
+	}
+
+	public int placementVectorX() {
+		switch (this) {
+			case EAST:
+				return 15;
+			case WEST:
+				return 0;
+			default:
+				return 7;
+		}
+	}
+
+	public int placementVectorY() {
+		switch (this) {
+			case TOP:
+				return 15;
+			case BOTTOM:
+				return 0;
+			default:
+				return 7;
+		}
+	}
+
+	public int placementVectorZ() {
+		switch (this) {
+			case SOUTH:
+				return 15;
+			case NORTH:
+				return 0;
+			default:
+				return 7;
+		}
 	}
 }

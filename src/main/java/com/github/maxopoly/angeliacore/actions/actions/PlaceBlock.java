@@ -23,7 +23,7 @@ public class PlaceBlock extends AbstractAction {
 	public void execute() {
 		try {
 			connection.sendPacket(new BreakAnimationPacket());
-			connection.sendPacket(new BlockPlacementPacket(location, face));
+			connection.sendPacket(new BlockPlacementPacket(location.toBlockLocation(), face));
 		} catch (IOException e) {
 			connection.getLogger().error("Failed to send blockplace packet", e);
 		}

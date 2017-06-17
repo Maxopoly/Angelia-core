@@ -1,21 +1,20 @@
 package com.github.maxopoly.angeliacore.actions.actions;
 
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
-
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionAndLookPacket;
+import com.github.maxopoly.angeliacore.model.BlockFace;
 import com.github.maxopoly.angeliacore.model.Location;
 import com.github.maxopoly.angeliacore.model.PlayerStatus;
 import java.io.IOException;
 
-public class ChangeViewingDirection extends AbstractAction {
+public class LookAt extends AbstractAction {
 
 	private Location target;
 	private int totalTicksToTake;
 	private int ticksLeft;
 	private float yawPerTick;
 	private float pitchPerTick;
-	private static final double headElevation = 1.62; // how far the player head is above the y location
 
 	/**
 	 * Instantly changes the location the player looks at
@@ -23,8 +22,22 @@ public class ChangeViewingDirection extends AbstractAction {
 	 * @param offset
 	 *          The block the player should be looking at
 	 */
-	public ChangeViewingDirection(ServerConnection connection, Location offset) {
+	public LookAt(ServerConnection connection, Location offset) {
 		this(connection, offset, 1);
+	}
+
+	/**
+	 * Looks at a specific side of the given block
+	 * 
+	 * @param connection
+	 *          ServerConnection
+	 * @param block
+	 *          Block to look at
+	 * @param face
+	 *          Relative side to look at
+	 */
+	public LookAt(ServerConnection connection, Location block, BlockFace face) {
+		this(connection, block.getBlockCenter().addVector(face.toVector()));
 	}
 
 	/**
@@ -35,7 +48,7 @@ public class ChangeViewingDirection extends AbstractAction {
 	 * @param ticksToTake
 	 *          Time that should be taken to turn the head
 	 */
-	public ChangeViewingDirection(ServerConnection connection, Location offSet, int ticksToTake) {
+	public LookAt(ServerConnection connection, Location offSet, int ticksToTake) {
 		super(connection);
 		this.target = offSet;
 		this.totalTicksToTake = ticksToTake;
@@ -58,7 +71,6 @@ public class ChangeViewingDirection extends AbstractAction {
 		}
 		yawPerTick = (float) (yaw - loc.getYaw()) / ticksToTake;
 		pitchPerTick = (float) (pitch - loc.getPitch()) / ticksToTake;
-
 	}
 
 	@Override

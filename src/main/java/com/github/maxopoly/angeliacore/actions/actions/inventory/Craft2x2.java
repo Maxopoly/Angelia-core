@@ -4,6 +4,7 @@ import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.crafting.CraftingRecipe;
 import com.github.maxopoly.angeliacore.crafting.CraftingRecipe2x2;
 import com.github.maxopoly.angeliacore.model.ItemStack;
+import com.github.maxopoly.angeliacore.model.Material;
 import com.github.maxopoly.angeliacore.model.inventory.DummyInventory;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
 
@@ -17,6 +18,7 @@ public class Craft2x2 extends InventoryAction {
 	private int slotBeingHandled;
 	private int movementsLeftForCurrent;
 	private MoveItemAmount moveAction;
+	private MoveItem takeResult;
 
 	public Craft2x2(ServerConnection connection, CraftingRecipe2x2 recipe, int amount) {
 		super(connection);
@@ -29,24 +31,49 @@ public class Craft2x2 extends InventoryAction {
 
 	@Override
 	public void execute() {
+		System.out.println("Ticking");
 		PlayerInventory inv = (PlayerInventory) connection.getPlayerStatus().getInventory((byte) 0);
 		if (inv == null) {
 			this.done = true;
 			this.successfull = false;
 			return;
 		}
-		if (recipe.amountAvailable(inv) < amount) {
-			// we could just craft as many here as we can, but I like this behavior better as it means the execution either
-			// completly works or it doesnt
-			this.done = true;
-			this.successfull = false;
+		if (takeResult != null) {
+			// in the process of taking the result
+			if (takeResult.isDone()) {
+				System.out.println("Done");
+				if (takeResult.wasSuccessfull()) {
+					// worked
+					successfull = true;
+					done = true;
+				} else {
+					// try again
+					System.out.println("FAILED, retry");
+					setupResultTake();
+					takeResult.execute();
+				}
+				return;
+			}
+			System.out.println("Still trying");
+			takeResult.execute();
 			return;
+		}
+		System.out.println(movementsLeftForCurrent);
+		if (moveAction == null) {
+			if (recipe.amountAvailable(inv.compress()) < amount
+					|| -1 == inv.getPlayerStorage().findSlotByType(new ItemStack(Material.EMPTY_SLOT))) {
+				// do initial checks
+				this.done = true;
+				this.successfull = false;
+				return;
+			}
 		}
 		ItemStack is = recipe.getIngredient(slotBeingHandled);
 		if (is.isEmpty()) {
+			System.out.println("empty");
 			if (++slotBeingHandled >= recipe.getSize()) {
-				successfull = true;
-				done = true;
+				setupResultTake();
+				takeResult.execute();
 				return;
 			} else {
 				// more slots left to go, so we just repeat execution, dont need to waste a tick on an empty slot
@@ -55,7 +82,10 @@ public class Craft2x2 extends InventoryAction {
 			}
 		}
 		if (moveAction == null) {
+			// open player inv
+			new OpenPlayerInventory(connection).execute();
 			movementsLeftForCurrent = amount;
+			System.out.println("Setting up for maximum");
 			// search for a storage slot which has the item we want and start moving from there in the crafting slot
 			resetMoveAction(inv);
 			moveAction.execute();
@@ -68,12 +98,29 @@ public class Craft2x2 extends InventoryAction {
 		if (!moveAction.wasSuccessfull()) {
 			resetMoveAction(inv);
 			// retry
-			execute();
+			if (!isDone()) {
+				execute();
+			}
 			return;
 		}
-		if (moveAction.wasSuccessfull()) {
-			movementsLeftForCurrent -= moveAction.getAmountMoved();
+		movementsLeftForCurrent -= moveAction.getAmountMoved();
+		if (movementsLeftForCurrent == 0) {
+			slotBeingHandled++;
 		}
+		if (slotBeingHandled == recipe.getSize()) {
+			setupResultTake();
+			takeResult.execute();
+			return;
+		}
+		resetMoveAction(inv);
+	}
+
+	private void setupResultTake() {
+		PlayerInventory inv = connection.getPlayerStatus().getPlayerInventory();
+		inv.updateSlot(inv.getCraftingResultID(), recipe.getResult());
+		// move result to an empty slot
+		this.takeResult = new MoveItem(connection, windowID, inv.getCraftingResultID(), inv.translateStorageSlotToTotal(inv
+				.getPlayerStorage().findSlotByType(new ItemStack(Material.EMPTY_SLOT))));
 	}
 
 	private void resetMoveAction(PlayerInventory inv) {

@@ -6,7 +6,7 @@ import com.github.maxopoly.angeliacore.model.Material;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 
 /**
- * Takes a given ItemStack and moves a partial amount of it into an empty slot
+ * Takes a given ItemStack and moves a partial amount of it into a different slot
  *
  */
 public class MoveItemAmount extends InventoryAction {
@@ -23,6 +23,7 @@ public class MoveItemAmount extends InventoryAction {
 	private int amount;
 	private int leftToPlaceDown;
 	private int fails;
+	private byte buttonID;
 
 	public MoveItemAmount(ServerConnection connection, byte windowID, int originSlot, int targetSlot, int amount) {
 		super(connection);
@@ -35,6 +36,7 @@ public class MoveItemAmount extends InventoryAction {
 
 	@Override
 	public void execute() {
+		System.out.println(originSlot + "  " + targetSlot);
 		Inventory inv = connection.getPlayerStatus().getInventory(windowID);
 		if (inv == null) {
 			this.done = true;
@@ -53,12 +55,19 @@ public class MoveItemAmount extends InventoryAction {
 			}
 			this.pickUp = new ClickInventory(connection, windowID, (short) originSlot, (byte) 0, 0, toMove);
 			targetStack = connection.getPlayerStatus().getInventory(windowID).getSlot(targetSlot);
-			if (!targetStack.isEmpty()) {
+			if (!(targetStack.equals(toMove) || targetStack.isEmpty())) {
 				done = true;
 				successfull = false;
 				return;
 			}
-			this.layDown = new ClickInventory(connection, windowID, (short) targetSlot, (byte) 1, 0, new ItemStack(
+			if (toMove.getAmount() == amount) {
+				// we can just put down the entire stack with one left click
+				this.buttonID = 0;
+			} else {
+				// we need to right click as often as we have items we want to put down
+				this.buttonID = 1;
+			}
+			this.layDown = new ClickInventory(connection, windowID, (short) targetSlot, buttonID, 0, new ItemStack(
 					Material.EMPTY_SLOT));
 			this.leftToPlaceDown = amount;
 			this.pickUp.execute();
@@ -80,32 +89,42 @@ public class MoveItemAmount extends InventoryAction {
 			return;
 		}
 		if (!layDown.wasSuccessfull()) {
-			// we count up how often the laydown failed. After 32 laydown fails, we cancel the whole thing
+			// we count up how often the laydown failed. After 10 laydown fails, we cancel the whole thing
 			fails++;
-			if (fails > 32) {
+			if (fails > 10) {
 				done = true;
 				successfull = false;
 				return;
 			}
-			this.layDown = new ClickInventory(connection, windowID, (short) targetSlot, (byte) 1, 0, new ItemStack(
+			// reset pickup object after fail
+			this.layDown = new ClickInventory(connection, windowID, (short) targetSlot, buttonID, 0, new ItemStack(
 					Material.EMPTY_SLOT));
 			return;
 		} else {
-			// succesfully laydown of a single item
-			if (targetStack == null) {
-				targetStack = toMove.clone();
-				targetStack.setAmount(1);
+			if (buttonID == 1) {
+				// succesfully laydown of a single item
+				if (targetStack == null) {
+					targetStack = toMove.clone();
+					targetStack.setAmount(1);
+				} else {
+					targetStack.setAmount(targetStack.getAmount() + 1);
+				}
+				toMove.setAmount(toMove.getAmount() - 1);
+				leftToPlaceDown--;
 			} else {
-				targetStack.setAmount(targetStack.getAmount() + 1);
+				// successfully put down entire stack
+				targetStack = toMove.clone();
+				targetStack.setAmount(toMove.getAmount());
+				toMove.setAmount(0);
+				leftToPlaceDown = 0;
 			}
-			toMove.setAmount(toMove.getAmount() - 1);
-			leftToPlaceDown--;
 		}
 		if (leftToPlaceDown > 0) {
-			this.layDown = new ClickInventory(connection, windowID, (short) targetSlot, (byte) 1, 0, new ItemStack(
+			this.layDown = new ClickInventory(connection, windowID, (short) targetSlot, buttonID, 0, new ItemStack(
 					Material.EMPTY_SLOT));
 			return;
 		}
+		// successfully moved the items, so let's put the leftover back if needed and update the clientside model
 		if (toMove.getAmount() > 0) {
 			if (putBack == null) {
 				putBack = new ClickInventory(connection, windowID, (short) originSlot, (byte) 0, 0, new ItemStack(

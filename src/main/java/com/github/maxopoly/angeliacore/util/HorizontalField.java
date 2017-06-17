@@ -140,6 +140,13 @@ public class HorizontalField implements Iterable<Location> {
 		};
 	}
 
+	public MovementDirection getCurrentDirection() {
+		if (sidewardsMovementLeft > 0) {
+			return secondaryMovementDirection;
+		}
+		return primaryMovementDirection;
+	}
+
 	private boolean pastEnd() {
 		switch (primaryMovementDirection) {
 			case NORTH:
@@ -180,5 +187,9 @@ public class HorizontalField implements Iterable<Location> {
 
 	public boolean usesSnakelines() {
 		return snakeLines;
+	}
+
+	public MovementDirection getSecondaryDirection() {
+		return secondaryMovementDirection;
 	}
 }

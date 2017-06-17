@@ -40,7 +40,7 @@ public class LookAtAndBreakBlock extends AbstractAction {
 	private void setupActions() {
 		Location playerLoc = connection.getPlayerStatus().getHeadLocation();
 		BlockFace side = BlockFace.getRelative(playerLoc, block.getBlockCenter());
-		this.actions = new SequentialActionExecution(new ChangeViewingDirection(connection, block.getBlockCenter()),
+		this.actions = new SequentialActionExecution(new LookAt(connection, block.getBlockCenter()),
 				new BreakBlock(connection, block, breakTime, side));
 	}
 

@@ -18,7 +18,7 @@ public class UseBlockAction extends AbstractAction {
 	@Override
 	public void execute() {
 		try {
-			new ChangeViewingDirection(connection, location).execute();
+			new LookAt(connection, location).execute();
 			connection.sendPacket(new BreakAnimationPacket());
 		} catch (IOException e) {
 			connection.getLogger().error("Failed to send block usage", e);

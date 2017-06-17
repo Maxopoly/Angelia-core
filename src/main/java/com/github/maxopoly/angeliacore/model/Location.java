@@ -20,8 +20,16 @@ public final class Location {
 		this.pitch = pitch;
 	}
 
+	public Location(Vector v) {
+		this(v.getX(), v.getY(), v.getZ(), 0.0f, 0.0f);
+	}
+
 	public Location(int x, int y, int z) {
 		this(x, y, z, 0.0f, 0.0f);
+	}
+
+	public Location addVector(Vector v) {
+		return new Location(this.x + v.getX(), this.y + v.getY(), this.z + v.getZ(), yaw, pitch);
 	}
 
 	/**

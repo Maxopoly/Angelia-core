@@ -12,19 +12,19 @@ import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
  */
 public class PickHotbarItemByType extends AbstractAction {
 
-	private short id;
+	private Material mat;
 	private boolean found;
 
-	public PickHotbarItemByType(ServerConnection connection, short id) {
+	public PickHotbarItemByType(ServerConnection connection, Material mat) {
 		super(connection);
-		this.id = id;
+		this.mat = mat;
 		this.found = false;
 	}
 
 	@Override
 	public void execute() {
 		PlayerInventory inv = connection.getPlayerStatus().getPlayerInventory();
-		int hotbarSlot = inv.getHotbar().findSlotByType(new ItemStack(Material.getByID(id)));
+		int hotbarSlot = inv.getHotbar().findSlotByType(new ItemStack(mat));
 		if (hotbarSlot == -1) {
 			found = false;
 			return;

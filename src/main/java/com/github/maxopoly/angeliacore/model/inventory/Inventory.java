@@ -16,12 +16,18 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	}
 
 	public Inventory(ItemStack[] items) {
-		slots = items;
+		this(items.length);
+		for (int i = 0; i < items.length; i++) {
+			updateSlot(i, items[i]);
+		}
 	}
 
 	public void setSlots(ItemStack[] content) {
 		if (content.length != slots.length) {
 			throw new IllegalArgumentException("Slot length can't be different");
+		}
+		for (int i = 0; i < content.length; i++) {
+			updateSlot(i, content[i]);
 		}
 	}
 
@@ -29,6 +35,9 @@ public abstract class Inventory implements Iterable<ItemStack> {
 		if (id == -1) {
 			updateCursor(is);
 			return;
+		}
+		if (is == null) {
+			is = new ItemStack(Material.EMPTY_SLOT);
 		}
 		slots[id] = is;
 	}
@@ -90,6 +99,30 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	}
 
 	/**
+	 * Checks whether the given ItemStack fits into this inventory by filling up existing stacks and using empty slot as
+	 * available
+	 * 
+	 * @param is
+	 *          ItemStack to try
+	 * @return True if the ItemStack would fit in the inventory, false if not
+	 */
+	public boolean hasSpaceFor(ItemStack is) {
+		int toSort = is.getAmount();
+		for (ItemStack invSlot : this) {
+			if (invSlot == null || invSlot.isEmpty()) {
+				return true;
+			}
+			if (invSlot.equals(is)) {
+				toSort -= (is.getMaterial().getMaximumStackSize() - invSlot.getAmount());
+				if (toSort <= 0) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Compresses this instance by combining all ItemStacks in it which are identical and adjusting amounts accordingly
 	 * 
 	 * @return Compressed version of this inventory with a variable size
@@ -99,6 +132,9 @@ public abstract class Inventory implements Iterable<ItemStack> {
 		for (int i = 0; i < getSize(); i++) {
 			boolean found = false;
 			ItemStack current = slots[i];
+			if (current == null || current.isEmpty()) {
+				continue;
+			}
 			for (ItemStack is : stacks) {
 				if (is.equals(current)) {
 					is.setAmount(is.getAmount() + current.getAmount());
@@ -173,5 +209,16 @@ public abstract class Inventory implements Iterable<ItemStack> {
 				return slots[i++];
 			}
 		};
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (ItemStack is : this) {
+			if (is != null) {
+				sb.append(is.toString() + ", ");
+			}
+		}
+		return sb.toString();
 	}
 }

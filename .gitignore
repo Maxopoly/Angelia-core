@@ -4,3 +4,4 @@
 .project
 /logs/
 dependency-reduced-pom.xml
+/target/

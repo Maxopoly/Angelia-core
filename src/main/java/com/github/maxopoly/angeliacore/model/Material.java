@@ -1,6 +1,7 @@
 package com.github.maxopoly.angeliacore.model;
 
 import java.util.Map;
+import java.util.TreeMap;
 
 public enum Material {
 	EMPTY_SLOT(-1), AIR(0, 0), STONE(1), GRASS(2), DIRT(3), COBBLESTONE(4), WOOD(5), SAPLING(6), BEDROCK(7), WATER(8), STATIONARY_WATER(
@@ -84,6 +85,7 @@ public enum Material {
 	private static Map<Short, Material> itemMapping;
 
 	static {
+		itemMapping = new TreeMap<Short, Material>();
 		for (Material mat : values()) {
 			itemMapping.put(mat.getID(), mat);
 		}

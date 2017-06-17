@@ -74,7 +74,7 @@ public final class ItemStack {
 
 	@Override
 	public ItemStack clone() {
-		return new ItemStack(material, amount, damage, (NBTCompound) tag.clone());
+		return new ItemStack(material, amount, damage, tag != null ? (NBTCompound) tag.clone() : null);
 	}
 
 	/**

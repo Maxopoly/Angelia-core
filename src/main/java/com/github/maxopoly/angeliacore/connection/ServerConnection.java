@@ -13,6 +13,7 @@ import com.github.maxopoly.angeliacore.event.EventBroadcaster;
 import com.github.maxopoly.angeliacore.model.PlayerStatus;
 import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
+import com.github.maxopoly.angeliacore.plugin.PluginManager;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -43,6 +44,7 @@ public class ServerConnection {
 	private ActionQueue actionQueue;
 	private Timer tickTimer;
 	private ItemTransactionManager transActionManager;
+	private PluginManager pluginManager;
 
 	private boolean encryptionEnabled;
 	private boolean compressionEnabled;
@@ -170,6 +172,7 @@ public class ServerConnection {
 		logger.info("Switching connection to play state");
 		playerStatus = new PlayerStatus(this);
 		playPacketHandler = new Heartbeat(this);
+		pluginManager = new PluginManager(this);
 		actionQueue = new ActionQueue(this);
 		tickTimer = new Timer("Angelia tick");
 		tickTimer.schedule(playPacketHandler, tickDelay, tickDelay);
@@ -362,6 +365,13 @@ public class ServerConnection {
 	}
 
 	/**
+	 * @return This connection's plugin manager
+	 */
+	public PluginManager getPluginManager() {
+		return pluginManager;
+	}
+
+	/**
 	 * @return Connections action queue
 	 */
 	public ActionQueue getActionQueue() {
@@ -381,5 +391,12 @@ public class ServerConnection {
 	 */
 	public double getTicksPerSecond() {
 		return 1000 / (double) tickDelay;
+	}
+
+	/**
+	 * @return The name of the player connected
+	 */
+	public String getPlayerName() {
+		return authHandler.getPlayerName();
 	}
 }
