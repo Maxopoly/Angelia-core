@@ -13,7 +13,8 @@ public class MoveTo extends AbstractAction {
 	private double movementSpeed;
 	private double ticksPerSecond;
 	private final static double errorMargin = 0.01;
-	public static final double SPRINTING_SPEED = 5.4;
+	public static final double WALKING_SPEED = 4.317;
+	public static final double SPRINTING_SPEED = 5.612;
 	public static final double FALLING = 20.0;
 
 	public MoveTo(ServerConnection connection, Location desto, double movementSpeed, double ticksPerSecond) {

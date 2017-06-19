@@ -125,4 +125,47 @@ public enum Material {
 		return maxDurability;
 	}
 
+	/**
+	 * Checks if this Material is edible.
+	 *
+	 * @return true if this Material is edible.
+	 */
+	public boolean isEdible() {
+		switch (this) {
+			case BREAD:
+			case CARROT_ITEM:
+			case BAKED_POTATO:
+			case POTATO_ITEM:
+			case POISONOUS_POTATO:
+			case GOLDEN_CARROT:
+			case PUMPKIN_PIE:
+			case COOKIE:
+			case MELON:
+			case MUSHROOM_SOUP:
+			case RAW_CHICKEN:
+			case COOKED_CHICKEN:
+			case RAW_BEEF:
+			case COOKED_BEEF:
+			case RAW_FISH:
+			case COOKED_FISH:
+			case PORK:
+			case GRILLED_PORK:
+			case APPLE:
+			case GOLDEN_APPLE:
+			case ROTTEN_FLESH:
+			case SPIDER_EYE:
+			case RABBIT:
+			case COOKED_RABBIT:
+			case RABBIT_STEW:
+			case MUTTON:
+			case COOKED_MUTTON:
+			case BEETROOT:
+			case CHORUS_FRUIT:
+			case BEETROOT_SOUP:
+				return true;
+			default:
+				return false;
+		}
+	}
+
 }

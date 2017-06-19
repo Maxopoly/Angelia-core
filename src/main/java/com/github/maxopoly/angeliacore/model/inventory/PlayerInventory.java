@@ -35,22 +35,22 @@ public class PlayerInventory extends Inventory implements CraftingInventory {
 
 	@Override
 	public DummyInventory getHotbar() {
-		return new DummyInventory(Arrays.copyOfRange(slots, 36, 44));
+		return new DummyInventory(Arrays.copyOfRange(slots, 36, 45));
 	}
 
 	@Override
 	public DummyInventory getPlayerStorage() {
-		return new DummyInventory(Arrays.copyOfRange(slots, 9, 44));
+		return new DummyInventory(Arrays.copyOfRange(slots, 9, 45));
 	}
 
 	@Override
 	public DummyInventory getPlayerStorageWithoutHotbar() {
-		return new DummyInventory(Arrays.copyOfRange(slots, 9, 35));
+		return new DummyInventory(Arrays.copyOfRange(slots, 9, 36));
 	}
 
 	@Override
 	public DummyInventory getCraftingSlots() {
-		return new DummyInventory(Arrays.copyOfRange(slots, 1, 4));
+		return new DummyInventory(Arrays.copyOfRange(slots, 1, 5));
 	}
 
 	@Override

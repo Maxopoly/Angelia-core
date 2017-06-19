@@ -115,14 +115,13 @@ public class HorizontalField implements Iterable<Location> {
 
 			@Override
 			public boolean hasNext() {
-				return !outsideField();
+				Location curr = new Location(currentX, y, currentZ);
+				return outsideField(curr.addVector(primaryMovementDirection.toVector()))
+						&& outsideField(curr.addVector(secondaryMovementDirection.toVector()));
 			}
 
 			@Override
 			public Location next() {
-				if (outsideField()) {
-					return null;
-				}
 				if (sidewardsMovementLeft > 0) {
 					currentX += secondaryMovementDirection.toVector().getX();
 					currentZ += secondaryMovementDirection.toVector().getZ();
@@ -161,8 +160,8 @@ public class HorizontalField implements Iterable<Location> {
 		throw new IllegalStateException(primaryMovementDirection.name() + " is not a valid movement direction");
 	}
 
-	private boolean outsideField() {
-		return currentX > upperX || currentZ > upperZ || currentX < lowerX || currentZ < lowerZ;
+	private boolean outsideField(Location loc) {
+		return loc.getBlockX() > upperX || loc.getBlockZ() > upperZ || loc.getBlockX() < lowerX || loc.getBlockZ() < lowerZ;
 	}
 
 	public int getLowerX() {
