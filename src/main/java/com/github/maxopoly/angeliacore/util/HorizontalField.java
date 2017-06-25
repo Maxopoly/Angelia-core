@@ -116,8 +116,8 @@ public class HorizontalField implements Iterable<Location> {
 			@Override
 			public boolean hasNext() {
 				Location curr = new Location(currentX, y, currentZ);
-				return outsideField(curr.addVector(primaryMovementDirection.toVector()))
-						&& outsideField(curr.addVector(secondaryMovementDirection.toVector()));
+				return !(outsideField(curr.addVector(primaryMovementDirection.toVector())) && outsideField(curr
+						.addVector(secondaryMovementDirection.toVector())));
 			}
 
 			@Override

@@ -1,5 +1,8 @@
 package com.github.maxopoly.angeliacore.model;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Models all 26 directions an entity can move in
  *
@@ -7,6 +10,9 @@ package com.github.maxopoly.angeliacore.model;
 public enum MovementDirection {
 
 	NORTH, SOUTH, WEST, EAST, NORTH_WEST, NORTH_EAST, SOUTH_WEST, SOUTH_EAST, UP, DOWN, NORTH_UP, SOUTH_UP, WEST_UP, EAST_UP, NORTH_WEST_UP, NORTH_EAST_UP, SOUTH_WEST_UP, SOUTH_EAST_UP, NORTH_DOWN, SOUTH_DOWN, WEST_DOWN, EAST_DOWN, NORTH_WEST_DOWN, NORTH_EAST_DOWN, SOUTH_WEST_DOWN, SOUTH_EAST_DOWN;
+
+	public static final List<MovementDirection> CARDINAL = Arrays.asList(new MovementDirection[] { NORTH, SOUTH, WEST,
+			EAST });
 
 	public MovementDirection getOpposite() {
 		return MovementDirection.fromVector(this.toVector().multiply(-1));

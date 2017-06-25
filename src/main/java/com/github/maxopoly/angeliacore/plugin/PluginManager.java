@@ -1,10 +1,20 @@
 package com.github.maxopoly.angeliacore.plugin;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.MissingArgumentException;
+import org.apache.commons.cli.MissingOptionException;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.UnrecognizedOptionException;
 
 public class PluginManager {
 
@@ -21,8 +31,8 @@ public class PluginManager {
 		reloadPlugins();
 	}
 
-	private AngeliaPlugin getPlugin(String name) {
-		return plugins.get(name);
+	public AngeliaPlugin getPlugin(String name) {
+		return plugins.get(name.toLowerCase());
 	}
 
 	public void reloadPlugins() {
@@ -71,7 +81,11 @@ public class PluginManager {
 			plugin = plugin.getClass().newInstance();
 			runningPlugins.add(plugin);
 			plugin.setRunning(true);
-			plugin.start(connection, args);
+			Map<String, List<String>> options = parseOptions(plugin, args);
+			if (options == null) {
+				return null;
+			}
+			plugin.start(connection, options);
 			return plugin;
 		} catch (InstantiationException | IllegalAccessException e) {
 			connection.getLogger().error("Failed to reinstantiate plugin " + plugin.getName(), e);
@@ -96,5 +110,50 @@ public class PluginManager {
 			}
 		}
 		return stopped;
+	}
+
+	private Map<String, List<String>> parseOptions(AngeliaPlugin plugin, String[] args) {
+		CommandLineParser parser = new DefaultParser();
+		Options options = new Options();
+		for (Option opt : plugin.getOptions()) {
+			options.addOption(opt);
+		}
+		CommandLine cmd;
+		try {
+			cmd = parser.parse(options, args, true);
+		} catch (MissingArgumentException e) {
+			Option opt = e.getOption();
+			connection.getLogger().warn(
+					"An incorrect amount of argument(s) was supplied for the option " + opt.getArgName() + ". Run \"helpplugin "
+							+ plugin.getName() + "\" for more information on how to use this command");
+			return null;
+		} catch (MissingOptionException e) {
+			List<String> missingOptions = e.getMissingOptions();
+			StringBuilder sb = new StringBuilder();
+			for (String opt : missingOptions) {
+				sb.append(opt + " ");
+			}
+			connection.getLogger().warn(
+					"The required argument(s) " + sb.toString() + "were not supplied. Run \"helpplugin " + plugin.getName()
+							+ "\" for more information on how to use this command");
+			return null;
+		} catch (UnrecognizedOptionException e) {
+			connection.getLogger().warn(
+					"The supplied option " + e.getOption() + " could not be recognized. Run \"helpplugin " + plugin.getName()
+							+ "\" for more information on how to use this command");
+			return null;
+		} catch (ParseException e) {
+			connection.getLogger().error("An unknown exception occured while trying to parse arguments", e);
+			return null;
+		}
+		Map<String, List<String>> parsedValues = new HashMap<String, List<String>>();
+		for (Option option : cmd.getOptions()) {
+			if (option.hasArg()) {
+				parsedValues.put(option.getOpt(), Arrays.asList(cmd.getOptionValues(option.getOpt())));
+			} else {
+				parsedValues.put(option.getOpt(), new LinkedList<String>());
+			}
+		}
+		return parsedValues;
 	}
 }

@@ -31,4 +31,12 @@ public final class Vector {
 	public Vector multiply(double factor) {
 		return new Vector(x * factor, y * factor, z * factor);
 	}
+
+	public Vector cross(Vector v) {
+		return new Vector(v.getX() * x, v.getY() * y, v.getZ() * z);
+	}
+
+	public boolean isZero() {
+		return x == 0.0 && y == 0.0 && z == 0.0;
+	}
 }

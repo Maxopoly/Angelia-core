@@ -17,11 +17,10 @@ public class MoveTo extends AbstractAction {
 	public static final double SPRINTING_SPEED = 5.612;
 	public static final double FALLING = 20.0;
 
-	public MoveTo(ServerConnection connection, Location desto, double movementSpeed, double ticksPerSecond) {
+	public MoveTo(ServerConnection connection, Location desto, double movementSpeed) {
 		super(connection);
 		this.destination = desto;
 		this.movementSpeed = movementSpeed;
-		this.ticksPerSecond = ticksPerSecond;
 	}
 
 	/**
@@ -70,6 +69,7 @@ public class MoveTo extends AbstractAction {
 
 	@Override
 	public void execute() {
+		this.ticksPerSecond = connection.getTicksPerSecond();
 		PlayerStatus status = connection.getPlayerStatus();
 		status.updateLocation(getNextLocation(status.getLocation(), movementSpeed, ticksPerSecond));
 		sendLocationPacket();
