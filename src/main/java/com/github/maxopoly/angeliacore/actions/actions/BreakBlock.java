@@ -1,12 +1,12 @@
 package com.github.maxopoly.angeliacore.actions.actions;
 
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
-
+import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.BreakAnimationPacket;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerDiggingPacket;
-import com.github.maxopoly.angeliacore.model.BlockFace;
-import com.github.maxopoly.angeliacore.model.Location;
+import com.github.maxopoly.angeliacore.model.location.BlockFace;
+import com.github.maxopoly.angeliacore.model.location.Location;
 import java.io.IOException;
 
 public class BreakBlock extends AbstractAction {
@@ -38,33 +38,44 @@ public class BreakBlock extends AbstractAction {
 
 	@Override
 	public void execute() {
-		int status = -1;
-		if (remainingTicks == 0) {
-			// break it
-			status = 2;
-		} else if ((breakingTicksTotal) == remainingTicks) {
-			// started digging
-			status = 0;
-		} else {
-			// nothing is actually done if we are just in the middle of breaking
-			status = -1;
+		if (breakingTicksTotal == remainingTicks) {
+			// just started
+			sendDiggingPacket(0);
 		}
+		if (remainingTicks == 0) {
+			// done, so we break it
+			sendDiggingPacket(2);
+		}
+		sendBreakAnimation();
+		remainingTicks--;
+	}
+
+	private void sendDiggingPacket(int status) {
 		try {
-			if (status != -1) {
-				PlayerDiggingPacket packet = new PlayerDiggingPacket(status, blockLocation, face);
-				connection.sendPacket(packet);
-			}
-			BreakAnimationPacket packet2 = new BreakAnimationPacket();
-			connection.sendPacket(packet2);
+			PlayerDiggingPacket packet = new PlayerDiggingPacket(status, blockLocation, face);
+			connection.sendPacket(packet);
 		} catch (IOException e) {
 			connection.getLogger().error("Failed to send digging packet", e);
 		}
-		remainingTicks--;
+	}
+
+	private void sendBreakAnimation() {
+		try {
+			BreakAnimationPacket packet2 = new BreakAnimationPacket();
+			connection.sendPacket(packet2);
+		} catch (IOException e) {
+			connection.getLogger().error("Failed to send digging animation packet", e);
+		}
 	}
 
 	@Override
 	public boolean isDone() {
 		return remainingTicks < 0;
+	}
+
+	@Override
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.HOTBAR_SLOT };
 	}
 
 }

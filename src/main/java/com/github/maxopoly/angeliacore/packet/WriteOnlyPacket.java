@@ -1,6 +1,7 @@
 package com.github.maxopoly.angeliacore.packet;
 
-import com.github.maxopoly.angeliacore.model.ItemStack;
+import com.github.maxopoly.angeliacore.model.item.ItemStack;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;

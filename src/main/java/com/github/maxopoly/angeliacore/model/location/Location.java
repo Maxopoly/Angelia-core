@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.model;
+package com.github.maxopoly.angeliacore.model.location;
 
 import java.text.DecimalFormat;
 
@@ -81,6 +81,15 @@ public final class Location {
 	 */
 	public Location toBlockLocation() {
 		return new Location(Math.floor(x), Math.floor(y), Math.floor(z), 0.0f, 0.0f);
+	}
+
+	/**
+	 * Turns this location into a vector, which represents the locations offset from 0, 0, 0
+	 * 
+	 * @return Vector representing this location
+	 */
+	public Vector toVector() {
+		return new Vector(x, y, z);
 	}
 
 	/**

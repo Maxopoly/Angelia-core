@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.model;
+package com.github.maxopoly.angeliacore.model.item;
 
 public enum Hand {
 

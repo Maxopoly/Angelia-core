@@ -1,9 +1,10 @@
 package com.github.maxopoly.angeliacore.actions.actions;
 
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
+import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.UseItemPacket;
-import com.github.maxopoly.angeliacore.model.Hand;
+import com.github.maxopoly.angeliacore.model.item.Hand;
 import java.io.IOException;
 
 /**
@@ -32,6 +33,11 @@ public class Interact extends AbstractAction {
 	@Override
 	public boolean isDone() {
 		return true;
+	}
+
+	@Override
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.HOTBAR_SLOT };
 	}
 
 }

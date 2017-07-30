@@ -45,6 +45,7 @@ public class ServerConnection {
 	private Timer tickTimer;
 	private ItemTransactionManager transActionManager;
 	private PluginManager pluginManager;
+	private boolean localHost;
 
 	private boolean encryptionEnabled;
 	private boolean compressionEnabled;
@@ -80,6 +81,7 @@ public class ServerConnection {
 		this.protocolVersion = -1;
 		this.eventHandler = new EventBroadcaster(logger);
 		this.transActionManager = new ItemTransactionManager();
+		this.localHost = "localhost".equals(adress) || "127.0.0.1".equals(adress);
 	}
 
 	/**
@@ -143,7 +145,8 @@ public class ServerConnection {
 			// handshake
 			logger.info("Requesting protocol version from " + serverAdress);
 			protocolVersion = shake.requestProtocolVersion();
-			// we need to set up a new socket after protocol test handshaking as we want to properly connect now, which the
+			// we need to set up a new socket after protocol test handshaking as we want to properly connect now, which
+			// the
 			// server wouldnt allow right away on the same connection
 			reestablishConnection();
 		}
@@ -152,19 +155,22 @@ public class ServerConnection {
 		// begin login
 		logger.info("Beginning login to " + serverAdress);
 		shake.sendLoginStartMessage(authHandler.getPlayerName());
-		// figure out encryption secret
-		logger.info("Parsing encryption request from " + serverAdress);
-		EncryptionHandler asyncEncHandler = new EncryptionHandler(this);
-		asyncEncHandler.parseEncryptionRequest();
-		asyncEncHandler.genSecretKey();
-		logger.info("Authenticating connection attempt to " + serverAdress + " against Yggdrassil session server");
-		authHandler.authAgainstSessionServer(asyncEncHandler.generateKeyHash(), logger);
-		logger.info("Sending encryption reply to " + serverAdress);
-		asyncEncHandler.sendEncryptionResponse();
-		// everything from here on is encrypted
-		logger.info("Enabling sync encryption with " + serverAdress);
-		encryptionEnabled = true;
-		syncEncryptionHandler = new AES_CFB8_Encrypter(asyncEncHandler.getSharedSecret(), asyncEncHandler.getSharedSecret());
+		if (!localHost) {
+			// figure out encryption secret
+			logger.info("Parsing encryption request from " + serverAdress);
+			EncryptionHandler asyncEncHandler = new EncryptionHandler(this);
+			asyncEncHandler.parseEncryptionRequest();
+			asyncEncHandler.genSecretKey();
+			logger.info("Authenticating connection attempt to " + serverAdress + " against Yggdrassil session server");
+			authHandler.authAgainstSessionServer(asyncEncHandler.generateKeyHash(), logger);
+			logger.info("Sending encryption reply to " + serverAdress);
+			asyncEncHandler.sendEncryptionResponse();
+			// everything from here on is encrypted
+			logger.info("Enabling sync encryption with " + serverAdress);
+			encryptionEnabled = true;
+			syncEncryptionHandler = new AES_CFB8_Encrypter(asyncEncHandler.getSharedSecret(),
+					asyncEncHandler.getSharedSecret());
+		}
 		GameJoinHandler joinHandler = new GameJoinHandler(this);
 		joinHandler.parseLoginSuccess();
 		// if we reach this point, we successfully logged in and the connection state switches to PLAY, so from now on
@@ -217,9 +223,13 @@ public class ServerConnection {
 			try {
 				output.write(data);
 			} catch (SocketException e) {
-				close();
+				close(DisconnectReason.Unknown_Connection_Error);
 			}
 		}
+	}
+
+	public boolean isLocalHost() {
+		return localHost;
 	}
 
 	/**
@@ -282,30 +292,28 @@ public class ServerConnection {
 		}
 	}
 
-	public boolean dataAvailable() {
+	public boolean dataAvailable() throws IOException {
 		synchronized (input) {
-			try {
-				return input.available() != 0;
-			} catch (IOException e) {
-				logger.error("Failed to check for available data", e);
-				return false;
-			}
+			return input.available() != 0;
 		}
 	}
 
 	/**
 	 * Closes this connection irrevertably
 	 */
-	public void close() {
+	public void close(DisconnectReason reason) {
 		try {
 			logger.info("Closing socket with " + serverAdress);
-			socket.close();
+			if (!socket.isClosed()) {
+				socket.close();
+			}
 			tickTimer.cancel();
 			tickTimer.purge();
 			closed = true;
 		} catch (IOException e) {
-			logger.error("Failed to close socket", e);
+			// its ok, probably
 		}
+		ActiveConnectionManager.getInstance().reportDisconnect(this, reason);
 	}
 
 	public void activateCompression(int maximumUncompressedSize) {
@@ -391,6 +399,13 @@ public class ServerConnection {
 	 */
 	public double getTicksPerSecond() {
 		return 1000 / (double) tickDelay;
+	}
+
+	/**
+	 * @return Mojang side authentication of the player
+	 */
+	AuthenticationHandler getAuthHandler() {
+		return authHandler;
 	}
 
 	/**

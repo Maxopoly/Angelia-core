@@ -1,6 +1,6 @@
 package com.github.maxopoly.angeliacore.event.events;
 
-import com.github.maxopoly.angeliacore.model.Location;
+import com.github.maxopoly.angeliacore.model.location.Location;
 
 /**
  * Called when the player is teleported by the player. This is useful to dermine when the player is stuck running

@@ -1,10 +1,11 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
+import com.github.maxopoly.angeliacore.model.location.Location;
+
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionAndLookPacket;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.TeleportConfirmPacket;
 import com.github.maxopoly.angeliacore.event.events.TeleportByServerEvent;
-import com.github.maxopoly.angeliacore.model.Location;
 import com.github.maxopoly.angeliacore.packet.EndOfPacketException;
 import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import java.io.IOException;

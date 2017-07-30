@@ -1,4 +1,5 @@
-package com.github.maxopoly.angeliacore.model;
+package com.github.maxopoly.angeliacore.model.location;
+
 
 public enum BlockFace {
 	BOTTOM, TOP, NORTH, SOUTH, WEST, EAST, SPECIAL;

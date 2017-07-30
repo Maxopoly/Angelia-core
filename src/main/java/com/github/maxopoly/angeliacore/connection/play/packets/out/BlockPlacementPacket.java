@@ -1,7 +1,8 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.out;
 
-import com.github.maxopoly.angeliacore.model.BlockFace;
-import com.github.maxopoly.angeliacore.model.Location;
+import com.github.maxopoly.angeliacore.model.location.BlockFace;
+
+import com.github.maxopoly.angeliacore.model.location.Location;
 import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
 import java.io.IOException;
 

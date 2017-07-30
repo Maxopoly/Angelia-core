@@ -1,5 +1,8 @@
 package com.github.maxopoly.angeliacore.actions;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class SequentialActionExecution extends AbstractAction {
 
 	private int currentAction;
@@ -30,6 +33,17 @@ public class SequentialActionExecution extends AbstractAction {
 	@Override
 	public boolean isDone() {
 		return currentAction >= actions.length;
+	}
+
+	@Override
+	public ActionLock[] getActionLocks() {
+		Set<ActionLock> collActions = new HashSet<ActionLock>();
+		for (int i = currentAction; i < actions.length; i++) {
+			for (ActionLock lock : actions[i].getActionLocks()) {
+				collActions.add(lock);
+			}
+		}
+		return collActions.toArray(new ActionLock[0]);
 	}
 
 }

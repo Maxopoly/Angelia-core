@@ -1,7 +1,8 @@
 package com.github.maxopoly.angeliacore.util;
 
-import com.github.maxopoly.angeliacore.model.Location;
-import com.github.maxopoly.angeliacore.model.MovementDirection;
+import com.github.maxopoly.angeliacore.model.location.MovementDirection;
+
+import com.github.maxopoly.angeliacore.model.location.Location;
 import java.util.Iterator;
 
 public class HorizontalField implements Iterable<Location> {
@@ -139,8 +140,15 @@ public class HorizontalField implements Iterable<Location> {
 		};
 	}
 
+	/**
+	 * Calculates the direction the next location will be in from the previous one
+	 * 
+	 * @return Current movement direction
+	 */
 	public MovementDirection getCurrentDirection() {
-		if (sidewardsMovementLeft > 0) {
+		Location nextLoc = new Location(currentX + (int) primaryMovementDirection.toVector().getX(), y, currentZ
+				+ (int) primaryMovementDirection.toVector().getZ());
+		if (sidewardsMovementLeft > 0 || outsideField(nextLoc)) {
 			return secondaryMovementDirection;
 		}
 		return primaryMovementDirection;
@@ -178,6 +186,10 @@ public class HorizontalField implements Iterable<Location> {
 
 	public int getUpperZ() {
 		return upperZ;
+	}
+
+	public int getArea() {
+		return Math.abs(lowerX - upperX) * Math.abs(lowerZ - upperZ);
 	}
 
 	public int getY() {

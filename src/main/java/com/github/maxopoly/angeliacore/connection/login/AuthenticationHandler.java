@@ -17,10 +17,10 @@ public class AuthenticationHandler {
 	private final static String sessionServerAdress = "https://sessionserver.mojang.com/session/minecraft/join";
 	private final static String separator = ";;;;";
 
-	private String accessToken;
-	private String clientToken;
-	private String playerName;
-	private String playerID;
+	protected String accessToken;
+	protected String clientToken;
+	protected String playerName;
+	protected String playerID;
 	private SecureRandom random = new SecureRandom();
 
 	public AuthenticationHandler(String userName, String password, Logger logger) throws IOException {

@@ -1,10 +1,11 @@
 package com.github.maxopoly.angeliacore.packet;
 
-import com.github.maxopoly.angeliacore.model.ItemStack;
-import com.github.maxopoly.angeliacore.model.Location;
-import com.github.maxopoly.angeliacore.model.Material;
-import com.github.maxopoly.angeliacore.nbt.NBTCompound;
-import com.github.maxopoly.angeliacore.nbt.NBTParser;
+import com.github.maxopoly.angeliacore.libs.nbt.NBTCompound;
+import com.github.maxopoly.angeliacore.libs.nbt.NBTParser;
+
+import com.github.maxopoly.angeliacore.model.location.Location;
+import com.github.maxopoly.angeliacore.model.item.Material;
+import com.github.maxopoly.angeliacore.model.item.ItemStack;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

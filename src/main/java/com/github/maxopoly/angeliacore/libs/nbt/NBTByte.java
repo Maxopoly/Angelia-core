@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.nbt;
+package com.github.maxopoly.angeliacore.libs.nbt;
 
 public class NBTByte extends NBTElement {
 

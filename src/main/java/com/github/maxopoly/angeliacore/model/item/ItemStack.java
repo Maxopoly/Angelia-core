@@ -1,6 +1,12 @@
-package com.github.maxopoly.angeliacore.model;
+package com.github.maxopoly.angeliacore.model.item;
 
-import com.github.maxopoly.angeliacore.nbt.NBTCompound;
+import com.github.maxopoly.angeliacore.libs.nbt.NBTCompound;
+import com.github.maxopoly.angeliacore.libs.nbt.NBTElement;
+import com.github.maxopoly.angeliacore.libs.nbt.NBTList;
+import com.github.maxopoly.angeliacore.libs.nbt.NBTShort;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public final class ItemStack {
 
@@ -48,6 +54,33 @@ public final class ItemStack {
 
 	public NBTCompound getNBT() {
 		return tag;
+	}
+
+	public boolean isEnchanted() {
+		return getEnchants().size() != 0;
+	}
+
+	public Map<Enchantment, Integer> getEnchants() {
+		Map<Enchantment, Integer> enchants = new HashMap<Enchantment, Integer>();
+		if (tag == null) {
+			return enchants;
+		}
+		NBTElement list = tag.getElement("ench");
+		if (list == null) {
+			return enchants;
+		}
+		if (!(list instanceof NBTList)) {
+			return enchants;
+		}
+		NBTList<NBTCompound> enchantList = (NBTList<NBTCompound>) list;
+		for (NBTCompound comp : enchantList) {
+			short id = ((NBTShort) comp.getElement("id")).getValue();
+			short lvl = ((NBTShort) comp.getElement("lvl")).getValue();
+			Enchantment ench = Enchantment.fromID(id);
+			enchants.put(ench, (int) lvl);
+		}
+		return enchants;
+
 	}
 
 	/**

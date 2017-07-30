@@ -1,6 +1,7 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.out;
 
-import com.github.maxopoly.angeliacore.model.ItemStack;
+import com.github.maxopoly.angeliacore.model.item.ItemStack;
+
 import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
 import java.io.IOException;
 

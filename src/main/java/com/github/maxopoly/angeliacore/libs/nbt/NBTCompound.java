@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.nbt;
+package com.github.maxopoly.angeliacore.libs.nbt;
 
 import java.util.HashMap;
 import java.util.LinkedList;

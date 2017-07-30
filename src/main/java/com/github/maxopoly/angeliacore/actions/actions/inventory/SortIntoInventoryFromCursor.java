@@ -1,7 +1,8 @@
 package com.github.maxopoly.angeliacore.actions.actions.inventory;
 
+import com.github.maxopoly.angeliacore.model.item.ItemStack;
+
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.model.ItemStack;
 import com.github.maxopoly.angeliacore.model.inventory.DummyInventory;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 

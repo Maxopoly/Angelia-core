@@ -1,10 +1,11 @@
 package com.github.maxopoly.angeliacore.actions.actions;
 
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
+import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionPacket;
-import com.github.maxopoly.angeliacore.model.Location;
 import com.github.maxopoly.angeliacore.model.PlayerStatus;
+import com.github.maxopoly.angeliacore.model.location.Location;
 import java.io.IOException;
 
 public class MoveTo extends AbstractAction {
@@ -81,6 +82,11 @@ public class MoveTo extends AbstractAction {
 	@Override
 	public boolean isDone() {
 		return hasReachedDesto(connection.getPlayerStatus().getLocation());
+	}
+
+	@Override
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.MOVEMENT };
 	}
 
 }

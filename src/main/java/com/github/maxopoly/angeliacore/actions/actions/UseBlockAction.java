@@ -1,9 +1,10 @@
 package com.github.maxopoly.angeliacore.actions.actions;
 
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
+import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.BreakAnimationPacket;
-import com.github.maxopoly.angeliacore.model.Location;
+import com.github.maxopoly.angeliacore.model.location.Location;
 import java.io.IOException;
 
 public class UseBlockAction extends AbstractAction {
@@ -28,6 +29,11 @@ public class UseBlockAction extends AbstractAction {
 	@Override
 	public boolean isDone() {
 		return true; // always 1 tick
+	}
+
+	@Override
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.HOTBAR_SLOT };
 	}
 
 }

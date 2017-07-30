@@ -1,10 +1,11 @@
 package com.github.maxopoly.angeliacore.actions.actions.inventory;
 
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
+import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.model.ItemStack;
-import com.github.maxopoly.angeliacore.model.Material;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
+import com.github.maxopoly.angeliacore.model.item.ItemStack;
+import com.github.maxopoly.angeliacore.model.item.Material;
 
 /**
  * Selects an item on the hotbar with the given id
@@ -47,6 +48,11 @@ public class PickHotbarItemByType extends AbstractAction {
 	 */
 	public boolean wasFound() {
 		return found;
+	}
+
+	@Override
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.HOTBAR_SLOT };
 	}
 
 }

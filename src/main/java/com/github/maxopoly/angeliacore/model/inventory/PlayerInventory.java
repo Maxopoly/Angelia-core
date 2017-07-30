@@ -1,6 +1,7 @@
 package com.github.maxopoly.angeliacore.model.inventory;
 
-import com.github.maxopoly.angeliacore.model.ItemStack;
+import com.github.maxopoly.angeliacore.model.item.ItemStack;
+
 import java.util.Arrays;
 
 public class PlayerInventory extends Inventory implements CraftingInventory {

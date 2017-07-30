@@ -57,6 +57,7 @@ public class EventBroadcaster {
 				existingListeners = new LinkedList<EventBroadcaster.MethodListenerTuple>();
 				listenerMapping.put(eventClass, existingListeners);
 			}
+			method.setAccessible(true);
 			existingListeners.add(new MethodListenerTuple(method, listener));
 		}
 	}

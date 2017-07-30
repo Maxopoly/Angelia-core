@@ -1,9 +1,10 @@
 package com.github.maxopoly.angeliacore.actions.actions;
 
+import com.github.maxopoly.angeliacore.model.location.Location;
+
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
 import com.github.maxopoly.angeliacore.actions.SequentialActionExecution;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.model.Location;
 
 /**
  * Digs straight down. The player is assumed to already be at the location given

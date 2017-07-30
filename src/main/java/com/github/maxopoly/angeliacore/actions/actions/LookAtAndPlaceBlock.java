@@ -1,10 +1,11 @@
 package com.github.maxopoly.angeliacore.actions.actions;
 
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
+import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.actions.SequentialActionExecution;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.model.BlockFace;
-import com.github.maxopoly.angeliacore.model.Location;
+import com.github.maxopoly.angeliacore.model.location.BlockFace;
+import com.github.maxopoly.angeliacore.model.location.Location;
 
 public class LookAtAndPlaceBlock extends AbstractAction {
 
@@ -50,6 +51,11 @@ public class LookAtAndPlaceBlock extends AbstractAction {
 		}
 		this.actions = new SequentialActionExecution(new LookAt(connection, block, side), new PlaceBlock(connection, block,
 				side));
+	}
+
+	@Override
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.LOOKING_DIRECTION, ActionLock.HOTBAR_SLOT };
 	}
 
 }

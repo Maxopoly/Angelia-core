@@ -45,6 +45,9 @@ public class PluginService {
 
 	private URLClassLoader addPluginFolderToClassPath() {
 		File dir = new File(pluginFolder);
+		if (!dir.exists()) {
+			dir.mkdir();
+		}
 		List<File> jars = new LinkedList<File>();
 		for (File f : dir.listFiles()) {
 			if (f.getName().endsWith(".jar")) {
@@ -59,6 +62,7 @@ public class PluginService {
 				e.printStackTrace();
 			}
 		}
-		return URLClassLoader.newInstance(urlsList.toArray(new URL[] {}), Thread.currentThread().getContextClassLoader());
+		return URLClassLoader.newInstance(urlsList.toArray(new URL[] {}), Thread.currentThread()
+				.getContextClassLoader());
 	}
 }

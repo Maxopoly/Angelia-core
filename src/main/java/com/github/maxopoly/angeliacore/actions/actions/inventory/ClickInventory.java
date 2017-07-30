@@ -1,11 +1,12 @@
 package com.github.maxopoly.angeliacore.actions.actions.inventory;
 
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
+import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.ItemTransactionManager;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.ClickWindowPacket;
-import com.github.maxopoly.angeliacore.model.ItemStack;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
+import com.github.maxopoly.angeliacore.model.item.ItemStack;
 import java.io.IOException;
 
 /**
@@ -92,6 +93,11 @@ public class ClickInventory extends AbstractAction {
 	@Override
 	public boolean isDone() {
 		return done;
+	}
+
+	@Override
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.INVENTORY, ActionLock.HOTBAR_SLOT };
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.model;
+package com.github.maxopoly.angeliacore.model.item;
 
 import java.util.Map;
 import java.util.TreeMap;

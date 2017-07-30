@@ -5,8 +5,16 @@ import com.github.maxopoly.angeliacore.event.events.HealthChangeEvent;
 import com.github.maxopoly.angeliacore.event.events.HungerChangeEvent;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
+import com.github.maxopoly.angeliacore.model.location.Location;
+import com.github.maxopoly.angeliacore.model.potion.PotionEffect;
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 public class PlayerStatus {
@@ -16,6 +24,7 @@ public class PlayerStatus {
 	private boolean initialized = false;
 
 	private Map<Byte, Inventory> openInventories;
+	private Map<PotionEffect, Long> potionEffects;
 
 	private Location location;
 	private int selectedHotbarSlot;
@@ -40,6 +49,7 @@ public class PlayerStatus {
 		this.format = new DecimalFormat("#.##");
 		this.openInventories = new TreeMap<Byte, Inventory>();
 		this.openInventories.put((byte) 0, new PlayerInventory());
+		this.potionEffects = new HashMap<PotionEffect, Long>();
 		this.connection = connection;
 		this.midAir = false;
 	}
@@ -141,7 +151,7 @@ public class PlayerStatus {
 	 * Sets the flying/falling state
 	 * 
 	 * @param air
-	 *          Whether the player is not on the ground
+	 *            Whether the player is not on the ground
 	 */
 	public void setMidAir(boolean air) {
 		this.midAir = air;
@@ -156,7 +166,8 @@ public class PlayerStatus {
 
 	public Inventory getInventory(byte id) {
 		if (id == -1) {
-			// -1 is used to access the cursor slot, so we can just use the player inventory, which will always be present
+			// -1 is used to access the cursor slot, so we can just use the player inventory, which will always be
+			// present
 			id = 0;
 		}
 		return openInventories.get(id);
@@ -178,6 +189,36 @@ public class PlayerStatus {
 			throw new IllegalArgumentException("Slot must be in [0-8]");
 		}
 		this.selectedHotbarSlot = slot;
+	}
+
+	public List<PotionEffect> getActivePotionEffects() {
+		filterTimedOutEffects();
+		synchronized (potionEffects) {
+			return new LinkedList<PotionEffect>(potionEffects.keySet());
+		}
+	}
+
+	public void addPotionEffect(PotionEffect effect) {
+		synchronized (potionEffects) {
+			potionEffects.remove(effect);
+			potionEffects.put(effect, System.currentTimeMillis());
+		}
+	}
+
+	private void filterTimedOutEffects() {
+		synchronized (potionEffects) {
+			Set<Entry<PotionEffect, Long>> entrySet = potionEffects.entrySet();
+			Iterator<Entry<PotionEffect, Long>> iter = entrySet.iterator();
+			while (iter.hasNext()) {
+				Entry<PotionEffect, Long> entry = iter.next();
+				long start = entry.getValue();
+				long runningTime = entry.getKey().getDuration() * 1000;
+				long current = System.currentTimeMillis();
+				if ((current - start) > runningTime) {
+					iter.remove();
+				}
+			}
+		}
 	}
 
 	/**

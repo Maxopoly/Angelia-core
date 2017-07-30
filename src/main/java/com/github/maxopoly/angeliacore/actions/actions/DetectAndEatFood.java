@@ -1,16 +1,17 @@
 package com.github.maxopoly.angeliacore.actions.actions;
 
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
+import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.HeldItemChangePacket;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerDiggingPacket;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.UseItemPacket;
-import com.github.maxopoly.angeliacore.model.BlockFace;
-import com.github.maxopoly.angeliacore.model.Hand;
-import com.github.maxopoly.angeliacore.model.ItemStack;
-import com.github.maxopoly.angeliacore.model.Location;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
+import com.github.maxopoly.angeliacore.model.item.Hand;
+import com.github.maxopoly.angeliacore.model.item.ItemStack;
+import com.github.maxopoly.angeliacore.model.location.BlockFace;
+import com.github.maxopoly.angeliacore.model.location.Location;
 import java.io.IOException;
 
 public class DetectAndEatFood extends AbstractAction {
@@ -85,6 +86,12 @@ public class DetectAndEatFood extends AbstractAction {
 	@Override
 	public boolean isDone() {
 		return done;
+	}
+
+	@Override
+	public ActionLock[] getActionLocks() {
+		// movement is slower when eating, so let's stop moving when eating
+		return new ActionLock[] { ActionLock.HOTBAR_SLOT, ActionLock.MOVEMENT };
 	}
 
 }
