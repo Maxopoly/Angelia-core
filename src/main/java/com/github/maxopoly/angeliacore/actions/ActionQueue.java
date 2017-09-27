@@ -28,18 +28,18 @@ public class ActionQueue {
 		boolean allDone = false;
 		Set<ActionLock> locksTaken = new HashSet<ActionLock>();
 		Iterator<AbstractAction> iter = actions.iterator();
-		while (!allDone && iter.hasNext()) {
+		outer: while (!allDone && iter.hasNext()) {
 			AbstractAction action = iter.next();
 			for (ActionLock lock : action.getActionLocks()) {
 				if (locksTaken.contains(lock)) {
 					allDone = true;
-					break;
+					break outer;
 				} else {
 					locksTaken.add(lock);
+					if (lock == ActionLock.EVERYTHING) {
+						allDone = true;
+					}
 				}
-			}
-			if (allDone) {
-				break;
 			}
 			action.execute();
 			if (action.isDone()) {
@@ -49,6 +49,8 @@ public class ActionQueue {
 				connection.getEventHandler().broadcast(new ActionQueueEmptiedEvent());
 				allDone = true;
 			}
+			// temporary for debug
+			break;
 		}
 	}
 

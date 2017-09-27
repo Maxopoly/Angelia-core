@@ -6,6 +6,7 @@ import com.github.maxopoly.angeliacore.connection.play.packets.in.AbstractIncomi
 import com.github.maxopoly.angeliacore.connection.play.packets.in.ChatMessagePacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.DisconnectPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.EntityEffectPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.ForceInventoryClosurePacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.HealthChangeHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.JoinGamePacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.KeepAlivePacketHandler;
@@ -50,13 +51,14 @@ public class Heartbeat extends TimerTask {
 		registerPacketHandler(new TransActionConfirmationPacketHandler(connection));
 		registerPacketHandler(new JoinGamePacketHandler(connection));
 		registerPacketHandler(new EntityEffectPacketHandler(connection));
+		registerPacketHandler(new ForceInventoryClosurePacketHandler(connection));
 		// no use for block break animation right now, as it only tells us about other peoples breaking
 		// registerPacketHandler(new BlockBreakAnimationPacketHandler(connection));
 	}
 
 	/**
 	 * Handles an incoming packet by forwarding it to the right handler based on it's id, if one exists
-	 * 
+	 *
 	 * @param packet
 	 *            Packet to handle
 	 */
@@ -71,7 +73,7 @@ public class Heartbeat extends TimerTask {
 
 	/**
 	 * Registers a new packet handler for a specific packet id
-	 * 
+	 *
 	 * @param handler
 	 *            Handler to register
 	 */
@@ -82,7 +84,7 @@ public class Heartbeat extends TimerTask {
 
 	/**
 	 * Checks whether an explicit handler exists for the given packet id
-	 * 
+	 *
 	 * @param packetID
 	 *            ID to check for
 	 * @return True if a handler was registered for the given ID, false otherwise

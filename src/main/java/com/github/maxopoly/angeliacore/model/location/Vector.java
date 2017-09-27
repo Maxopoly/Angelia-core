@@ -28,6 +28,10 @@ public final class Vector {
 		return new Vector(x + other.x, y + other.y, z + other.z);
 	}
 
+	public Vector subtract(Vector other) {
+		return new Vector(x - other.x, y - other.y, z - other.z);
+	}
+
 	public Vector multiply(double factor) {
 		return new Vector(x * factor, y * factor, z * factor);
 	}
@@ -38,5 +42,9 @@ public final class Vector {
 
 	public boolean isZero() {
 		return x == 0.0 && y == 0.0 && z == 0.0;
+	}
+
+	public static Vector calcLocationDifference(Location start, Location target) {
+		return target.toVector().subtract(start.toVector());
 	}
 }

@@ -1,8 +1,7 @@
 package com.github.maxopoly.angeliacore.util;
 
-import com.github.maxopoly.angeliacore.model.location.MovementDirection;
-
 import com.github.maxopoly.angeliacore.model.location.Location;
+import com.github.maxopoly.angeliacore.model.location.MovementDirection;
 import java.util.Iterator;
 
 public class HorizontalField implements Iterable<Location> {
@@ -18,12 +17,13 @@ public class HorizontalField implements Iterable<Location> {
 	private MovementDirection originalMovementDirection;
 	private MovementDirection primaryMovementDirection;
 	private MovementDirection secondaryMovementDirection;
-	private int sidewardsIncrement;
+	private int[] sidewardsIncrements;
+	private int sidewardIncrementPointer;
 	private int sidewardsMovementLeft;
 
 	public HorizontalField(int lowerX, int upperX, int lowerZ, int upperZ, int y,
 			MovementDirection primaryMovementDirection, MovementDirection secondaryMovementDirection, boolean snakeLines,
-			int sidewardsIncrement) {
+			int[] sidewardsIncrements) {
 		this.lowerX = lowerX;
 		this.upperX = upperX;
 		this.lowerZ = lowerZ;
@@ -33,26 +33,29 @@ public class HorizontalField implements Iterable<Location> {
 		this.primaryMovementDirection = primaryMovementDirection;
 		this.secondaryMovementDirection = secondaryMovementDirection;
 		this.originalMovementDirection = primaryMovementDirection;
-		this.sidewardsIncrement = sidewardsIncrement;
+		this.sidewardsIncrements = sidewardsIncrements;
+		this.sidewardIncrementPointer = 0;
 		Location startingLoc = getStartingLocation();
 		this.currentX = startingLoc.getBlockX();
 		this.currentZ = startingLoc.getBlockZ();
 	}
 
 	public HorizontalField(int lowerX, int upperX, int lowerZ, int upperZ, int y,
-			MovementDirection primaryMovementDirection, MovementDirection secondaryMovementDirection) {
-		this(lowerX, upperX, lowerZ, upperZ, y, primaryMovementDirection, secondaryMovementDirection, false, 1);
+			MovementDirection primaryMovementDirection, MovementDirection secondaryMovementDirection, boolean snakeLines,
+			int sidewardsIncrement) {
+		this(lowerX, upperX, lowerZ, upperZ, y, primaryMovementDirection, secondaryMovementDirection, snakeLines,
+				new int[] { sidewardsIncrement });
 	}
 
 	/**
 	 * Creates a fresh copy with the same values as this instance, but different y level
-	 * 
+	 *
 	 * @param y
 	 * @return
 	 */
 	public HorizontalField copy(int y) {
 		return new HorizontalField(lowerX, upperX, lowerZ, upperZ, y, originalMovementDirection,
-				secondaryMovementDirection, snakeLines, sidewardsIncrement);
+				secondaryMovementDirection, snakeLines, sidewardsIncrements);
 	}
 
 	/**
@@ -96,6 +99,44 @@ public class HorizontalField implements Iterable<Location> {
 		return new Location(currentX, y, currentZ, 0.0f, 0.0f);
 	}
 
+	public Location getFinalLocation() {
+		double currentZ = 0;
+		double currentX = 0;
+		switch (originalMovementDirection) {
+			case NORTH:
+				currentZ = lowerZ;
+				break;
+			case SOUTH:
+				currentZ = upperZ;
+				break;
+			case EAST:
+				currentX = upperX;
+				break;
+			case WEST:
+				currentX = lowerX;
+				break;
+			default:
+				throw new IllegalArgumentException("Invalid primary direction " + secondaryMovementDirection.name());
+		}
+		switch (secondaryMovementDirection) {
+			case NORTH:
+				currentZ = lowerZ;
+				break;
+			case SOUTH:
+				currentZ = upperZ;
+				break;
+			case EAST:
+				currentX = upperX;
+				break;
+			case WEST:
+				currentX = lowerX;
+				break;
+			default:
+				throw new IllegalArgumentException("Invalid second direction " + secondaryMovementDirection.name());
+		}
+		return new Location(currentX, y, currentZ, 0.0f, 0.0f);
+	}
+
 	private void backAndSidewards() {
 		// at this point we already are one block out, so let's revert that
 		currentX -= primaryMovementDirection.toVector().getX();
@@ -103,7 +144,10 @@ public class HorizontalField implements Iterable<Location> {
 		// add sidewards movement instead
 		currentX += secondaryMovementDirection.toVector().getX();
 		currentZ += secondaryMovementDirection.toVector().getZ();
-		sidewardsMovementLeft = sidewardsIncrement - 1;
+		sidewardsMovementLeft = sidewardsIncrements[sidewardIncrementPointer++] - 1;
+		if (sidewardIncrementPointer >= sidewardsIncrements.length) {
+			sidewardIncrementPointer = 0;
+		}
 		if (snakeLines) {
 			primaryMovementDirection = primaryMovementDirection.getOpposite();
 		}
@@ -111,7 +155,8 @@ public class HorizontalField implements Iterable<Location> {
 
 	@Override
 	public Iterator<Location> iterator() {
-		// we define the iterator behavior here, so we only have to define the individual method behavior in the subclasses
+		// we define the iterator behavior here, so we only have to define the individual method behavior in the
+		// subclasses
 		return new Iterator<Location>() {
 
 			@Override
@@ -142,7 +187,7 @@ public class HorizontalField implements Iterable<Location> {
 
 	/**
 	 * Calculates the direction the next location will be in from the previous one
-	 * 
+	 *
 	 * @return Current movement direction
 	 */
 	public MovementDirection getCurrentDirection() {

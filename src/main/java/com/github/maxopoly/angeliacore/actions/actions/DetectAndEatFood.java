@@ -4,14 +4,11 @@ import com.github.maxopoly.angeliacore.actions.AbstractAction;
 import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.HeldItemChangePacket;
-import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerDiggingPacket;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.UseItemPacket;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
 import com.github.maxopoly.angeliacore.model.item.Hand;
 import com.github.maxopoly.angeliacore.model.item.ItemStack;
-import com.github.maxopoly.angeliacore.model.location.BlockFace;
-import com.github.maxopoly.angeliacore.model.location.Location;
 import java.io.IOException;
 
 public class DetectAndEatFood extends AbstractAction {
@@ -19,11 +16,13 @@ public class DetectAndEatFood extends AbstractAction {
 	private Hand foodHand;
 	private boolean done;
 	private int eatingTicksLeft;
+	private boolean foundFood;
 
 	public DetectAndEatFood(ServerConnection connection) {
 		super(connection);
 		this.eatingTicksLeft = -10;
 		this.done = false;
+		this.foundFood = true;
 	}
 
 	@Override
@@ -56,28 +55,20 @@ public class DetectAndEatFood extends AbstractAction {
 					foodHand = Hand.MAINHAND;
 				} else {
 					// no food found
+					foundFood = false;
 					done = true;
 					return;
 				}
 			}
-			// 5 seconds should be good
-			eatingTicksLeft = (int) connection.getTicksPerSecond() * 5;
-		} else {
+			eatingTicksLeft = (int) connection.getTicksPerSecond() / 20 * 32;
 			try {
 				UseItemPacket eatingStarted = new UseItemPacket(foodHand);
 				connection.sendPacket(eatingStarted);
 			} catch (IOException e) {
 				connection.getLogger().error("Failed to send eating start packet", e);
 			}
-			if (eatingTicksLeft <= 1) {
-				try {
-					PlayerDiggingPacket finishedEating = new PlayerDiggingPacket(5, new Location(0, 0, 0), BlockFace.SPECIAL);
-					connection.sendPacket(finishedEating);
-				} catch (IOException e) {
-					connection.getLogger().error("Failed to send eating stop packet", e);
-				}
-			}
-			if (eatingTicksLeft-- <= -1) {
+		} else {
+			if (eatingTicksLeft-- <= 0) {
 				done = true;
 			}
 		}
@@ -86,6 +77,10 @@ public class DetectAndEatFood extends AbstractAction {
 	@Override
 	public boolean isDone() {
 		return done;
+	}
+
+	public boolean foundFood() {
+		return foundFood;
 	}
 
 	@Override

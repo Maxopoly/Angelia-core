@@ -149,7 +149,7 @@ public class PlayerStatus {
 
 	/**
 	 * Sets the flying/falling state
-	 * 
+	 *
 	 * @param air
 	 *            Whether the player is not on the ground
 	 */
@@ -202,6 +202,13 @@ public class PlayerStatus {
 		synchronized (potionEffects) {
 			potionEffects.remove(effect);
 			potionEffects.put(effect, System.currentTimeMillis());
+		}
+	}
+
+	public void removeOpenInventory(byte id) {
+		// always keep player inventory
+		if (id != 0) {
+			openInventories.remove(id);
 		}
 	}
 

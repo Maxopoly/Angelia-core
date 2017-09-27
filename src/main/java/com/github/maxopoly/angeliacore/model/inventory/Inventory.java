@@ -1,13 +1,30 @@
 package com.github.maxopoly.angeliacore.model.inventory;
 
-import com.github.maxopoly.angeliacore.model.item.Material;
-
 import com.github.maxopoly.angeliacore.model.item.ItemStack;
+import com.github.maxopoly.angeliacore.model.item.Material;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 public abstract class Inventory implements Iterable<ItemStack> {
+
+	public static Inventory constructInventory(String type, String name, byte size) {
+		Inventory inv;
+		switch (type) {
+			case "minecraft:container":
+				if (size % 9 != 0) {
+					inv = null;
+					break;
+				}
+				inv = new ChestInventory(size / 9, name);
+				break;
+
+			default:
+				inv = null;
+				break;
+		}
+		return inv;
+	}
 
 	protected ItemStack[] slots;
 	private static ItemStack cursor;
@@ -54,9 +71,9 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	 * Looks for the given item in any slot of this inventory. If the item is found, the index of the first find is
 	 * returned, otherwise -1 is returned. Note that in other context the slot -1 might stand for the cursor, but that's
 	 * not the case here
-	 * 
+	 *
 	 * @param is
-	 *          ItemStack to look for
+	 *            ItemStack to look for
 	 * @return Slot of the first find of the stack or -1 if none was found
 	 */
 	public short findSlot(ItemStack is) {
@@ -72,9 +89,9 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	 * Looks for the given item id in any slot of this inventory. If the item is found, the index of the first find is
 	 * returned, otherwise -1 is returned. Note that in other context the slot -1 might stand for the cursor, but that's
 	 * not the case here
-	 * 
+	 *
 	 * @param is
-	 *          id of the ItemStack to look for
+	 *            id of the ItemStack to look for
 	 * @return Slot of the first find of the item id or -1 if none was found
 	 */
 	public short findSlotByType(ItemStack is) {
@@ -89,9 +106,9 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	/**
 	 * Gets the content of the slot with the given id. If the slot is empty, a dummy ItemStack with an id of -1 is
 	 * returned
-	 * 
+	 *
 	 * @param id
-	 *          Slot id
+	 *            Slot id
 	 * @return ItemStack representing the content of the selected slot
 	 */
 	public ItemStack getSlot(int id) {
@@ -102,9 +119,9 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	/**
 	 * Checks whether the given ItemStack fits into this inventory by filling up existing stacks and using empty slot as
 	 * available
-	 * 
+	 *
 	 * @param is
-	 *          ItemStack to try
+	 *            ItemStack to try
 	 * @return True if the ItemStack would fit in the inventory, false if not
 	 */
 	public boolean hasSpaceFor(ItemStack is) {
@@ -125,7 +142,7 @@ public abstract class Inventory implements Iterable<ItemStack> {
 
 	/**
 	 * Compresses this instance by combining all ItemStacks in it which are identical and adjusting amounts accordingly
-	 * 
+	 *
 	 * @return Compressed version of this inventory with a variable size
 	 */
 	public Inventory compress() {
@@ -170,18 +187,18 @@ public abstract class Inventory implements Iterable<ItemStack> {
 
 	/**
 	 * Translates a slot in the storage inventory to an absolute slot in the inventory
-	 * 
+	 *
 	 * @param slot
-	 *          Relative slot in the storage section
+	 *            Relative slot in the storage section
 	 * @return Absolute slot
 	 */
 	public abstract short translateStorageSlotToTotal(int slot);
 
 	/**
 	 * Translates a slot in the hotbar of the inventory to an absolute slot in the inventory
-	 * 
+	 *
 	 * @param slot
-	 *          Relative slot in the hotbar section
+	 *            Relative slot in the hotbar section
 	 * @return Absolute slot
 	 */
 	public abstract short translateHotbarToTotal(int slot);

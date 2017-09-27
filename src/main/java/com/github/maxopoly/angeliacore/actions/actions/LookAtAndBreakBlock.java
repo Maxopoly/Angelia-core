@@ -25,6 +25,7 @@ public class LookAtAndBreakBlock extends AbstractAction {
 	public void execute() {
 		if (actions == null) {
 			setupActions();
+			actions.execute();
 		}
 		actions.execute();
 	}

@@ -76,7 +76,7 @@ public final class Location {
 
 	/**
 	 * Drops yaw and pitch and rounds all coordinates to integers
-	 * 
+	 *
 	 * @return
 	 */
 	public Location toBlockLocation() {
@@ -85,7 +85,7 @@ public final class Location {
 
 	/**
 	 * Turns this location into a vector, which represents the locations offset from 0, 0, 0
-	 * 
+	 *
 	 * @return Vector representing this location
 	 */
 	public Vector toVector() {
@@ -94,7 +94,7 @@ public final class Location {
 
 	/**
 	 * Returns a copy of this location with each coordinate modified by the given amount
-	 * 
+	 *
 	 * @param x
 	 *          Number to add to x coord
 	 * @param y
@@ -110,7 +110,7 @@ public final class Location {
 	/**
 	 * If this location represents a block (using full integer coords), then this method will return the center of the
 	 * block
-	 * 
+	 *
 	 * @return Block center
 	 */
 	public Location getBlockCenter() {
@@ -120,7 +120,7 @@ public final class Location {
 	/**
 	 * If this location represents a block (using full integer coords), then this method will return the center of the
 	 * block, while leaving y unchanged
-	 * 
+	 *
 	 * @return Block center only for the x and z coordinate
 	 */
 	public Location getBlockCenterXZ() {
@@ -141,6 +141,17 @@ public final class Location {
 		return pitch;
 	}
 
+	/**
+	 * Calculates the middle between this location and the given one based on their euclidian distance
+	 * 
+	 * @param other
+	 *          Second location to use
+	 * @return The middle between the locations
+	 */
+	public Location getMiddle(Location other) {
+		return new Location((x + other.x) / 2, (y + other.y) / 2, (z + other.z) / 2, yaw, pitch);
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -156,8 +167,9 @@ public final class Location {
 			return false;
 		}
 		Location loc = (Location) o;
+		double accuracy = 0.001;
 		// view and pitch dont really matter for location comparison
-		return loc.x == x && loc.y == y && loc.z == z;
+		return Math.abs(loc.x - x) < accuracy && Math.abs(loc.y - y) < accuracy && Math.abs(loc.z - z) < accuracy;
 	}
 
 }
