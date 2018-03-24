@@ -2,9 +2,9 @@ package com.github.maxopoly.angeliacore.model.location;
 
 public final class Vector {
 
-	private double x;
-	private double y;
-	private double z;
+	private final double x;
+	private final double y;
+	private final double z;
 
 	public Vector(double x, double y, double z) {
 		this.x = x;
@@ -38,6 +38,18 @@ public final class Vector {
 
 	public Vector cross(Vector v) {
 		return new Vector(v.getX() * x, v.getY() * y, v.getZ() * z);
+	}
+
+	public Vector normalize() {
+		double length = Math.sqrt(x*x + y*y + z*z);
+		if(length == 0) {
+			length = 1;
+		}
+		return new Vector(x/length, y/length, z/length);
+	}
+
+	public Vector getOpposite() {
+		return multiply(-1);
 	}
 
 	public boolean isZero() {

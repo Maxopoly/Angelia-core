@@ -11,6 +11,7 @@ import com.github.maxopoly.angeliacore.connection.play.packets.out.ClientSetting
 import com.github.maxopoly.angeliacore.encryption.AES_CFB8_Encrypter;
 import com.github.maxopoly.angeliacore.event.EventBroadcaster;
 import com.github.maxopoly.angeliacore.model.PlayerStatus;
+import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;
 import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
 import com.github.maxopoly.angeliacore.plugin.PluginManager;
@@ -45,6 +46,7 @@ public class ServerConnection {
 	private Timer tickTimer;
 	private ItemTransactionManager transActionManager;
 	private PluginManager pluginManager;
+	private OtherPlayerManager otherPlayerManager;
 	private boolean localHost;
 
 	private boolean encryptionEnabled;
@@ -59,15 +61,15 @@ public class ServerConnection {
 
 	/**
 	 * Standard Constructor
-	 * 
+	 *
 	 * @param adress
-	 *          IP or domain of the server
+	 *            IP or domain of the server
 	 * @param port
-	 *          Port of the server
+	 *            Port of the server
 	 * @param logger
-	 *          Logger to use
+	 *            Logger to use
 	 * @param auth
-	 *          Account authentication to use
+	 *            Account authentication to use
 	 */
 	public ServerConnection(String adress, int port, Logger logger, AuthenticationHandler auth) {
 		this.serverAdress = adress;
@@ -86,13 +88,13 @@ public class ServerConnection {
 
 	/**
 	 * Constructor with the default port 25565
-	 * 
+	 *
 	 * @param adress
-	 *          IP or domain of the server
+	 *            IP or domain of the server
 	 * @param logger
-	 *          Logger to use
+	 *            Logger to use
 	 * @param auth
-	 *          Account authentication to use
+	 *            Account authentication to use
 	 */
 	public ServerConnection(String adress, Logger logger, AuthenticationHandler auth) {
 		this(adress, 25565, logger, auth); // default port
@@ -121,22 +123,22 @@ public class ServerConnection {
 	 * provided account auth is still valid, refreshes it if needed and returns if it can't be refreshed. Next it
 	 * handshakes the server to get its protocol version, resets the connection and begin a new login handshake with the
 	 * retrieved protocol version. Note that no actual adjustments are made based on the protocol version sent by the
-	 * server, it's just copied and assumed to be our version. After the initial version handshake, we exchange encryption
-	 * details, authenticate the connection attempt against Yggdrassil's (minecraft auth) server, enable sync encryption,
-	 * enable compression if requested by the server, join the game and finally setup packet handlers for all kinds of
-	 * incoming packets. The packet handling happens in a freshly spawned thread, which also handles consuming actions
-	 * from the ActionQueue, this method will return once the connection is fully set up
-	 * 
+	 * server, it's just copied and assumed to be our version. After the initial version handshake, we exchange
+	 * encryption details, authenticate the connection attempt against Yggdrassil's (minecraft auth) server, enable sync
+	 * encryption, enable compression if requested by the server, join the game and finally setup packet handlers for
+	 * all kinds of incoming packets. The packet handling happens in a freshly spawned thread, which also handles
+	 * consuming actions from the ActionQueue, this method will return once the connection is fully set up
+	 *
 	 * @throws IOException
-	 *           If something goes wrong
+	 *             If something goes wrong
 	 */
 	public void connect() throws IOException {
 		if (!authHandler.validateToken(logger)) {
 			logger.info("Token for " + authHandler.getPlayerName() + " is no longer valid, refreshing it");
 			authHandler.refreshToken(logger);
 		}
-		logger.info("Initializing connection process for account " + authHandler.getPlayerName() + " to " + serverAdress
-				+ ":" + port);
+		logger.info("Initializing connection process for account " + authHandler.getPlayerName() + " to "
+				+ serverAdress + ":" + port);
 		// connect
 		reestablishConnection();
 		HandShake shake = new HandShake(this);
@@ -180,6 +182,7 @@ public class ServerConnection {
 		playPacketHandler = new Heartbeat(this);
 		pluginManager = new PluginManager(this);
 		actionQueue = new ActionQueue(this);
+		otherPlayerManager = new OtherPlayerManager();
 		tickTimer = new Timer("Angelia tick");
 		tickTimer.schedule(playPacketHandler, tickDelay, tickDelay);
 		// still have to do this
@@ -188,9 +191,9 @@ public class ServerConnection {
 
 	/**
 	 * Sends a packet to the server. This method also handles both compression and encryption
-	 * 
+	 *
 	 * @param packet
-	 *          Packet to send
+	 *            Packet to send
 	 * @throws IOException
 	 */
 	public void sendPacket(WriteOnlyPacket packet) throws IOException {
@@ -234,7 +237,7 @@ public class ServerConnection {
 
 	/**
 	 * Gets a received packet if one is available and waits (non-blocking) until one is available if none is available.
-	 * 
+	 *
 	 * @return Packet read
 	 */
 	public ReadOnlyPacket getPacket() throws IOException {
@@ -387,11 +390,15 @@ public class ServerConnection {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return EventHandler for registering listeners and calling events
 	 */
 	public EventBroadcaster getEventHandler() {
 		return eventHandler;
+	}
+
+	public OtherPlayerManager getOtherPlayerManager() {
+		return otherPlayerManager;
 	}
 
 	/**

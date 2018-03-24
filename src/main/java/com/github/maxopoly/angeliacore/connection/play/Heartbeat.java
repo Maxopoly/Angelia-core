@@ -10,8 +10,10 @@ import com.github.maxopoly.angeliacore.connection.play.packets.in.ForceInventory
 import com.github.maxopoly.angeliacore.connection.play.packets.in.HealthChangeHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.JoinGamePacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.KeepAlivePacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.PlayerListItemPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.PlayerPositionLookPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.SetSlotPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.SpawnPlayerPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.TransActionConfirmationPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.WindowItemsPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.XPChangeHandler;
@@ -52,6 +54,8 @@ public class Heartbeat extends TimerTask {
 		registerPacketHandler(new JoinGamePacketHandler(connection));
 		registerPacketHandler(new EntityEffectPacketHandler(connection));
 		registerPacketHandler(new ForceInventoryClosurePacketHandler(connection));
+		registerPacketHandler(new PlayerListItemPacketHandler(connection));
+		registerPacketHandler(new SpawnPlayerPacketHandler(connection));
 		// no use for block break animation right now, as it only tells us about other peoples breaking
 		// registerPacketHandler(new BlockBreakAnimationPacketHandler(connection));
 	}

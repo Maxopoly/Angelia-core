@@ -8,6 +8,8 @@ import java.util.List;
 
 public abstract class Inventory implements Iterable<ItemStack> {
 
+	private boolean isInitialized = false;
+
 	public static Inventory constructInventory(String type, String name, byte size) {
 		Inventory inv;
 		switch (type) {
@@ -35,6 +37,7 @@ public abstract class Inventory implements Iterable<ItemStack> {
 
 	public Inventory(ItemStack[] items) {
 		this(items.length);
+		isInitialized = true;
 		for (int i = 0; i < items.length; i++) {
 			updateSlot(i, items[i]);
 		}
@@ -44,6 +47,7 @@ public abstract class Inventory implements Iterable<ItemStack> {
 		if (content.length != slots.length) {
 			throw new IllegalArgumentException("Slot length can't be different");
 		}
+		isInitialized = true;
 		for (int i = 0; i < content.length; i++) {
 			updateSlot(i, content[i]);
 		}
@@ -73,7 +77,7 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	 * not the case here
 	 *
 	 * @param is
-	 *            ItemStack to look for
+	 *          ItemStack to look for
 	 * @return Slot of the first find of the stack or -1 if none was found
 	 */
 	public short findSlot(ItemStack is) {
@@ -91,7 +95,7 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	 * not the case here
 	 *
 	 * @param is
-	 *            id of the ItemStack to look for
+	 *          id of the ItemStack to look for
 	 * @return Slot of the first find of the item id or -1 if none was found
 	 */
 	public short findSlotByType(ItemStack is) {
@@ -104,11 +108,21 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	}
 
 	/**
+	 * After opening an inventory, it's content is sent in a separate packet. If this packet was received yet and the
+	 * content of this chest is known, this will be true
+	 * 
+	 * @return Whether the chest content is initialized
+	 */
+	public boolean isInitialized() {
+		return isInitialized;
+	}
+
+	/**
 	 * Gets the content of the slot with the given id. If the slot is empty, a dummy ItemStack with an id of -1 is
 	 * returned
 	 *
 	 * @param id
-	 *            Slot id
+	 *          Slot id
 	 * @return ItemStack representing the content of the selected slot
 	 */
 	public ItemStack getSlot(int id) {
@@ -121,7 +135,7 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	 * available
 	 *
 	 * @param is
-	 *            ItemStack to try
+	 *          ItemStack to try
 	 * @return True if the ItemStack would fit in the inventory, false if not
 	 */
 	public boolean hasSpaceFor(ItemStack is) {
@@ -189,7 +203,7 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	 * Translates a slot in the storage inventory to an absolute slot in the inventory
 	 *
 	 * @param slot
-	 *            Relative slot in the storage section
+	 *          Relative slot in the storage section
 	 * @return Absolute slot
 	 */
 	public abstract short translateStorageSlotToTotal(int slot);
@@ -198,7 +212,7 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	 * Translates a slot in the hotbar of the inventory to an absolute slot in the inventory
 	 *
 	 * @param slot
-	 *            Relative slot in the hotbar section
+	 *          Relative slot in the hotbar section
 	 * @return Absolute slot
 	 */
 	public abstract short translateHotbarToTotal(int slot);

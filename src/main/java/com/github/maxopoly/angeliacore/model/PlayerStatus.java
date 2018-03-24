@@ -33,7 +33,7 @@ public class PlayerStatus {
 	private float xpProgress;
 	private int level;
 
-	private float health;
+	private float health = 20.f;
 	private int hunger;
 	private float saturation;
 	private boolean midAir;

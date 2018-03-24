@@ -45,8 +45,7 @@ public class PluginManager {
 
 	private void registerPlugin(AngeliaPlugin plugin) {
 		if (plugins.containsKey(plugin.getName().toLowerCase())) {
-			connection.getLogger().warn(
-					"Plugin " + plugin.getName() + " was already registered, did not register again");
+			connection.getLogger().warn("Plugin " + plugin.getName() + " was already registered, did not register again");
 			return;
 		}
 		connection.getLogger().info("Registering plugin " + plugin.getName());
@@ -64,11 +63,11 @@ public class PluginManager {
 
 	/**
 	 * Starts a plugin and returns the plugin started
-	 * 
+	 *
 	 * @param pluginName
-	 *            Name of the plugin to start
+	 *          Name of the plugin to start
 	 * @param args
-	 *            Arguments to pass to the plugin on startup
+	 *          Arguments to pass to the plugin on startup
 	 * @return Created plugin instance
 	 */
 	public AngeliaPlugin executePlugin(String pluginName, String[] args) {
@@ -87,6 +86,10 @@ public class PluginManager {
 				return null;
 			}
 			plugin.parseOptions(connection, options);
+			if (plugin.isFinished()) {
+				// option parsing might have failed
+				return null;
+			}
 			plugin.start();
 			return plugin;
 		} catch (InstantiationException | IllegalAccessException e) {
@@ -97,9 +100,9 @@ public class PluginManager {
 
 	/**
 	 * Finishes all instances of a plugin with the given name
-	 * 
+	 *
 	 * @param name
-	 *            Name of the plugin to stop
+	 *          Name of the plugin to stop
 	 * @return How many plugins were stopped
 	 */
 	public int stopPlugin(String name) {
@@ -116,12 +119,11 @@ public class PluginManager {
 
 	/**
 	 * When a new server connection is made (after reconnecting), a new plugin manager is created along with it. This
-	 * method passes the old plugin managers plugins to the new one. The actual plugins passed are not the ones
-	 * previously used, but instead copies specifically made for use in a new connection and to handle errors coming
-	 * along with that.
-	 * 
+	 * method passes the old plugin managers plugins to the new one. The actual plugins passed are not the ones previously
+	 * used, but instead copies specifically made for use in a new connection and to handle errors coming along with that.
+	 *
 	 * @param replacement
-	 *            new plugin manager
+	 *          new plugin manager
 	 */
 	public void passPluginsOver(ServerConnection newConnection) {
 		PluginManager replacement = newConnection.getPluginManager();
@@ -148,9 +150,8 @@ public class PluginManager {
 		} catch (MissingArgumentException e) {
 			Option opt = e.getOption();
 			connection.getLogger().warn(
-					"An incorrect amount of argument(s) was supplied for the option " + opt.getArgName()
-							+ ". Run \"helpplugin " + plugin.getName()
-							+ "\" for more information on how to use this command");
+					"An incorrect amount of argument(s) was supplied for the option " + opt.getArgName() + ". Run \"helpplugin "
+							+ plugin.getName() + "\" for more information on how to use this command");
 			return null;
 		} catch (MissingOptionException e) {
 			List<String> missingOptions = e.getMissingOptions();
@@ -159,13 +160,13 @@ public class PluginManager {
 				sb.append(opt + " ");
 			}
 			connection.getLogger().warn(
-					"The required argument(s) " + sb.toString() + "were not supplied. Run \"helpplugin "
-							+ plugin.getName() + "\" for more information on how to use this command");
+					"The required argument(s) " + sb.toString() + "were not supplied. Run \"helpplugin " + plugin.getName()
+							+ "\" for more information on how to use this command");
 			return null;
 		} catch (UnrecognizedOptionException e) {
 			connection.getLogger().warn(
-					"The supplied option " + e.getOption() + " could not be recognized. Run \"helpplugin "
-							+ plugin.getName() + "\" for more information on how to use this command");
+					"The supplied option " + e.getOption() + " could not be recognized. Run \"helpplugin " + plugin.getName()
+							+ "\" for more information on how to use this command");
 			return null;
 		} catch (ParseException e) {
 			connection.getLogger().error("An unknown exception occured while trying to parse arguments", e);

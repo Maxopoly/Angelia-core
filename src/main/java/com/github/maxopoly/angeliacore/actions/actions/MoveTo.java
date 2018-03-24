@@ -14,6 +14,7 @@ public class MoveTo extends AbstractAction {
 	private double movementSpeed;
 	private double ticksPerSecond;
 	private final static double errorMargin = 0.01;
+	public static final double SLOW_SPEED = 1.0;
 	public static final double WALKING_SPEED = 4.317;
 	public static final double SPRINTING_SPEED = 5.612;
 	public static final double FALLING = 20.0;
@@ -26,7 +27,7 @@ public class MoveTo extends AbstractAction {
 
 	/**
 	 * Calculates the location to which the player should move on the next client tick
-	 * 
+	 *
 	 * @param current
 	 *          The players current location
 	 * @param movementSpeed

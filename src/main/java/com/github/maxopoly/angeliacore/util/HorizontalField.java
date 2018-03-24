@@ -213,8 +213,29 @@ public class HorizontalField implements Iterable<Location> {
 		throw new IllegalStateException(primaryMovementDirection.name() + " is not a valid movement direction");
 	}
 
+	public MovementDirection getOriginalPrimaryMovementDirection() {
+		return originalMovementDirection;
+	}
+
 	private boolean outsideField(Location loc) {
 		return loc.getBlockX() > upperX || loc.getBlockZ() > upperZ || loc.getBlockX() < lowerX || loc.getBlockZ() < lowerZ;
+	}
+
+	public boolean isAtSide(MovementDirection side, Location loc) {
+		if(loc.getBlockY() != y) {
+			return false;
+		}
+		switch (side) {
+			case NORTH:
+				return loc.getBlockZ() == getLowerZ();
+			case SOUTH:
+				return loc.getBlockZ() == getUpperZ();
+			case EAST:
+				return loc.getBlockX() == getUpperX();
+			case WEST:
+				return loc.getBlockX() == getLowerX();
+		}
+		return false;
 	}
 
 	public int getLowerX() {

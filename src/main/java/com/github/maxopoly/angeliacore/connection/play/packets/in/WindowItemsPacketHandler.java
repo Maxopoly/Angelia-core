@@ -1,6 +1,7 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
+import com.github.maxopoly.angeliacore.event.events.InventoryInitializationEvent;
 import com.github.maxopoly.angeliacore.event.events.UpdateInventoryEvent;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.item.ItemStack;
@@ -24,7 +25,11 @@ public class WindowItemsPacketHandler extends AbstractIncomingPacketHandler {
 				items[i] = packet.readItemStack();
 			}
 			if (inv != null) {
+				boolean wasInitialized = inv.isInitialized();
 				connection.getEventHandler().broadcast(new UpdateInventoryEvent(inv, windowID, items));
+				if (!wasInitialized) {
+					connection.getEventHandler().broadcast(new InventoryInitializationEvent(inv, windowID));
+				}
 				inv.setSlots(items);
 			}
 		} catch (EndOfPacketException e) {

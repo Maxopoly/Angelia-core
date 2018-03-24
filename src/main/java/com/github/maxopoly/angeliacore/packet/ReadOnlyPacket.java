@@ -2,14 +2,14 @@ package com.github.maxopoly.angeliacore.packet;
 
 import com.github.maxopoly.angeliacore.libs.nbt.NBTCompound;
 import com.github.maxopoly.angeliacore.libs.nbt.NBTParser;
-
-import com.github.maxopoly.angeliacore.model.location.Location;
-import com.github.maxopoly.angeliacore.model.item.Material;
 import com.github.maxopoly.angeliacore.model.item.ItemStack;
+import com.github.maxopoly.angeliacore.model.item.Material;
+import com.github.maxopoly.angeliacore.model.location.Location;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.UUID;
 
 public class ReadOnlyPacket {
 
@@ -111,13 +111,17 @@ public class ReadOnlyPacket {
 		return readBytes(readVarInt());
 	}
 
+	public UUID readUUID() throws EndOfPacketException {
+		return new UUID(readLong(), readLong());
+	}
+
 	/**
 	 * Reads a single string from the input data. Strings are made up of an initial varint denoting the length of the
 	 * string and the actual string encoded in utf-8
-	 * 
+	 *
 	 * @return String read
 	 * @throws EndOfPacketException
-	 *           Thrown if packet ended before String ended
+	 *             Thrown if packet ended before String ended
 	 */
 	public String readString() throws EndOfPacketException {
 		int charAmount = readVarInt();
@@ -145,7 +149,7 @@ public class ReadOnlyPacket {
 
 	/**
 	 * Parses an encoded position, only including flat integer coords for x, y and z
-	 * 
+	 *
 	 * @return
 	 */
 	public Location readPosition() throws EndOfPacketException {
@@ -158,10 +162,10 @@ public class ReadOnlyPacket {
 
 	/**
 	 * Reads a varInt from the input data
-	 * 
+	 *
 	 * @return varInt read
 	 * @throws IOException
-	 *           thrown if varInt could not be read or was too big
+	 *             thrown if varInt could not be read or was too big
 	 */
 	public int readVarInt() {
 		int i = 0;

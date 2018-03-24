@@ -96,11 +96,11 @@ public final class Location {
 	 * Returns a copy of this location with each coordinate modified by the given amount
 	 *
 	 * @param x
-	 *          Number to add to x coord
+	 *            Number to add to x coord
 	 * @param y
-	 *          Number to add to y coord
+	 *            Number to add to y coord
 	 * @param z
-	 *          Number to add to z coord
+	 *            Number to add to z coord
 	 * @return Modified location
 	 */
 	public Location relativeBlock(double x, double y, double z) {
@@ -143,9 +143,9 @@ public final class Location {
 
 	/**
 	 * Calculates the middle between this location and the given one based on their euclidian distance
-	 * 
+	 *
 	 * @param other
-	 *          Second location to use
+	 *            Second location to use
 	 * @return The middle between the locations
 	 */
 	public Location getMiddle(Location other) {
@@ -170,6 +170,10 @@ public final class Location {
 		double accuracy = 0.001;
 		// view and pitch dont really matter for location comparison
 		return Math.abs(loc.x - x) < accuracy && Math.abs(loc.y - y) < accuracy && Math.abs(loc.z - z) < accuracy;
+	}
+
+	public static float translateAngleFrom256Step(byte step) {
+		return (step) * 180f;
 	}
 
 }
