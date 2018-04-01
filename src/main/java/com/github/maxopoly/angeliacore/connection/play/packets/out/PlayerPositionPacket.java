@@ -6,7 +6,7 @@ import java.io.IOException;
 public class PlayerPositionPacket extends WriteOnlyPacket {
 
 	public PlayerPositionPacket(double x, double y, double z, boolean onGround) throws IOException {
-		super(0x0C);
+		super(0x0D);
 		writeDouble(x);
 		writeDouble(y);
 		writeDouble(z);

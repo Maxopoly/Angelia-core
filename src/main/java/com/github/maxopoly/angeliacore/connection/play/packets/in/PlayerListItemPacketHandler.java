@@ -13,7 +13,7 @@ import java.util.UUID;
 public class PlayerListItemPacketHandler extends AbstractIncomingPacketHandler {
 
 	public PlayerListItemPacketHandler(ServerConnection connection) {
-		super(connection, 0x2D);
+		super(connection, 0x2E);
 	}
 
 	@Override

@@ -7,7 +7,7 @@ import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 public class HealthChangeHandler extends AbstractIncomingPacketHandler {
 
 	public HealthChangeHandler(ServerConnection connection) {
-		super(connection, 0x3E);
+		super(connection, 0x41);
 	}
 
 	@Override

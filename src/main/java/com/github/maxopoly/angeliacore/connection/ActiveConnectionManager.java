@@ -26,7 +26,7 @@ public class ActiveConnectionManager {
 		try {
 			newConnection.connect();
 		} catch (Exception e) {
-			newConnection.getLogger().error("Could not connect to server");
+			newConnection.getLogger().error("Could not connect to server", e);
 			if (!retry) {
 				System.exit(1);
 			} else {

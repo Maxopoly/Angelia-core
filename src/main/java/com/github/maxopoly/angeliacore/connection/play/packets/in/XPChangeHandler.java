@@ -7,7 +7,7 @@ import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 public class XPChangeHandler extends AbstractIncomingPacketHandler {
 
 	public XPChangeHandler(ServerConnection connection) {
-		super(connection, 0x3D);
+		super(connection, 0x40);
 	}
 
 	@Override

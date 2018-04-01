@@ -6,7 +6,7 @@ import java.io.IOException;
 public class PlayerLookPacket extends WriteOnlyPacket {
 
 	public PlayerLookPacket(float yaw, float pitch) throws IOException {
-		super(0x0E);
+		super(0x0F);
 		writeFloat(yaw);
 		writeFloat(pitch);
 		writeBoolean(true);

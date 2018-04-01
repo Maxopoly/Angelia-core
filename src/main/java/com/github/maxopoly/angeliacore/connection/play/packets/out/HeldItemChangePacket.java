@@ -6,7 +6,7 @@ import java.io.IOException;
 public class HeldItemChangePacket extends WriteOnlyPacket {
 
 	public HeldItemChangePacket(int slot) throws IOException {
-		super(0x17);
+		super(0x1A);
 		writeShort((short) slot);
 	}
 

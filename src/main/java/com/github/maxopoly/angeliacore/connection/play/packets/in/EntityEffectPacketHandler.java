@@ -9,7 +9,7 @@ import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 public class EntityEffectPacketHandler extends AbstractIncomingPacketHandler {
 
 	public EntityEffectPacketHandler(ServerConnection connection) {
-		super(connection, 0x4B);
+		super(connection, 0x4F);
 	}
 
 	@Override

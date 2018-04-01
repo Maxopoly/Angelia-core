@@ -6,7 +6,7 @@ import java.io.IOException;
 public class BreakAnimationPacket extends WriteOnlyPacket {
 
 	public BreakAnimationPacket() throws IOException {
-		super(0x1A);
+		super(0x1D);
 		writeVarInt(0);
 	}
 }
