@@ -1,11 +1,12 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
+import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
+import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
+
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.model.player.OnlinePlayer;
 import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;
 import com.github.maxopoly.angeliacore.model.player.PlayerProperty;
-import com.github.maxopoly.angeliacore.packet.EndOfPacketException;
-import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;

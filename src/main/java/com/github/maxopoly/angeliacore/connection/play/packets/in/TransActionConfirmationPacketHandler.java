@@ -1,10 +1,11 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
+import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
+import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
+
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.ItemTransactionManager.State;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.ApologizeTransactionPacket;
-import com.github.maxopoly.angeliacore.packet.EndOfPacketException;
-import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import java.io.IOException;
 
 public class TransActionConfirmationPacketHandler extends AbstractIncomingPacketHandler {
@@ -16,8 +17,8 @@ public class TransActionConfirmationPacketHandler extends AbstractIncomingPacket
 	@Override
 	public void handlePacket(ReadOnlyPacket packet) {
 		try {
-			byte windowID = packet.readUnsignedByte();
-			short transActionID = packet.readSignedShort();
+			byte windowID = packet.readByte();
+			short transActionID = packet.readShort();
 			boolean accepted = packet.readBoolean();
 			connection.getItemTransActionManager().setState(transActionID, accepted ? State.ACCEPTED : State.DENIED);
 			if (!accepted) {

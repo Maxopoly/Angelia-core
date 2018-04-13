@@ -1,6 +1,7 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.out;
 
-import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
+import com.github.maxopoly.angeliacore.binary.WriteOnlyPacket;
+
 import java.io.IOException;
 
 public class ClientStatusPacket extends WriteOnlyPacket {

@@ -1,9 +1,10 @@
 package com.github.maxopoly.angeliacore.connection.login;
 
+import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
+import com.github.maxopoly.angeliacore.binary.WriteOnlyPacket;
+
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.encryption.PKCSEncrypter;
-import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
-import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.Key;

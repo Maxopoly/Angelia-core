@@ -1,6 +1,9 @@
 package com.github.maxopoly.angeliacore.connection;
 
 import com.github.maxopoly.angeliacore.actions.ActionQueue;
+import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
+import com.github.maxopoly.angeliacore.binary.WriteOnlyPacket;
+import com.github.maxopoly.angeliacore.block.ChunkHolder;
 import com.github.maxopoly.angeliacore.connection.login.AuthenticationHandler;
 import com.github.maxopoly.angeliacore.connection.login.EncryptionHandler;
 import com.github.maxopoly.angeliacore.connection.login.GameJoinHandler;
@@ -12,8 +15,6 @@ import com.github.maxopoly.angeliacore.encryption.AES_CFB8_Encrypter;
 import com.github.maxopoly.angeliacore.event.EventBroadcaster;
 import com.github.maxopoly.angeliacore.model.PlayerStatus;
 import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;
-import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
-import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
 import com.github.maxopoly.angeliacore.plugin.PluginManager;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -47,6 +48,7 @@ public class ServerConnection {
 	private ItemTransactionManager transActionManager;
 	private PluginManager pluginManager;
 	private OtherPlayerManager otherPlayerManager;
+	private ChunkHolder chunkHolder;
 	private boolean localHost;
 
 	private boolean encryptionEnabled;
@@ -183,6 +185,7 @@ public class ServerConnection {
 		pluginManager = new PluginManager(this);
 		actionQueue = new ActionQueue(this);
 		otherPlayerManager = new OtherPlayerManager();
+		chunkHolder = new ChunkHolder();
 		tickTimer = new Timer("Angelia tick");
 		tickTimer.schedule(playPacketHandler, tickDelay, tickDelay);
 		// still have to do this
@@ -387,6 +390,13 @@ public class ServerConnection {
 	 */
 	public ActionQueue getActionQueue() {
 		return actionQueue;
+	}
+
+	/**
+	 * @return Manager which holds chunk data and is gate way for all block data access
+	 */
+	public ChunkHolder getChunkHolder() {
+		return chunkHolder;
 	}
 
 	/**

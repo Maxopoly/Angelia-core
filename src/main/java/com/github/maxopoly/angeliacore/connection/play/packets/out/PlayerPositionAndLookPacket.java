@@ -1,7 +1,8 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.out;
 
+import com.github.maxopoly.angeliacore.binary.WriteOnlyPacket;
+
 import com.github.maxopoly.angeliacore.model.location.Location;
-import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
 import java.io.IOException;
 
 public class PlayerPositionAndLookPacket extends WriteOnlyPacket {

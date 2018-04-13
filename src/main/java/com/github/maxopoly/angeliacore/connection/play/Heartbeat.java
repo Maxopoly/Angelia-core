@@ -1,9 +1,11 @@
 package com.github.maxopoly.angeliacore.connection.play;
 
+import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.connection.DisconnectReason;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.AbstractIncomingPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.ChatMessagePacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.ChunkDataPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.DisconnectPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.EntityEffectPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.ForceInventoryClosurePacketHandler;
@@ -18,7 +20,6 @@ import com.github.maxopoly.angeliacore.connection.play.packets.in.TransActionCon
 import com.github.maxopoly.angeliacore.connection.play.packets.in.WindowItemsPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.XPChangeHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerStatePacket;
-import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TimerTask;
@@ -56,6 +57,7 @@ public class Heartbeat extends TimerTask {
 		registerPacketHandler(new ForceInventoryClosurePacketHandler(connection));
 		registerPacketHandler(new PlayerListItemPacketHandler(connection));
 		registerPacketHandler(new SpawnPlayerPacketHandler(connection));
+		registerPacketHandler(new ChunkDataPacketHandler(connection));
 		// no use for block break animation right now, as it only tells us about other peoples breaking
 		// registerPacketHandler(new BlockBreakAnimationPacketHandler(connection));
 	}
@@ -129,7 +131,7 @@ public class Heartbeat extends TimerTask {
 					processPacket(connection.getPacket());
 				}
 			} catch (IOException e) {
-				connection.getLogger().error("Failed to get packet from connection, connection seems to be gone");
+				connection.getLogger().error("Failed to get packet from connection, connection seems to be gone", e);
 				connection.close(DisconnectReason.Unknown_Connection_Error);
 			}
 			// tick the action queue

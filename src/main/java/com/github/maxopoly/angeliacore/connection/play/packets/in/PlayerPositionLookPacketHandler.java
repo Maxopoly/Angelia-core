@@ -1,12 +1,13 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
+import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
+import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
+
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionAndLookPacket;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.TeleportConfirmPacket;
 import com.github.maxopoly.angeliacore.event.events.TeleportByServerEvent;
 import com.github.maxopoly.angeliacore.model.location.Location;
-import com.github.maxopoly.angeliacore.packet.EndOfPacketException;
-import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import java.io.IOException;
 
 public class PlayerPositionLookPacketHandler extends AbstractIncomingPacketHandler {
@@ -23,7 +24,7 @@ public class PlayerPositionLookPacketHandler extends AbstractIncomingPacketHandl
 			double z = packet.readDouble();
 			float yaw = packet.readFloat();
 			float pitch = packet.readFloat();
-			byte flags = packet.readUnsignedByte();
+			byte flags = packet.readByte();
 			Location status = connection.getPlayerStatus().getLocation();
 			boolean xRelative = (flags & 0x01) != 0;
 			if (xRelative) {

@@ -1,9 +1,10 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
+import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
+import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
+
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.KeepAlivePacket;
-import com.github.maxopoly.angeliacore.packet.EndOfPacketException;
-import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import java.io.IOException;
 
 public class KeepAlivePacketHandler extends AbstractIncomingPacketHandler {

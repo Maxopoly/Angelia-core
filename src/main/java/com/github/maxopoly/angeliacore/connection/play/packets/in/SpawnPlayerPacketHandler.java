@@ -1,10 +1,11 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
+import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
+import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
+
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.events.PlayerSpawnEvent;
 import com.github.maxopoly.angeliacore.model.location.Location;
-import com.github.maxopoly.angeliacore.packet.EndOfPacketException;
-import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import java.util.UUID;
 
 public class SpawnPlayerPacketHandler extends AbstractIncomingPacketHandler {
@@ -21,8 +22,8 @@ public class SpawnPlayerPacketHandler extends AbstractIncomingPacketHandler {
 			double x = packet.readDouble();
 			double y = packet.readDouble();
 			double z = packet.readDouble();
-			byte yaw = packet.readUnsignedByte();
-			byte pitch = packet.readUnsignedByte();
+			byte yaw = packet.readByte();
+			byte pitch = packet.readByte();
 			// TODO turn this into a proper entity and shit
 			connection.getEventHandler().broadcast(
 					new PlayerSpawnEvent(new Location(x, y, z, Location.translateAngleFrom256Step(yaw), Location

@@ -1,12 +1,13 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
+import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
+import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
+
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.events.InventoryInitializationEvent;
 import com.github.maxopoly.angeliacore.event.events.UpdateInventoryEvent;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.item.ItemStack;
-import com.github.maxopoly.angeliacore.packet.EndOfPacketException;
-import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 
 public class WindowItemsPacketHandler extends AbstractIncomingPacketHandler {
 
@@ -17,8 +18,8 @@ public class WindowItemsPacketHandler extends AbstractIncomingPacketHandler {
 	@Override
 	public void handlePacket(ReadOnlyPacket packet) {
 		try {
-			byte windowID = packet.readUnsignedByte();
-			short count = packet.readSignedShort();
+			byte windowID = packet.readByte();
+			short count = packet.readShort();
 			ItemStack[] items = new ItemStack[count];
 			Inventory inv = connection.getPlayerStatus().getInventory(windowID);
 			for (int i = 0; i < count; i++) {

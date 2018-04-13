@@ -1,9 +1,9 @@
 package com.github.maxopoly.angeliacore.connection.login;
 
-import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
-import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
+import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
+import com.github.maxopoly.angeliacore.binary.WriteOnlyPacket;
 
+import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import java.io.IOException;
 import org.json.JSONObject;
 

@@ -1,9 +1,10 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
+import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
+import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
+
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.events.ChatMessageReceivedEvent;
-import com.github.maxopoly.angeliacore.packet.EndOfPacketException;
-import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.util.ChatParser;
 
 public class ChatMessagePacketHandler extends AbstractIncomingPacketHandler {
@@ -18,7 +19,7 @@ public class ChatMessagePacketHandler extends AbstractIncomingPacketHandler {
 			String jsonChat = packet.readString();
 			ChatMessageReceivedEvent event = new ChatMessageReceivedEvent(jsonChat, ChatParser.getRawText(jsonChat));
 			connection.getEventHandler().broadcast(event);
-			byte position = packet.readUnsignedByte();
+			byte position = packet.readByte();
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse chat packet", e);
 		}
