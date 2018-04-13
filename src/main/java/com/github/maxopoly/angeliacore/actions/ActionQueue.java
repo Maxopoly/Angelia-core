@@ -43,6 +43,7 @@ public class ActionQueue {
 			}
 			action.execute();
 			if (action.isDone()) {
+				action.finish();
 				iter.remove();
 			}
 			if (actions.size() == 0) {

@@ -1,5 +1,20 @@
 package com.github.maxopoly.angeliacore.connection;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketException;
+import java.util.Arrays;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.logging.log4j.Logger;
+
 import com.github.maxopoly.angeliacore.actions.ActionQueue;
 import com.github.maxopoly.angeliacore.connection.login.AuthenticationHandler;
 import com.github.maxopoly.angeliacore.connection.login.EncryptionHandler;
@@ -14,17 +29,8 @@ import com.github.maxopoly.angeliacore.model.PlayerStatus;
 import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;
 import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
+import com.github.maxopoly.angeliacore.physics.Physics;
 import com.github.maxopoly.angeliacore.plugin.PluginManager;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketException;
-import java.util.Arrays;
-import java.util.Timer;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Represents a connection to a server. Attributes may contain invalid/null values before the connect() method was
@@ -43,11 +49,13 @@ public class ServerConnection {
 	private PlayerStatus playerStatus;
 	private EventBroadcaster eventHandler;
 	private ActionQueue actionQueue;
-	private Timer tickTimer;
+	//private Timer tickTimer;
 	private ItemTransactionManager transActionManager;
 	private PluginManager pluginManager;
 	private OtherPlayerManager otherPlayerManager;
 	private boolean localHost;
+	private ScheduledExecutorService scheduler;
+	private ScheduledFuture<?> heartbeatScheduled;
 
 	private boolean encryptionEnabled;
 	private boolean compressionEnabled;
@@ -183,8 +191,8 @@ public class ServerConnection {
 		pluginManager = new PluginManager(this);
 		actionQueue = new ActionQueue(this);
 		otherPlayerManager = new OtherPlayerManager();
-		tickTimer = new Timer("Angelia tick");
-		tickTimer.schedule(playPacketHandler, tickDelay, tickDelay);
+		scheduler = Executors.newSingleThreadScheduledExecutor();
+		heartbeatScheduled = scheduler.scheduleAtFixedRate(playPacketHandler, 0, 50, TimeUnit.MILLISECONDS);
 		// still have to do this
 		sendPacket(new ClientSettingPacket());
 	}
@@ -310,8 +318,7 @@ public class ServerConnection {
 			if (!socket.isClosed()) {
 				socket.close();
 			}
-			tickTimer.cancel();
-			tickTimer.purge();
+			heartbeatScheduled.cancel(true);
 			closed = true;
 		} catch (IOException e) {
 			// its ok, probably
