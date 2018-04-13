@@ -142,7 +142,6 @@ public class Heartbeat extends TimerTask {
 			
 			// tick the action queue
 			connection.getActionQueue().tick();
-			toSendPositionTicks++;
 		}
 	}
 
