@@ -1,5 +1,9 @@
 package com.github.maxopoly.angeliacore.connection.play;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.TreeMap;
+
 import com.github.maxopoly.angeliacore.connection.DisconnectReason;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.AbstractIncomingPacketHandler;
@@ -17,20 +21,18 @@ import com.github.maxopoly.angeliacore.connection.play.packets.in.SpawnPlayerPac
 import com.github.maxopoly.angeliacore.connection.play.packets.in.TransActionConfirmationPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.WindowItemsPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.XPChangeHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionPacket;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerStatePacket;
 import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
-import java.io.IOException;
-import java.util.Map;
-import java.util.TimerTask;
-import java.util.TreeMap;
 
-public class Heartbeat extends TimerTask {
+public class Heartbeat implements Runnable {
 
 	private static final long TIMEOUT = 10000;
 
 	private Map<Integer, AbstractIncomingPacketHandler> handlerMap;
 	private ServerConnection connection;
 	private long lastKeepAlive;
+	private long lastPlayerMoveUpdate;
 
 	public Heartbeat(ServerConnection connection) {
 		this.connection = connection;
@@ -109,20 +111,25 @@ public class Heartbeat extends TimerTask {
 	 */
 	@Override
 	public void run() {
-		lastKeepAlive = System.currentTimeMillis();
+		long now = System.currentTimeMillis();
 		if (!connection.isClosed()) {
-			if ((System.currentTimeMillis() - lastKeepAlive) > TIMEOUT) {
+			if ((now - lastKeepAlive) > TIMEOUT) {
 				// no ping for 10 sec, let's assume the server is gone
 				connection.getLogger().info("Disconnected from " + connection.getAdress() + " due to timeout");
 				connection.close(DisconnectReason.Server_Timed_Out);
 			}
 			try {
-				connection.sendPacket(new PlayerStatePacket(!connection.getPlayerStatus().isMidAir()));
+				if ((now - lastPlayerMoveUpdate) > 1000) {
+					connection.sendPacket(new PlayerStatePacket(!connection.getPlayerStatus().isMidAir()));
+					connection.sendPacket(new PlayerPositionPacket(connection.getPlayerStatus().getLocation(), !connection.getPlayerStatus().isMidAir()));
+					lastPlayerMoveUpdate = now;
+				}
 			} catch (IOException e1) {
 				connection.getLogger().error("Failed to send player state packet", e1);
 				connection.getLogger().error("Failed to send player state, connection seems to be gone");
 				connection.close(DisconnectReason.Unknown_Connection_Error);
 			}
+
 			// parse available data
 			try {
 				while (connection.dataAvailable()) {
@@ -132,9 +139,10 @@ public class Heartbeat extends TimerTask {
 				connection.getLogger().error("Failed to get packet from connection, connection seems to be gone");
 				connection.close(DisconnectReason.Unknown_Connection_Error);
 			}
+			
 			// tick the action queue
 			connection.getActionQueue().tick();
-
+			lastKeepAlive = System.currentTimeMillis();
 		}
 	}
 
