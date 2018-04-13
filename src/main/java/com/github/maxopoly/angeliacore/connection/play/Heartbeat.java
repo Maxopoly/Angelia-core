@@ -31,6 +31,7 @@ public class Heartbeat extends TimerTask {
 	private Map<Integer, AbstractIncomingPacketHandler> handlerMap;
 	private ServerConnection connection;
 	private long lastKeepAlive;
+	private long lastPlayerMovementSend;
 
 	public Heartbeat(ServerConnection connection) {
 		this.connection = connection;
@@ -104,15 +105,13 @@ public class Heartbeat extends TimerTask {
 		lastKeepAlive = System.currentTimeMillis();
 	}
 
-	private long lastPlayerState;
-	private int toSendPositionTicks;
-
 	/**
 	 * Handles both incoming packets, keep alive of the connection and progressing pending actions in the ActionQueue
 	 */
 	@Override
 	public void run() {
-		long now = lastKeepAlive = System.currentTimeMillis();
+		long now = System.currentTimeMillis();
+		lastKeepAlive = now;
 		if (!connection.isClosed()) {
 			if ((now - lastKeepAlive) > TIMEOUT) {
 				// no ping for 10 sec, let's assume the server is gone
@@ -122,21 +121,13 @@ public class Heartbeat extends TimerTask {
 			try {
 				if ((now - lastPlayerState) > 1000) {
 					connection.sendPacket(new PlayerStatePacket(!connection.getPlayerStatus().isMidAir()));
+					connection.sendPacket(new PlayerPositionPacket(connection.getPlayerStatus().getLocation(), !connection.getPlayerStatus().isMidAir()));
 					lastPlayerState = now;
 				}
 			} catch (IOException e1) {
 				connection.getLogger().error("Failed to send player state packet", e1);
 				connection.getLogger().error("Failed to send player state, connection seems to be gone");
 				connection.close(DisconnectReason.Unknown_Connection_Error);
-			}
-			
-			try {
-				if (toSendPositionTicks >= 20) {
-					connection.sendPacket(new PlayerPositionPacket(connection.getPlayerStatus().getLocation(), !connection.getPlayerStatus().isMidAir()));
-					toSendPositionTicks = 0;
-				}
-			} catch (IOException e1) {
-				connection.getLogger().error("Failed to send player position packet", e1);
 			}
 
 			// parse available data
