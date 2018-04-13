@@ -29,7 +29,6 @@ import com.github.maxopoly.angeliacore.model.PlayerStatus;
 import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;
 import com.github.maxopoly.angeliacore.packet.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.packet.WriteOnlyPacket;
-import com.github.maxopoly.angeliacore.physics.Physics;
 import com.github.maxopoly.angeliacore.plugin.PluginManager;
 
 /**
