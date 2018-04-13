@@ -104,25 +104,41 @@ public class Heartbeat extends TimerTask {
 		lastKeepAlive = System.currentTimeMillis();
 	}
 
+	private long lastPlayerState;
+	private int toSendPositionTicks;
+
 	/**
 	 * Handles both incoming packets, keep alive of the connection and progressing pending actions in the ActionQueue
 	 */
 	@Override
 	public void run() {
-		lastKeepAlive = System.currentTimeMillis();
+		long now = lastKeepAlive = System.currentTimeMillis();
 		if (!connection.isClosed()) {
-			if ((System.currentTimeMillis() - lastKeepAlive) > TIMEOUT) {
+			if ((now - lastKeepAlive) > TIMEOUT) {
 				// no ping for 10 sec, let's assume the server is gone
 				connection.getLogger().info("Disconnected from " + connection.getAdress() + " due to timeout");
 				connection.close(DisconnectReason.Server_Timed_Out);
 			}
 			try {
-				connection.sendPacket(new PlayerStatePacket(!connection.getPlayerStatus().isMidAir()));
+				if ((now - lastPlayerState) > 1000) {
+					connection.sendPacket(new PlayerStatePacket(!connection.getPlayerStatus().isMidAir()));
+					lastPlayerState = now;
+				}
 			} catch (IOException e1) {
 				connection.getLogger().error("Failed to send player state packet", e1);
 				connection.getLogger().error("Failed to send player state, connection seems to be gone");
 				connection.close(DisconnectReason.Unknown_Connection_Error);
 			}
+			
+			try {
+				if (toSendPositionTicks >= 20) {
+					connection.sendPacket(new PlayerPositionPacket(connection.getPlayerStatus().getLocation(), !connection.getPlayerStatus().isMidAir()));
+					toSendPositionTicks = 0;
+				}
+			} catch (IOException e1) {
+				connection.getLogger().error("Failed to send player position packet", e1);
+			}
+
 			// parse available data
 			try {
 				while (connection.dataAvailable()) {
@@ -132,9 +148,10 @@ public class Heartbeat extends TimerTask {
 				connection.getLogger().error("Failed to get packet from connection, connection seems to be gone");
 				connection.close(DisconnectReason.Unknown_Connection_Error);
 			}
+			
 			// tick the action queue
 			connection.getActionQueue().tick();
-
+			toSendPositionTicks++;
 		}
 	}
 
