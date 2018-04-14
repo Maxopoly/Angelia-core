@@ -113,7 +113,7 @@ public class Heartbeat extends TimerTask {
 	@Override
 	public void run() {
 		if (!connection.isClosed()) {
-			if ((System.currentTimeMillis() - lastKeepAlive) > TIMEOUT) {
+			if (lastKeepAlive > 0 && (System.currentTimeMillis() - lastKeepAlive) > TIMEOUT) {
 				// no ping for 10 sec, let's assume the server is gone
 				connection.getLogger().info("Disconnected from " + connection.getAdress() + " due to timeout");
 				connection.close(DisconnectReason.Server_Timed_Out);
