@@ -65,13 +65,13 @@ public class ServerConnection {
 	 * Standard Constructor
 	 *
 	 * @param adress
-	 *            IP or domain of the server
+	 *          IP or domain of the server
 	 * @param port
-	 *            Port of the server
+	 *          Port of the server
 	 * @param logger
-	 *            Logger to use
+	 *          Logger to use
 	 * @param auth
-	 *            Account authentication to use
+	 *          Account authentication to use
 	 */
 	public ServerConnection(String adress, int port, Logger logger, AuthenticationHandler auth) {
 		this.serverAdress = adress;
@@ -92,11 +92,11 @@ public class ServerConnection {
 	 * Constructor with the default port 25565
 	 *
 	 * @param adress
-	 *            IP or domain of the server
+	 *          IP or domain of the server
 	 * @param logger
-	 *            Logger to use
+	 *          Logger to use
 	 * @param auth
-	 *            Account authentication to use
+	 *          Account authentication to use
 	 */
 	public ServerConnection(String adress, Logger logger, AuthenticationHandler auth) {
 		this(adress, 25565, logger, auth); // default port
@@ -125,22 +125,22 @@ public class ServerConnection {
 	 * provided account auth is still valid, refreshes it if needed and returns if it can't be refreshed. Next it
 	 * handshakes the server to get its protocol version, resets the connection and begin a new login handshake with the
 	 * retrieved protocol version. Note that no actual adjustments are made based on the protocol version sent by the
-	 * server, it's just copied and assumed to be our version. After the initial version handshake, we exchange
-	 * encryption details, authenticate the connection attempt against Yggdrassil's (minecraft auth) server, enable sync
-	 * encryption, enable compression if requested by the server, join the game and finally setup packet handlers for
-	 * all kinds of incoming packets. The packet handling happens in a freshly spawned thread, which also handles
-	 * consuming actions from the ActionQueue, this method will return once the connection is fully set up
+	 * server, it's just copied and assumed to be our version. After the initial version handshake, we exchange encryption
+	 * details, authenticate the connection attempt against Yggdrassil's (minecraft auth) server, enable sync encryption,
+	 * enable compression if requested by the server, join the game and finally setup packet handlers for all kinds of
+	 * incoming packets. The packet handling happens in a freshly spawned thread, which also handles consuming actions
+	 * from the ActionQueue, this method will return once the connection is fully set up
 	 *
 	 * @throws IOException
-	 *             If something goes wrong
+	 *           If something goes wrong
 	 */
 	public void connect() throws IOException {
 		if (!authHandler.validateToken(logger)) {
 			logger.info("Token for " + authHandler.getPlayerName() + " is no longer valid, refreshing it");
 			authHandler.refreshToken(logger);
 		}
-		logger.info("Initializing connection process for account " + authHandler.getPlayerName() + " to "
-				+ serverAdress + ":" + port);
+		logger.info("Initializing connection process for account " + authHandler.getPlayerName() + " to " + serverAdress
+				+ ":" + port);
 		// connect
 		reestablishConnection();
 		HandShake shake = new HandShake(this);
@@ -150,8 +150,7 @@ public class ServerConnection {
 			logger.info("Requesting protocol version from " + serverAdress);
 			protocolVersion = shake.requestProtocolVersion();
 			// we need to set up a new socket after protocol test handshaking as we want to properly connect now, which
-			// the
-			// server wouldnt allow right away on the same connection
+			// the server wouldnt allow right away on the same connection
 			reestablishConnection();
 		}
 		logger.info("Sending handshake to " + serverAdress);
@@ -159,22 +158,19 @@ public class ServerConnection {
 		// begin login
 		logger.info("Beginning login to " + serverAdress);
 		shake.sendLoginStartMessage(authHandler.getPlayerName());
-		if (!localHost) {
-			// figure out encryption secret
-			logger.info("Parsing encryption request from " + serverAdress);
-			EncryptionHandler asyncEncHandler = new EncryptionHandler(this);
-			asyncEncHandler.parseEncryptionRequest();
-			asyncEncHandler.genSecretKey();
-			logger.info("Authenticating connection attempt to " + serverAdress + " against Yggdrassil session server");
-			authHandler.authAgainstSessionServer(asyncEncHandler.generateKeyHash(), logger);
-			logger.info("Sending encryption reply to " + serverAdress);
-			asyncEncHandler.sendEncryptionResponse();
-			// everything from here on is encrypted
-			logger.info("Enabling sync encryption with " + serverAdress);
-			encryptionEnabled = true;
-			syncEncryptionHandler = new AES_CFB8_Encrypter(asyncEncHandler.getSharedSecret(),
-					asyncEncHandler.getSharedSecret());
-		}
+		// figure out encryption secret
+		logger.info("Parsing encryption request from " + serverAdress);
+		EncryptionHandler asyncEncHandler = new EncryptionHandler(this);
+		asyncEncHandler.parseEncryptionRequest();
+		asyncEncHandler.genSecretKey();
+		logger.info("Authenticating connection attempt to " + serverAdress + " against Yggdrassil session server");
+		authHandler.authAgainstSessionServer(asyncEncHandler.generateKeyHash(), logger);
+		logger.info("Sending encryption reply to " + serverAdress);
+		asyncEncHandler.sendEncryptionResponse();
+		// everything from here on is encrypted
+		logger.info("Enabling sync encryption with " + serverAdress);
+		encryptionEnabled = true;
+		syncEncryptionHandler = new AES_CFB8_Encrypter(asyncEncHandler.getSharedSecret(), asyncEncHandler.getSharedSecret());
 		GameJoinHandler joinHandler = new GameJoinHandler(this);
 		joinHandler.parseLoginSuccess();
 		// if we reach this point, we successfully logged in and the connection state switches to PLAY, so from now on
@@ -196,7 +192,7 @@ public class ServerConnection {
 	 * Sends a packet to the server. This method also handles both compression and encryption
 	 *
 	 * @param packet
-	 *            Packet to send
+	 *          Packet to send
 	 * @throws IOException
 	 */
 	public void sendPacket(WriteOnlyPacket packet) throws IOException {
