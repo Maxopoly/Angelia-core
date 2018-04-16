@@ -2,6 +2,8 @@ package com.github.maxopoly.angeliacore.model.location;
 
 public final class Vector {
 
+	private static final double ACCURACY = 0.0000001;
+
 	private final double x;
 	private final double y;
 	private final double z;
@@ -40,8 +42,12 @@ public final class Vector {
 		return new Vector(v.getX() * x, v.getY() * y, v.getZ() * z);
 	}
 
+	public double getLength() {
+		return Math.sqrt(x*x + y*y + z*z);
+	}
+
 	public Vector normalize() {
-		double length = Math.sqrt(x*x + y*y + z*z);
+		double length = getLength();
 		if(length == 0) {
 			length = 1;
 		}
@@ -54,6 +60,20 @@ public final class Vector {
 
 	public boolean isZero() {
 		return x == 0.0 && y == 0.0 && z == 0.0;
+	}
+
+	public boolean isParallel(Vector other) {
+		if (isZero() || other.isZero()) {
+			return false;
+		}
+		return Math.abs(normalize().cross(other.normalize()).getLength() - 1.0) < ACCURACY;
+	}
+
+	public boolean isOrthogonal(Vector other) {
+		if (isZero() || other.isZero()) {
+			return false;
+		}
+		return Math.abs(normalize().cross(other.normalize()).getLength()) < ACCURACY;
 	}
 
 	public static Vector calcLocationDifference(Location start, Location target) {

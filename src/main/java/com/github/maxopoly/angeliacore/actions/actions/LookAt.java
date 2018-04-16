@@ -19,7 +19,7 @@ public class LookAt extends AbstractAction {
 
 	/**
 	 * Instantly changes the location the player looks at
-	 * 
+	 *
 	 * @param offset
 	 *          The block the player should be looking at
 	 */
@@ -29,7 +29,7 @@ public class LookAt extends AbstractAction {
 
 	/**
 	 * Looks at a specific side of the given block
-	 * 
+	 *
 	 * @param connection
 	 *          ServerConnection
 	 * @param block
@@ -38,12 +38,12 @@ public class LookAt extends AbstractAction {
 	 *          Relative side to look at
 	 */
 	public LookAt(ServerConnection connection, Location block, BlockFace face) {
-		this(connection, block.getBlockCenter().addVector(face.toVector()));
+		this(connection, block.getBlockCenter().addVector(face.toVector().multiply(0.5)));
 	}
 
 	/**
 	 * Turns the players head, while taking the given amount of time
-	 * 
+	 *
 	 * @param offSet
 	 *          Block to look at
 	 * @param ticksToTake
