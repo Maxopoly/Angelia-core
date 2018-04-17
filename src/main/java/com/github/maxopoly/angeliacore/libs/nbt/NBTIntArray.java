@@ -47,4 +47,21 @@ public class NBTIntArray extends NBTElement {
 	public NBTElement clone() {
 		return new NBTIntArray(name, Arrays.copyOf(value, value.length));
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < value.length; i++) {
+			sb.append(" ");
+			sb.append(value [i]);
+		}
+		sb.append(" ");
+
+		return String.format("[%s]", sb.toString());
+	}
+
+	@Override
+	public String getTypeName() {
+		return "int array";
+	}
 }

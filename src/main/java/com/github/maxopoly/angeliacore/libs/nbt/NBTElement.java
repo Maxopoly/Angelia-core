@@ -20,9 +20,9 @@ public abstract class NBTElement {
 		byte[] nameSerialized = name.getBytes();
 		short length = (short) nameSerialized.length;
 		byte[] res = new byte[length + 3];
-		res[1] = (byte) (length & 0xff);
-		res[0] = (byte) ((length >> 8) & 0xff);
-		res[3] = getID();
+		res[2] = (byte) (length & 0xff);
+		res[1] = (byte) ((length >> 8) & 0xff);
+		res[0] = getID();
 		for (int i = 0; i < length; i++) {
 			res[i + 3] = nameSerialized[i];
 		}
@@ -33,10 +33,15 @@ public abstract class NBTElement {
 
 	public abstract byte getID();
 
+	public abstract String getTypeName();
+
 	@Override
 	public abstract NBTElement clone();
 
 	@Override
 	public abstract boolean equals(Object o);
+
+	@Override
+	public abstract String toString();
 
 }

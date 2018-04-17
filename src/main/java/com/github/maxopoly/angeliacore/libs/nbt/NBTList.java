@@ -54,14 +54,15 @@ public class NBTList<E extends NBTElement> extends NBTElement implements Iterabl
 		ByteBuffer.wrap(listLength).order(ByteOrder.BIG_ENDIAN).putInt(elements.size());
 		byte[] res = new byte[length + 5];
 		res[0] = elementID;
-		for (int i = 1; i < 5; i++) {
-			res[i] = listLength[i];
+		for (int i = 0; i < 4; i++) {
+			res[i + 1] = listLength[i];
 		}
 		int index = 5;
 		for (byte[] curr : tempEle) {
 			for (int i = 0; i < curr.length; i++) {
 				res[i + index] = curr[i];
 			}
+			index += curr.length;
 		}
 		return res;
 	}
@@ -80,7 +81,7 @@ public class NBTList<E extends NBTElement> extends NBTElement implements Iterabl
 		try {
 			other = (NBTList<E>) o;
 		} catch (ClassCastException e) {
-			// if anyone actually knows how to check whether generics are equal let me now, because I dont
+			// if anyone actually knows how to check whether generics are equal let me know, because I dont
 			return false;
 		}
 		if (getLength() != other.getLength()) {
@@ -101,5 +102,22 @@ public class NBTList<E extends NBTElement> extends NBTElement implements Iterabl
 			list.add((E) e.clone());
 		}
 		return list;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < elements.size(); i++) {
+			sb.append(" ");
+			sb.append(elements.get(i).toString());
+		}
+		sb.append(" ");
+
+		return String.format("{%s}", sb.toString());
+	}
+
+	@Override
+	public String getTypeName() {
+		return "list of " + (elements.size() > 0 ? elements.get(0).getName() : "empty");
 	}
 }

@@ -43,4 +43,15 @@ public class NBTString extends NBTElement {
 	public NBTElement clone() {
 		return new NBTString(name, value);
 	}
+
+
+	@Override
+	public String toString() {
+		return value;
+	}
+
+	@Override
+	public String getTypeName() {
+		return "string";
+	}
 }

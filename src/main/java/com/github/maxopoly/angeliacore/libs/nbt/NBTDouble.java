@@ -39,4 +39,14 @@ public class NBTDouble extends NBTElement {
 	public NBTElement clone() {
 		return new NBTDouble(name, value);
 	}
+
+	@Override
+	public String toString() {
+		return "" + value;
+	}
+
+	@Override
+	public String getTypeName() {
+		return "double";
+	}
 }

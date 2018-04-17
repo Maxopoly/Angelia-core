@@ -35,4 +35,13 @@ public class NBTByte extends NBTElement {
 		return new NBTByte(name, value);
 	}
 
+	@Override
+	public String toString() {
+		return "" + value;
+	}
+
+	@Override
+	public String getTypeName() {
+		return "byte";
+	}
 }

@@ -79,4 +79,9 @@ public final class Vector {
 	public static Vector calcLocationDifference(Location start, Location target) {
 		return target.toVector().subtract(start.toVector());
 	}
+
+	@Override
+	public String toString() {
+		return String.format("{%f, %f, %f}",x,y,z);
+	}
 }

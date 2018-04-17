@@ -39,4 +39,15 @@ public class NBTLong extends NBTElement {
 	public NBTElement clone() {
 		return new NBTLong(name, value);
 	}
+
+
+	@Override
+	public String toString() {
+		return "" + value;
+	}
+
+	@Override
+	public String getTypeName() {
+		return "long";
+	}
 }

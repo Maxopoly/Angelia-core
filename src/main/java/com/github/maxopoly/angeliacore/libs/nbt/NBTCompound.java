@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.commons.lang3.ArrayUtils;
 
 public class NBTCompound extends NBTElement {
@@ -45,6 +46,7 @@ public class NBTCompound extends NBTElement {
 			for (int i = 0; i < curr.length; i++) {
 				res[i + index] = curr[i];
 			}
+			index += curr.length;
 		}
 		// end tag
 		res[res.length - 1] = 0;
@@ -72,5 +74,24 @@ public class NBTCompound extends NBTElement {
 			comp.add(element.clone());
 		}
 		return comp;
+	}
+
+	@Override
+	public String getTypeName() {
+		return "compound";
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for(Entry<String, NBTElement> entry : content.entrySet()) {
+			sb.append(entry.getKey());
+			sb.append(": ");
+			sb.append(entry.getValue());
+			sb.append(", ");
+		}
+		//remove trailing comma
+		int length = sb.length() > 0 ? sb.length() - 2 : sb.length();
+		return String.format("%s: {%s}", name != null ? name : "", sb.substring(0, length));
 	}
 }

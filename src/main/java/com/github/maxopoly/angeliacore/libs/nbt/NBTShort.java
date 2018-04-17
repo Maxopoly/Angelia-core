@@ -40,4 +40,15 @@ public class NBTShort extends NBTElement {
 		return new NBTShort(name, value);
 	}
 
+
+	@Override
+	public String toString() {
+		return "" + value;
+	}
+
+	@Override
+	public String getTypeName() {
+		return "short";
+	}
+
 }

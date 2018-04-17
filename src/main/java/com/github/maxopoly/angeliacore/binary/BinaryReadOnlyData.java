@@ -38,7 +38,7 @@ public class BinaryReadOnlyData {
 	 *
 	 * @return Read long
 	 * @throws EndOfPacketException
-	 *             Thrown if less than 8 bytes are left in the data, meaning it can't contain a valid long
+	 *           Thrown if less than 8 bytes are left in the data, meaning it can't contain a valid long
 	 */
 	public long readLong() throws EndOfPacketException {
 		if (dataPointer + 8 > data.length) {
@@ -58,7 +58,7 @@ public class BinaryReadOnlyData {
 	 *
 	 * @return Read short
 	 * @throws EndOfPacketException
-	 *             Thrown if less than 2 bytes are left in the data, meaning it can't contain a valid short
+	 *           Thrown if less than 2 bytes are left in the data, meaning it can't contain a valid short
 	 */
 	public short readShort() throws EndOfPacketException {
 		if (dataPointer + 2 > data.length) {
@@ -76,7 +76,7 @@ public class BinaryReadOnlyData {
 	 *
 	 * @return Read double
 	 * @throws EndOfPacketException
-	 *             Thrown if less than 8 bytes are left in the data, meaning it can't contain a valid double
+	 *           Thrown if less than 8 bytes are left in the data, meaning it can't contain a valid double
 	 */
 	public double readDouble() throws EndOfPacketException {
 		if (dataPointer + 8 > data.length) {
@@ -94,7 +94,7 @@ public class BinaryReadOnlyData {
 	 *
 	 * @return Read float
 	 * @throws EndOfPacketException
-	 *             Thrown if less than 4 bytes are left in the data, meaning it can't contain a valid float
+	 *           Thrown if less than 4 bytes are left in the data, meaning it can't contain a valid float
 	 */
 	public float readFloat() throws EndOfPacketException {
 		if (dataPointer + 4 > data.length) {
@@ -112,7 +112,7 @@ public class BinaryReadOnlyData {
 	 *
 	 * @return Read byte
 	 * @throws EndOfPacketException
-	 *             Thrown if the data buffer was already used up completly
+	 *           Thrown if the data buffer was already used up completly
 	 */
 	public byte readByte() throws EndOfPacketException {
 		if (dataPointer + 1 > data.length) {
@@ -127,7 +127,7 @@ public class BinaryReadOnlyData {
 	 *
 	 * @return Read byte array
 	 * @throws EndOfPacketException
-	 *             Thrown if the data buffer does not contain enough bytes
+	 *           Thrown if the data buffer does not contain enough bytes
 	 */
 	public byte[] readBytes(int amount) throws EndOfPacketException {
 		if (dataPointer + amount > data.length) {
@@ -147,7 +147,7 @@ public class BinaryReadOnlyData {
 	 *
 	 * @return Item stack read
 	 * @throws EndOfPacketException
-	 *             Thrown if the data left does not represent a proper item stack
+	 *           Thrown if the data left does not represent a proper item stack
 	 */
 	public ItemStack readItemStack() throws EndOfPacketException {
 		short id = readShort();
@@ -167,7 +167,7 @@ public class BinaryReadOnlyData {
 	 *
 	 * @return Read byte array
 	 * @throws EndOfPacketException
-	 *             Thrown if the varint is invalid or not enough data exists
+	 *           Thrown if the varint is invalid or not enough data exists
 	 */
 	public byte[] readByteArray() throws EndOfPacketException {
 		return readBytes(readVarInt());
@@ -178,7 +178,7 @@ public class BinaryReadOnlyData {
 	 *
 	 * @return Read UUID
 	 * @throws EndOfPacketException
-	 *             Thrown if not at least 16 byte are left
+	 *           Thrown if not at least 16 byte are left
 	 */
 	public UUID readUUID() throws EndOfPacketException {
 		return new UUID(readLong(), readLong());
@@ -190,7 +190,7 @@ public class BinaryReadOnlyData {
 	 *
 	 * @return String read
 	 * @throws EndOfPacketException
-	 *             Thrown if packet ended before String ended
+	 *           Thrown if packet ended before String ended
 	 */
 	public String readString() throws EndOfPacketException {
 		int charAmount = readVarInt();
@@ -198,11 +198,38 @@ public class BinaryReadOnlyData {
 	}
 
 	/**
+	 * Reads a single string from the input data. The string content is encoded in UTF-8 and prefixed by its own length.
+	 * The length uses as many bytes as the given parameter, must be a 1, 2 or 4
+	 *
+	 * @return String read
+	 * @throws EndOfPacketException
+	 *           Thrown if packet ended before String ended
+	 */
+	public String readString(int lengthTagBytes) throws EndOfPacketException {
+		int length;
+		if (lengthTagBytes == 1) {
+			length = readByte();
+		} else {
+			if (lengthTagBytes == 2) {
+				length = readShort();
+			} else {
+				if (lengthTagBytes == 4) {
+					length = readInt();
+				}
+				else {
+					throw new IllegalArgumentException("Can not read string with tag length " + lengthTagBytes);
+				}
+			}
+		}
+		return new String(readBytes(length));
+	}
+
+	/**
 	 * Reads a single signed int (4 bytes)
 	 *
 	 * @return Read int
 	 * @throws EndOfPacketException
-	 *             Thrown if less than 4 bytes are left in the data, meaning it can't contain a valid int
+	 *           Thrown if less than 4 bytes are left in the data, meaning it can't contain a valid int
 	 */
 	public int readInt() throws EndOfPacketException {
 		if (dataPointer + 4 > data.length) {
@@ -224,7 +251,7 @@ public class BinaryReadOnlyData {
 	 *
 	 * @return Read boolean
 	 * @throws EndOfPacketException
-	 *             Thrown if less than 4 bytes are left in the data, meaning it can't contain a valid int
+	 *           Thrown if less than 4 bytes are left in the data, meaning it can't contain a valid int
 	 */
 	public boolean readBoolean() throws EndOfPacketException {
 		byte b = readByte();
@@ -239,7 +266,7 @@ public class BinaryReadOnlyData {
 	 *
 	 * @return Read location
 	 * @throws EndOfPacketException
-	 *             Thrown if less than 8 bytes are left in the data, meaning it can't contain a valid location
+	 *           Thrown if less than 8 bytes are left in the data, meaning it can't contain a valid location
 	 */
 	public Location readPosition() throws EndOfPacketException {
 		long val = readLong();
@@ -254,7 +281,7 @@ public class BinaryReadOnlyData {
 	 *
 	 * @return Parsed NBT array
 	 * @throws EndOfPacketException
-	 *             Thrown if data is invalid
+	 *           Thrown if data is invalid
 	 */
 	public NBTCompound[] readNBTArray() throws EndOfPacketException {
 		int length = readVarInt();
@@ -268,13 +295,13 @@ public class BinaryReadOnlyData {
 	}
 
 	/**
-	 * Reads a varInt from the input data. While normal int are always 4 byte, varint have a dynamic length. They use
-	 * the 8th bit of every byte to signal whether another byte follows. This allows making your data smaller
-	 * dynamically and is used a lot in minecrafts protocol.
+	 * Reads a varInt from the input data. While normal int are always 4 byte, varint have a dynamic length. They use the
+	 * 8th bit of every byte to signal whether another byte follows. This allows making your data smaller dynamically and
+	 * is used a lot in minecrafts protocol.
 	 *
 	 * @return int read
 	 * @throws IOException
-	 *             thrown if varInt could not be read or was too big
+	 *           thrown if varInt could not be read or was too big
 	 */
 	public int readVarInt() {
 		int i = 0;

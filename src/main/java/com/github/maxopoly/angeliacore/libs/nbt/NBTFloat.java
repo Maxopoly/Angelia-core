@@ -40,4 +40,15 @@ public class NBTFloat extends NBTElement {
 		return new NBTFloat(name, value);
 	}
 
+
+	@Override
+	public String toString() {
+		return "" + value;
+	}
+
+	@Override
+	public String getTypeName() {
+		return "float";
+	}
+
 }

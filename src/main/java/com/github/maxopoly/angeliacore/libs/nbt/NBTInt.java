@@ -40,4 +40,15 @@ public class NBTInt extends NBTElement {
 		return new NBTInt(name, value);
 	}
 
+
+	@Override
+	public String toString() {
+		return "" + value;
+	}
+
+	@Override
+	public String getTypeName() {
+		return "int";
+	}
+
 }

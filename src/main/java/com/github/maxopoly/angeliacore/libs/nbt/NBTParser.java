@@ -1,20 +1,15 @@
 package com.github.maxopoly.angeliacore.libs.nbt;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
+import com.github.maxopoly.angeliacore.binary.BinaryReadOnlyData;
+import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
 
-public class NBTParser {
-
-	private int dataPointer;
-	private byte[] data;
+public class NBTParser extends BinaryReadOnlyData {
 
 	public NBTParser(byte[] data) {
-		this.data = data;
-		this.dataPointer = 0;
+		super(data);
 	}
 
-	public NBTCompound parse() throws IllegalArgumentException {
+	public NBTCompound parse() throws IllegalArgumentException, EndOfPacketException {
 		byte startingByte = readByte();
 		if (startingByte == 0) {
 			// null tag
@@ -30,8 +25,8 @@ public class NBTParser {
 		return dataPointer;
 	}
 
-	private NBTCompound parseNBTCompound(boolean inList) {
-		String name = inList ? null : readString();
+	private NBTCompound parseNBTCompound(boolean inList) throws EndOfPacketException {
+		String name = inList ? null : readString(2);
 		NBTCompound compound = new NBTCompound(name);
 		boolean endFound = false;
 		while (!endFound) {
@@ -75,79 +70,81 @@ public class NBTParser {
 					foundElement = parseNBTIntArray(false);
 					break;
 				default:
-					throw new IllegalArgumentException("NBT Type id " + tagID + " is not valid");
+					throw new IllegalArgumentException("NBT Type id " + tagID + " is not valid, nbt so far: " + compound.toString());
 			}
 			if (foundElement != null) {
 				compound.add(foundElement);
 			}
 		}
+		System.out.println("Parsed comp: " + compound.toString()) ;
 		return compound;
 	}
 
-	private NBTByte parseNBTByte(boolean inList) {
-		String name = inList ? null : readString();
+	private NBTByte parseNBTByte(boolean inList) throws EndOfPacketException {
+		String name = inList ? null : readString(2);
 		byte b = readByte();
 		return new NBTByte(name, b);
 	}
 
-	private NBTShort parseNBTShort(boolean inList) {
-		String name = inList ? null : readString();
-		short s = readSignedShort();
+	private NBTShort parseNBTShort(boolean inList) throws EndOfPacketException {
+		String name = inList ? null : readString(2);
+		short s = readShort();
 		return new NBTShort(name, s);
 	}
 
-	private NBTInt parseNBTInt(boolean inList) {
-		String name = inList ? null : readString();
-		int s = readSignedInt();
+	private NBTInt parseNBTInt(boolean inList) throws EndOfPacketException {
+		String name = inList ? null : readString(2);
+		int s = readInt();
 		return new NBTInt(name, s);
 	}
 
-	private NBTLong parseNBTLong(boolean inList) {
-		String name = inList ? null : readString();
-		long b = readSignedLong();
+	private NBTLong parseNBTLong(boolean inList) throws EndOfPacketException {
+		String name = inList ? null : readString(2);
+		long b = readLong();
 		return new NBTLong(name, b);
 	}
 
-	private NBTFloat parseNBTFloat(boolean inList) {
-		String name = inList ? null : readString();
+	private NBTFloat parseNBTFloat(boolean inList) throws EndOfPacketException {
+		String name = inList ? null : readString(2);
 		float b = readFloat();
 		return new NBTFloat(name, b);
 	}
 
-	private NBTDouble parseNBTDouble(boolean inList) {
-		String name = inList ? null : readString();
+	private NBTDouble parseNBTDouble(boolean inList) throws EndOfPacketException {
+		String name = inList ? null : readString(2);
 		double b = readDouble();
 		return new NBTDouble(name, b);
 	}
 
-	private NBTByteArray parseNBTByteArray(boolean inList) {
-		String name = inList ? null : readString();
-		int length = readSignedInt();
+	private NBTByteArray parseNBTByteArray(boolean inList) throws EndOfPacketException {
+		String name = inList ? null : readString(2);
+		int length = readInt();
 		byte[] bArray = readBytes(length);
 		return new NBTByteArray(name, bArray);
 	}
 
-	private NBTString parseNBTString(boolean inList) {
-		String name = inList ? null : readString();
-		String value = readString();
+	private NBTString parseNBTString(boolean inList) throws EndOfPacketException {
+		String name = inList ? null : readString(2);
+		String value = readString(2);
 		return new NBTString(name, value);
 	}
 
-	private NBTIntArray parseNBTIntArray(boolean inList) {
-		String name = inList ? null : readString();
-		int length = readSignedInt();
+	private NBTIntArray parseNBTIntArray(boolean inList) throws EndOfPacketException {
+		String name = inList ? null : readString(2);
+		int length = readInt();
 		int[] iArray = new int[length];
 		for (int i = 0; i < length; i++) {
-			iArray[i] = readSignedInt();
+			iArray[i] = readInt();
 		}
 		return new NBTIntArray(name, iArray);
 	}
 
-	private NBTList parseNBTList(boolean inList) {
-		String name = inList ? null : readString();
+	private NBTList parseNBTList(boolean inList) throws EndOfPacketException {
+		String name = inList ? null : readString(2);
 		byte typeID = readByte();
 		NBTList<NBTElement> list = new NBTList<NBTElement>(name, typeID);
-		int length = readSignedInt();
+		int length = readInt();
+		System.out.println("Parsed length: " + length);
 		if (length < 0) {
 			length = 0;
 		}
@@ -202,58 +199,4 @@ public class NBTParser {
 		}
 		return list;
 	}
-
-	private String readString() {
-		short charAmount = readSignedShort();
-		return new String(readBytes(charAmount));
-	}
-
-	private byte readByte() {
-		return data[dataPointer++];
-	}
-
-	public byte[] readBytes(int amount) {
-		byte[] resultData = new byte[amount];
-		for (int i = 0; i < amount; i++) {
-			resultData[i] = data[i + dataPointer];
-		}
-		dataPointer += amount;
-		return resultData;
-	}
-
-	public long readSignedLong() {
-		byte[] intData = Arrays.copyOfRange(data, dataPointer, dataPointer + 8);
-		long result = ByteBuffer.wrap(intData).order(ByteOrder.BIG_ENDIAN).getLong();
-		dataPointer += 8;
-		return result;
-	}
-
-	public short readSignedShort() {
-		byte[] intData = Arrays.copyOfRange(data, dataPointer, dataPointer + 2);
-		short result = ByteBuffer.wrap(intData).order(ByteOrder.BIG_ENDIAN).getShort();
-		dataPointer += 2;
-		return result;
-	}
-
-	public double readDouble() {
-		byte[] doubleData = Arrays.copyOfRange(data, dataPointer, dataPointer + 8);
-		double result = ByteBuffer.wrap(doubleData).order(ByteOrder.BIG_ENDIAN).getDouble();
-		dataPointer += 8;
-		return result;
-	}
-
-	public int readSignedInt() {
-		byte[] intData = Arrays.copyOfRange(data, dataPointer, dataPointer + 4);
-		int result = ByteBuffer.wrap(intData).order(ByteOrder.BIG_ENDIAN).getInt();
-		dataPointer += 4;
-		return result;
-	}
-
-	public float readFloat() {
-		byte[] doubleData = Arrays.copyOfRange(data, dataPointer, dataPointer + 4);
-		float result = ByteBuffer.wrap(doubleData).order(ByteOrder.BIG_ENDIAN).getFloat();
-		dataPointer += 4;
-		return result;
-	}
-
 }
