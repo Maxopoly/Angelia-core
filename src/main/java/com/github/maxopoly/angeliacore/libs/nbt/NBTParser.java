@@ -76,7 +76,6 @@ public class NBTParser extends BinaryReadOnlyData {
 				compound.add(foundElement);
 			}
 		}
-		System.out.println("Parsed comp: " + compound.toString()) ;
 		return compound;
 	}
 
@@ -144,7 +143,6 @@ public class NBTParser extends BinaryReadOnlyData {
 		byte typeID = readByte();
 		NBTList<NBTElement> list = new NBTList<NBTElement>(name, typeID);
 		int length = readInt();
-		System.out.println("Parsed length: " + length);
 		if (length < 0) {
 			length = 0;
 		}
