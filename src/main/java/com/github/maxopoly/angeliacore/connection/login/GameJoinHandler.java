@@ -38,8 +38,7 @@ public class GameJoinHandler {
 		}
 	}
 
-	public void handleDisconnectPacket(ReadOnlyPacket loginPacket)
-			throws IOException {
+	public void handleDisconnectPacket(ReadOnlyPacket loginPacket) {
 		String msg = null;
 		try {
 			msg = loginPacket.readString();
@@ -49,8 +48,6 @@ public class GameJoinHandler {
 			connection.getLogger().error("Failed to parse disconnect package",
 					e);
 		}
-		throw new IOException("Server disconnected: " + msg);
-
 	}
 
 	public void handleCompressionPacket(ReadOnlyPacket packet) {

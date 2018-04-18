@@ -3,10 +3,12 @@ package com.github.maxopoly.angeliacore.model;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.events.HealthChangeEvent;
 import com.github.maxopoly.angeliacore.event.events.HungerChangeEvent;
+import com.github.maxopoly.angeliacore.event.events.XPChangeEvent;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
 import com.github.maxopoly.angeliacore.model.location.Location;
 import com.github.maxopoly.angeliacore.model.potion.PotionEffect;
+
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -55,6 +57,7 @@ public class PlayerStatus {
 	}
 
 	public void updateXP(float progress, int level, int totalXP) {
+		connection.getEventHandler().broadcast(new XPChangeEvent(this.xpProgress, this.level, this.totalEXP, progress, level, totalXP));
 		this.level = level;
 		this.xpProgress = progress;
 		this.totalEXP = totalXP;
@@ -66,21 +69,25 @@ public class PlayerStatus {
 	}
 
 	public void updatePosition(double x, double y, double z) {
-		this.location = new Location(x, y, z, location.getYaw(), location.getPitch());
+		this.location = new Location(x, y, z, location.getYaw(),
+				location.getPitch());
 		initialized = true;
 	}
 
 	public void updateLookingDirection(float yaw, float pitch) {
-		this.location = new Location(location.getX(), location.getY(), location.getZ(), yaw, pitch);
+		this.location = new Location(location.getX(), location.getY(),
+				location.getZ(), yaw, pitch);
 	}
 
 	public void updateHealth(float health, int hunger, float saturation) {
 		if (this.health != health) {
-			connection.getEventHandler().broadcast(new HealthChangeEvent(this.health, health));
+			connection.getEventHandler().broadcast(
+					new HealthChangeEvent(this.health, health));
 		}
 		this.health = health;
 		if (this.hunger != hunger) {
-			connection.getEventHandler().broadcast(new HungerChangeEvent(this.hunger, hunger));
+			connection.getEventHandler().broadcast(
+					new HungerChangeEvent(this.hunger, hunger));
 		}
 		this.hunger = hunger;
 		this.saturation = saturation;
@@ -129,8 +136,8 @@ public class PlayerStatus {
 	}
 
 	public Location getHeadLocation() {
-		return new Location(location.getX(), location.getY() + headDelta, location.getZ(), location.getYaw(),
-				location.getPitch());
+		return new Location(location.getX(), location.getY() + headDelta,
+				location.getZ(), location.getYaw(), location.getPitch());
 	}
 
 	/**
@@ -166,7 +173,8 @@ public class PlayerStatus {
 
 	public Inventory getInventory(byte id) {
 		if (id == -1) {
-			// -1 is used to access the cursor slot, so we can just use the player inventory, which will always be
+			// -1 is used to access the cursor slot, so we can just use the
+			// player inventory, which will always be
 			// present
 			id = 0;
 		}
@@ -259,11 +267,13 @@ public class PlayerStatus {
 	}
 
 	public String getXPString() {
-		return "Level: " + level + ", totalXP: " + totalEXP + ", progress: " + format.format(xpProgress);
+		return "Level: " + level + ", totalXP: " + totalEXP + ", progress: "
+				+ format.format(xpProgress);
 	}
 
 	@Override
 	public String toString() {
-		return getLocationString() + " ; " + getHealthString() + " ; " + getXPString();
+		return getLocationString() + " ; " + getHealthString() + " ; "
+				+ getXPString();
 	}
 }
