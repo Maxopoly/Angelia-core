@@ -13,9 +13,11 @@ import com.github.maxopoly.angeliacore.connection.play.ItemTransactionManager;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.ClientSettingPacket;
 import com.github.maxopoly.angeliacore.encryption.AES_CFB8_Encrypter;
 import com.github.maxopoly.angeliacore.event.EventBroadcaster;
+import com.github.maxopoly.angeliacore.exceptions.MalformedCompressedDataException;
 import com.github.maxopoly.angeliacore.model.PlayerStatus;
 import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;
 import com.github.maxopoly.angeliacore.plugin.PluginManager;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -25,6 +27,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Timer;
+
 import org.apache.logging.log4j.Logger;
 
 /**
@@ -202,7 +205,7 @@ public class ServerConnection {
 			if (compressionEnabled) {
 				if (packetSize > maximumUncompressedPacketSize) {
 					WriteOnlyPacket compressedPacket = new WriteOnlyPacket();
-					byte[] compressedData = CompressionManager.compress(packet.toByteArray());
+					byte[] compressedData = CompressionManager.compressZLib(packet.toByteArray());
 					// write length of uncompressed data
 					compressedPacket.writeVarInt(packet.getSize());
 					// write compressed data
@@ -238,8 +241,9 @@ public class ServerConnection {
 	 * Gets a received packet if one is available and waits (non-blocking) until one is available if none is available.
 	 *
 	 * @return Packet read
+	 * @throws MalformedCompressedDataException 
 	 */
-	public ReadOnlyPacket getPacket() throws IOException {
+	public ReadOnlyPacket getPacket() throws IOException, MalformedCompressedDataException {
 		synchronized (input) {
 			int packetLength = 0;
 			int j = 0;
@@ -286,9 +290,10 @@ public class ServerConnection {
 				// if uncompressed length is set to zero, packet was uncompressed
 				return new ReadOnlyPacket(dataArray);
 			}
-			byte[] decompressedData = CompressionManager.decompress(dataArray, logger);
+			byte[] decompressedData;
+			decompressedData = CompressionManager.decompressZLib(dataArray, logger);
 			if (decompressedData.length != uncompressedPacketLength) {
-				throw new IOException("Decompression failed and result in incorrect packet length");
+				throw new MalformedCompressedDataException("Decompression failed and result in incorrect packet length");
 			}
 			return new ReadOnlyPacket(decompressedData);
 		}

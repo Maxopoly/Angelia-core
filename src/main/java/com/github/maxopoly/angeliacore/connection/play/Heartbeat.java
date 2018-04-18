@@ -19,6 +19,8 @@ import com.github.maxopoly.angeliacore.connection.play.packets.in.TransActionCon
 import com.github.maxopoly.angeliacore.connection.play.packets.in.WindowItemsPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.XPChangeHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionPacket;
+import com.github.maxopoly.angeliacore.exceptions.MalformedCompressedDataException;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.TimerTask;
@@ -142,6 +144,8 @@ public class Heartbeat extends TimerTask {
 				connection.getLogger().error("Failed to get packet from connection, connection seems to be gone", e);
 				connection.close(DisconnectReason.Unknown_Connection_Error);
 				return;
+			} catch (MalformedCompressedDataException e) {
+				connection.getLogger().error("Received packet with faulty compession, ignoring it", e);
 			}
 			// tick the action queue
 			connection.getActionQueue().tick();
