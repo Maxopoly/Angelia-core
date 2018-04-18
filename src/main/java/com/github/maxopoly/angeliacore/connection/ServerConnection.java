@@ -164,7 +164,11 @@ public class ServerConnection {
 		// figure out encryption secret
 		logger.info("Parsing encryption request from " + serverAdress);
 		EncryptionHandler asyncEncHandler = new EncryptionHandler(this);
-		asyncEncHandler.parseEncryptionRequest();
+		if (!asyncEncHandler.parseEncryptionRequest()) {
+			logger.info("Failed to handle encryption request, could not setup connection");
+			close(DisconnectReason.Unknown_Connection_Error);
+			return;
+		}
 		asyncEncHandler.genSecretKey();
 		logger.info("Authenticating connection attempt to " + serverAdress + " against Yggdrassil session server");
 		authHandler.authAgainstSessionServer(asyncEncHandler.generateKeyHash(), logger);
@@ -314,8 +318,10 @@ public class ServerConnection {
 			if (!socket.isClosed()) {
 				socket.close();
 			}
-			tickTimer.cancel();
-			tickTimer.purge();
+			if (tickTimer != null) {
+				tickTimer.cancel();
+				tickTimer.purge();
+			}
 			closed = true;
 		} catch (IOException e) {
 			// its ok, probably

@@ -33,20 +33,29 @@ public class EncryptionHandler {
 		return sharedSecret;
 	}
 
-	public void parseEncryptionRequest() throws IOException {
+	public boolean parseEncryptionRequest() throws IOException {
 		try {
 			ReadOnlyPacket packet = connection.getPacket();
 			byte packetID = packet.getPacketID();
-			assert (packetID == (byte) 0x01);
+			if (packetID == 0x00) {
+				new GameJoinHandler(connection).handleDisconnectPacket(packet);
+				return false;
+			}
+			if (packetID != 0x01) {
+				connection.getLogger().error("Expected encryption request packet, "
+						+ "but received packed with id " + packetID);
+				return false;
+			}
 			serverID = packet.readString();
 			encodedPubKey = packet.readByteArray();
 			X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(encodedPubKey);
 			KeyFactory kf = KeyFactory.getInstance("RSA");
 			serverPubKey = kf.generatePublic(X509publicKey);
 			serverVerifyToken = packet.readByteArray();
+			return true;
 		} catch (Exception e) {
-			connection.getLogger().error("Exception occured", e);
-			throw new IOException("Failed to parse encryption request - " + e.getClass());
+			connection.getLogger().error("Failed to parse encryption request - ", e);
+			return false;
 		}
 	}
 

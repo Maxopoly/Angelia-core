@@ -38,7 +38,7 @@ public class GameJoinHandler {
 		}
 	}
 
-	private void handleDisconnectPacket(ReadOnlyPacket loginPacket)
+	public void handleDisconnectPacket(ReadOnlyPacket loginPacket)
 			throws IOException {
 		String msg = null;
 		try {
