@@ -13,7 +13,7 @@ public class ActionQueue {
 	private ServerConnection connection;
 
 	public ActionQueue(ServerConnection connection) {
-		this.actions = new LinkedList<AbstractAction>();
+		this.actions = new LinkedList<>();
 		this.connection = connection;
 	}
 
@@ -26,7 +26,7 @@ public class ActionQueue {
 			return;
 		}
 		boolean allDone = false;
-		Set<ActionLock> locksTaken = new HashSet<ActionLock>();
+		Set<ActionLock> locksTaken = new HashSet<>();
 		Iterator<AbstractAction> iter = actions.iterator();
 		outer: while (!allDone && iter.hasNext()) {
 			AbstractAction action = iter.next();
@@ -49,8 +49,6 @@ public class ActionQueue {
 				connection.getEventHandler().broadcast(new ActionQueueEmptiedEvent());
 				allDone = true;
 			}
-			// temporary for debug
-			break;
 		}
 	}
 

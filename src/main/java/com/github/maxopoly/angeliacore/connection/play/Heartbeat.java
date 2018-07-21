@@ -20,7 +20,6 @@ import com.github.maxopoly.angeliacore.connection.play.packets.in.WindowItemsPac
 import com.github.maxopoly.angeliacore.connection.play.packets.in.XPChangeHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionPacket;
 import com.github.maxopoly.angeliacore.exceptions.MalformedCompressedDataException;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.TimerTask;
@@ -38,7 +37,7 @@ public class Heartbeat extends TimerTask {
 
 	public Heartbeat(ServerConnection connection) {
 		this.connection = connection;
-		this.handlerMap = new TreeMap<Integer, AbstractIncomingPacketHandler>();
+		this.handlerMap = new TreeMap<>();
 		registerAllHandler();
 	}
 
@@ -60,7 +59,7 @@ public class Heartbeat extends TimerTask {
 		registerPacketHandler(new ForceInventoryClosurePacketHandler(connection));
 		registerPacketHandler(new PlayerListItemPacketHandler(connection));
 		registerPacketHandler(new SpawnPlayerPacketHandler(connection));
-		// registerPacketHandler(new ChunkDataPacketHandler(connection));
+		//registerPacketHandler(new ChunkDataPacketHandler(connection));
 		// no use for block break animation right now, as it only tells us about other peoples breaking
 		// registerPacketHandler(new BlockBreakAnimationPacketHandler(connection));
 	}
