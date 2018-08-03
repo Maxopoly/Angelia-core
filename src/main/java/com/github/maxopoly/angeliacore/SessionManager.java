@@ -71,7 +71,7 @@ public class SessionManager {
 	}
 
 	private List<AuthenticationHandler> reloadFileContent() {
-		List<AuthenticationHandler> auths = new LinkedList<AuthenticationHandler>();
+		List<AuthenticationHandler> auths = new LinkedList<>();
 		JSONObject json = loadAuthJson(saveFile);
 		if (json == null) {
 			return auths;
@@ -157,10 +157,6 @@ public class SessionManager {
 		if (json == null) {
 			json = new JSONObject();
 		}
-		if (!saveFile.exists()) {
-			logger.info("Token save file did not exst, creating it...");
-			saveFile.mkdirs();
-		}
 		json.put("clientToken", clientToken);
 		JSONObject authSection = json.optJSONObject("authenticationDatabase");
 		if (authSection == null) {
@@ -194,10 +190,24 @@ public class SessionManager {
 	}
 
 	private void saveJSON(File file, JSONObject json) {
+	    File parent = file.getParentFile();
+	    if (!parent.isDirectory()) {
+	         logger.info("Path to token save file did not exst, creating it: " +  parent.getAbsolutePath());
+	         if (!file.getParentFile().mkdirs()) {
+	             logger.error("Failed to create folder for auth token save file. This likely means that you messed up file permissions");
+	             return;
+	         }
+	    }
+	    try {
+            file.createNewFile();
+        } catch (IOException e1) {
+            logger.error("Failed to recreate auth token save file. This likely means that you messed up file permissions", e1);
+            return;
+        }
 		try (FileWriter writer = new FileWriter(file)) {
 			writer.write(json.toString());
 		} catch (IOException e) {
-			logger.error("Failed to save auth tokens to save file", e);
+			logger.error("Failed to write auth tokens to save file", e);
 			return;
 		}
 	}
