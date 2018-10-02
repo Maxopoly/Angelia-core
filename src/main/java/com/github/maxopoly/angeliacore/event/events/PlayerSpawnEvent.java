@@ -1,5 +1,6 @@
 package com.github.maxopoly.angeliacore.event.events;
 
+import com.github.maxopoly.angeliacore.model.entity.LivingEntity;
 import com.github.maxopoly.angeliacore.model.location.Location;
 import com.github.maxopoly.angeliacore.model.player.OnlinePlayer;
 
@@ -7,12 +8,12 @@ public class PlayerSpawnEvent implements AngeliaEvent {
 
 	private Location loc;
 	private OnlinePlayer player;
-	private int entityID;
+	private LivingEntity entity;
 
-	public PlayerSpawnEvent(Location loc, OnlinePlayer player, int entityID) {
+	public PlayerSpawnEvent(Location loc, OnlinePlayer player, LivingEntity entity) {
 		this.loc = loc;
 		this.player = player;
-		this.entityID = entityID;
+		this.entity = entity;
 	}
 
 	public Location getLocation() {
@@ -23,7 +24,8 @@ public class PlayerSpawnEvent implements AngeliaEvent {
 		return player;
 	}
 
-	public int getEntityID() {
-		return entityID;
+	public LivingEntity getEntity() {
+		return entity;
 	}
+
 }

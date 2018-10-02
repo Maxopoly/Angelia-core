@@ -4,9 +4,11 @@ import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.events.HealthChangeEvent;
 import com.github.maxopoly.angeliacore.event.events.HungerChangeEvent;
 import com.github.maxopoly.angeliacore.event.events.XPChangeEvent;
+import com.github.maxopoly.angeliacore.model.entity.LivingEntity;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
 import com.github.maxopoly.angeliacore.model.location.Location;
+import com.github.maxopoly.angeliacore.model.player.OnlinePlayer;
 import com.github.maxopoly.angeliacore.model.potion.PotionEffect;
 
 import java.text.DecimalFormat;
@@ -23,12 +25,13 @@ public class PlayerStatus {
 
 	public static final double headDelta = 1.62; // how far the head is above the player location
 
-	private boolean initialized = false;
+	private Map<Byte, Inventory> openInventories = new TreeMap<Byte, Inventory>(){{
+	    put((byte)0, new PlayerInventory());
+    }};
+	private Map<PotionEffect, Long> potionEffects = new HashMap<>();
 
-	private Map<Byte, Inventory> openInventories;
-	private Map<PotionEffect, Long> potionEffects;
+	private LivingEntity entity;
 
-	private Location location;
 	private int selectedHotbarSlot;
 
 	private int totalEXP;
@@ -38,22 +41,14 @@ public class PlayerStatus {
 	private float health = 20.f;
 	private int hunger;
 	private float saturation;
-	private boolean midAir;
+	private boolean midAir = false;
 
-	private int entityID;
-
-	private DecimalFormat format;
+	private DecimalFormat format = new DecimalFormat("#.##");
 
 	private ServerConnection connection;
 
 	public PlayerStatus(ServerConnection connection) {
-		this.location = new Location(0, 0, 0);
-		this.format = new DecimalFormat("#.##");
-		this.openInventories = new TreeMap<Byte, Inventory>();
-		this.openInventories.put((byte) 0, new PlayerInventory());
-		this.potionEffects = new HashMap<PotionEffect, Long>();
 		this.connection = connection;
-		this.midAir = false;
 	}
 
 	public void updateXP(float progress, int level, int totalXP) {
@@ -63,20 +58,16 @@ public class PlayerStatus {
 		this.totalEXP = totalXP;
 	}
 
-	public void updateLocation(Location loc) {
-		this.location = loc;
-		initialized = true;
+	public void updateLocation(Location location) {
+	    entity.updateLocation(location);
 	}
 
 	public void updatePosition(double x, double y, double z) {
-		this.location = new Location(x, y, z, location.getYaw(),
-				location.getPitch());
-		initialized = true;
+	    entity.updatePosition(x, y, z);
 	}
 
 	public void updateLookingDirection(float yaw, float pitch) {
-		this.location = new Location(location.getX(), location.getY(),
-				location.getZ(), yaw, pitch);
+	    entity.updateLookingDirection(yaw, pitch);
 	}
 
 	public void updateHealth(float health, int hunger, float saturation) {
@@ -97,7 +88,7 @@ public class PlayerStatus {
 	 * @return Player location
 	 */
 	public Location getLocation() {
-		return location;
+	    return isInitialized() ? entity.getLocation() : new Location(0, 0, 0);
 	}
 
 	/**
@@ -136,6 +127,7 @@ public class PlayerStatus {
 	}
 
 	public Location getHeadLocation() {
+	    Location location = entity.getLocation();
 		return new Location(location.getX(), location.getY() + headDelta,
 				location.getZ(), location.getYaw(), location.getPitch());
 	}
@@ -144,7 +136,7 @@ public class PlayerStatus {
 	 * @return Whether the location was initialized yet
 	 */
 	public boolean isInitialized() {
-		return initialized;
+		return entity != null;
 	}
 
 	/**
@@ -244,18 +236,18 @@ public class PlayerStatus {
 	}
 
 	public String getLocationString() {
-		return location.toString();
+		return entity.getLocation().toString();
 	}
 
 	/**
 	 * @return The players entity id
 	 */
-	public int getEntityID() {
-		return entityID;
+	public LivingEntity getEntity() {
+		return entity;
 	}
 
-	public void setEntityID(int id) {
-		this.entityID = id;
+	public void setEntity(LivingEntity entity) {
+		this.entity = entity;
 	}
 
 	public String getHealthString() {

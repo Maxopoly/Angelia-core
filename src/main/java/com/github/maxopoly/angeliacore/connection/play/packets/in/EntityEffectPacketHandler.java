@@ -17,7 +17,7 @@ public class EntityEffectPacketHandler extends AbstractIncomingPacketHandler {
 	public void handlePacket(ReadOnlyPacket packet) {
 		try {
 			int entityId = packet.readVarInt();
-			if (entityId != connection.getPlayerStatus().getEntityID()) {
+			if (entityId != connection.getPlayerStatus().getEntity().getEntityId()) {
 				// we only care about the player
 				return;
 			}

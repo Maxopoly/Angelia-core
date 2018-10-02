@@ -6,7 +6,7 @@ import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.model.player.OnlinePlayer;
 import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;
-import com.github.maxopoly.angeliacore.model.player.PlayerProperty;
+import com.github.maxopoly.angeliacore.model.entity.EntityProperty;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -31,13 +31,13 @@ public class PlayerListItemPacketHandler extends AbstractIncomingPacketHandler {
 						// add player
 						String name = packet.readString();
 						int propertyCount = packet.readVarInt();
-						List<PlayerProperty> properties = new LinkedList<PlayerProperty>();
+						List<EntityProperty> properties = new LinkedList<EntityProperty>();
 						for (int k = 0; k < propertyCount; k++) {
 							String propName = packet.readString();
 							String propValue = packet.readString();
 							boolean isSigned = packet.readBoolean();
 							String signature = isSigned ? packet.readString() : null;
-							PlayerProperty prop = new PlayerProperty(propName, propValue, isSigned, signature);
+							EntityProperty prop = new EntityProperty(propName, propValue, isSigned, signature);
 							properties.add(prop);
 						}
 						int gameMode = packet.readVarInt();
