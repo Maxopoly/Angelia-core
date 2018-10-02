@@ -1,5 +1,8 @@
 package com.github.maxopoly.angeliacore.model.player;
 
+import com.github.maxopoly.angeliacore.model.entity.EntityProperty;
+import com.github.maxopoly.angeliacore.model.entity.LivingEntity;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,19 +10,19 @@ import java.util.UUID;
 
 public class OnlinePlayer {
 
-	private Map<String, PlayerProperty> properties;
 	private UUID uuid;
-	private int gameMode;
 	private String name;
 	private String displayName;
+	private Map<String, EntityProperty> properties;
+	private int gameMode;
 	private int ping;
+	private LivingEntity entity;
 
-	public OnlinePlayer(UUID uuid, String name, List<PlayerProperty> properties, int gameMode, int ping,
-			String displayName) {
+	public OnlinePlayer(UUID uuid, String name, List<EntityProperty> properties, int gameMode, int ping, String displayName) {
 		this.uuid = uuid;
 		this.name = name;
-		this.properties = new HashMap<String, PlayerProperty>();
-		for (PlayerProperty prop : properties) {
+		this.properties = new HashMap<>();
+		for (EntityProperty prop : properties) {
 			this.properties.put(prop.getName(), prop);
 		}
 		this.gameMode = gameMode;
@@ -59,8 +62,16 @@ public class OnlinePlayer {
 		return uuid;
 	}
 
-	public PlayerProperty getProperty(String propName) {
+	public EntityProperty getProperty(String propName) {
 		return properties.get(propName);
+	}
+
+	public void declarePlayerEntity(LivingEntity entity) {
+		this.entity = entity;
+	}
+
+	public LivingEntity getPlayerEntity() {
+		return entity;
 	}
 
 }

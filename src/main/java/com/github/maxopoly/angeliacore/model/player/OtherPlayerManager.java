@@ -6,11 +6,7 @@ import java.util.UUID;
 
 public class OtherPlayerManager {
 
-	private Map<UUID, OnlinePlayer> players;
-
-	public OtherPlayerManager() {
-		this.players = new HashMap<UUID, OnlinePlayer>();
-	}
+	private final Map<UUID, OnlinePlayer> players = new HashMap<>();
 
 	public OnlinePlayer getPlayer(UUID uuid) {
 		return players.get(uuid);

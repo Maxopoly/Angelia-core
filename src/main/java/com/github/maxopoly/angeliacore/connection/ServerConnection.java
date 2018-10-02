@@ -15,6 +15,7 @@ import com.github.maxopoly.angeliacore.encryption.AES_CFB8_Encrypter;
 import com.github.maxopoly.angeliacore.event.EventBroadcaster;
 import com.github.maxopoly.angeliacore.exceptions.MalformedCompressedDataException;
 import com.github.maxopoly.angeliacore.model.PlayerStatus;
+import com.github.maxopoly.angeliacore.model.entity.LivingEntityManager;
 import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;
 import com.github.maxopoly.angeliacore.plugin.PluginManager;
 
@@ -51,6 +52,7 @@ public class ServerConnection {
 	private ItemTransactionManager transActionManager;
 	private PluginManager pluginManager;
 	private OtherPlayerManager otherPlayerManager;
+	private LivingEntityManager livingEntityManager;
 	private ChunkHolder chunkHolder;
 	private boolean localHost;
 
@@ -188,6 +190,7 @@ public class ServerConnection {
 		pluginManager = new PluginManager(this);
 		actionQueue = new ActionQueue(this);
 		otherPlayerManager = new OtherPlayerManager();
+		livingEntityManager = new LivingEntityManager();
 		chunkHolder = new ChunkHolder();
 		tickTimer = new Timer("Angelia tick");
 		tickTimer.schedule(playPacketHandler, tickDelay, tickDelay);
@@ -416,6 +419,10 @@ public class ServerConnection {
 
 	public OtherPlayerManager getOtherPlayerManager() {
 		return otherPlayerManager;
+	}
+
+	public LivingEntityManager getLivingEntityManager() {
+		return livingEntityManager;
 	}
 
 	/**

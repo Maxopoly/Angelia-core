@@ -19,40 +19,33 @@ public class PlayerPositionLookPacketHandler extends AbstractIncomingPacketHandl
 	@Override
 	public void handlePacket(ReadOnlyPacket packet) {
 		try {
+			// Extract data
 			double x = packet.readDouble();
 			double y = packet.readDouble();
 			double z = packet.readDouble();
 			float yaw = packet.readFloat();
 			float pitch = packet.readFloat();
 			byte flags = packet.readByte();
-			Location status = connection.getPlayerStatus().getLocation();
-			boolean xRelative = (flags & 0x01) != 0;
-			if (xRelative) {
-				x = status.getX() + x;
-			}
-			boolean yRelative = (flags & 0x02) != 0;
-			if (yRelative) {
-				y = status.getY() + y;
-			}
-			boolean zRelative = (flags & 0x04) != 0;
-			if (zRelative) {
-				z = status.getZ() + z;
-			}
-			boolean yawRelative = (flags & 0x08) != 0;
-			if (yawRelative) {
-				yaw = status.getYaw() + yaw;
-			}
-			boolean pitchRelative = (flags & 0x10) != 0;
-			if (pitchRelative) {
-				pitch = status.getPitch() + pitch;
-			}
-			connection.getPlayerStatus().updatePosition(x, y, z);
-			connection.getPlayerStatus().updateLookingDirection(yaw, pitch);
-			Location dictatedLocation = new Location(x, y, z, yaw, pitch);
 			int teleID = packet.readVarInt();
+			// Extra data
+			boolean xRelative = (flags & 0x01) != 0;
+			boolean yRelative = (flags & 0x02) != 0;
+			boolean zRelative = (flags & 0x04) != 0;
+			boolean yawRelative = (flags & 0x08) != 0;
+			boolean pitchRelative = (flags & 0x10) != 0;
+			// Apply data
+            Location oldLocation = connection.getPlayerStatus().getLocation();
+            Location newLocation = new Location(
+                (xRelative) ? oldLocation.getX() + x : x,
+                (yRelative) ? oldLocation.getY() + y : y,
+                (zRelative) ? oldLocation.getZ() + z : z,
+                (yawRelative) ? oldLocation.getYaw() + yaw : yaw,
+                (pitchRelative) ? oldLocation.getPitch() + pitch : pitch
+            );
+            connection.getPlayerStatus().updateLocation(newLocation);
 			connection.sendPacket(new TeleportConfirmPacket(teleID));
 			connection.sendPacket(new PlayerPositionAndLookPacket(x, y, z, yaw, pitch, true));
-			connection.getEventHandler().broadcast(new TeleportByServerEvent(status, dictatedLocation));
+			connection.getEventHandler().broadcast(new TeleportByServerEvent(oldLocation, newLocation));
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse PlayerPositionAndLookPacket", e);
 		} catch (IOException e) {
