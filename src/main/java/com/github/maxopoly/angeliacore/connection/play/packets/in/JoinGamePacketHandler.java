@@ -5,7 +5,6 @@ import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.events.ConnectedToServerEvent;
-import com.github.maxopoly.angeliacore.model.entity.LivingEntity;
 
 public class JoinGamePacketHandler extends AbstractIncomingPacketHandler {
 

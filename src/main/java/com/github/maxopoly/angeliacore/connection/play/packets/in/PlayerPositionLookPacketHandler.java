@@ -8,7 +8,6 @@ import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositio
 import com.github.maxopoly.angeliacore.connection.play.packets.out.TeleportConfirmPacket;
 import com.github.maxopoly.angeliacore.event.events.TeleportByServerEvent;
 import com.github.maxopoly.angeliacore.model.location.DirectedLocation;
-import com.github.maxopoly.angeliacore.model.location.Location;
 import java.io.IOException;
 
 public class PlayerPositionLookPacketHandler extends AbstractIncomingPacketHandler {

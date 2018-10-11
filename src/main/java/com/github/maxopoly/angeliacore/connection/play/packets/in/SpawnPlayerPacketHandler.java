@@ -5,9 +5,7 @@ import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.events.PlayerSpawnEvent;
-import com.github.maxopoly.angeliacore.model.entity.LivingEntity;
 import com.github.maxopoly.angeliacore.model.location.DirectedLocation;
-import com.github.maxopoly.angeliacore.model.location.Location;
 import java.util.UUID;
 
 public class SpawnPlayerPacketHandler extends AbstractIncomingPacketHandler {

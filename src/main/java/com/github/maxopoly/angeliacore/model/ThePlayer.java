@@ -1,26 +1,14 @@
 package com.github.maxopoly.angeliacore.model;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.event.events.HealthChangeEvent;
-import com.github.maxopoly.angeliacore.event.events.HungerChangeEvent;
 import com.github.maxopoly.angeliacore.event.events.XPChangeEvent;
 import com.github.maxopoly.angeliacore.model.entity.LivingEntity;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
 import com.github.maxopoly.angeliacore.model.location.DirectedLocation;
-import com.github.maxopoly.angeliacore.model.location.Location;
 import com.github.maxopoly.angeliacore.model.location.Vector;
 import com.github.maxopoly.angeliacore.model.location.Velocity;
-import com.github.maxopoly.angeliacore.model.potion.PotionEffect;
-
-import java.text.DecimalFormat;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
 
 public class ThePlayer extends LivingEntity {

@@ -42,6 +42,7 @@ public class LivingEntity extends Entity {
 		location = new DirectedLocation(location, yaw, pitch);
 	}
 	
+	@Override
 	public void updateLocation(Location loc) {
 		this.location = new DirectedLocation(loc, location.getYaw(), location.getPitch());
 	}
