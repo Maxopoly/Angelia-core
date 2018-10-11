@@ -1,12 +1,22 @@
 package com.github.maxopoly.angeliacore.model.location;
 
-public final class Vector {
+import java.text.DecimalFormat;
 
-	private static final double ACCURACY = 0.0000001;
+public class Vector {
+	
 
-	private final double x;
-	private final double y;
-	private final double z;
+	protected static DecimalFormat format = new DecimalFormat("#.##");
+	protected static final double ACCURACY = 0.0000001;
+
+	protected final double x;
+	protected final double y;
+	protected final double z;
+	
+	public Vector() {
+		x = 0;
+		y = 0;
+		z = 0;
+	}
 
 	public Vector(double x, double y, double z) {
 		this.x = x;

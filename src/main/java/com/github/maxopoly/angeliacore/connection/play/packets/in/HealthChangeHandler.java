@@ -4,6 +4,8 @@ import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
 import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
+import com.github.maxopoly.angeliacore.event.events.HealthChangeEvent;
+import com.github.maxopoly.angeliacore.event.events.HungerChangeEvent;
 
 public class HealthChangeHandler extends AbstractIncomingPacketHandler {
 
@@ -17,7 +19,17 @@ public class HealthChangeHandler extends AbstractIncomingPacketHandler {
 			float health = packet.readFloat();
 			int food = packet.readVarInt();
 			float foodSaturation = packet.readFloat();
-			connection.getPlayerStatus().updateHealth(health, food, foodSaturation);
+			float oldHealth = connection.getPlayerStatus().getHealth();
+			int oldFood = connection.getPlayerStatus().getHunger();
+			if (health != oldHealth) {
+				connection.getEventHandler().broadcast(new HealthChangeEvent(health, oldHealth));
+				connection.getPlayerStatus().setHealth(health);
+			}
+			if (food != oldFood) {
+				connection.getEventHandler().broadcast(new HungerChangeEvent(food, oldFood));
+			}
+			connection.getPlayerStatus().updateHunger(food, foodSaturation);
+
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse health update packet", e);
 		}

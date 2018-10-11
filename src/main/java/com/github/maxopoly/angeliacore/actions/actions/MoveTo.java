@@ -4,7 +4,7 @@ import com.github.maxopoly.angeliacore.actions.AbstractAction;
 import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionPacket;
-import com.github.maxopoly.angeliacore.model.PlayerStatus;
+import com.github.maxopoly.angeliacore.model.ThePlayer;
 import com.github.maxopoly.angeliacore.model.location.Location;
 import java.io.IOException;
 
@@ -13,7 +13,7 @@ public class MoveTo extends AbstractAction {
 	private Location destination;
 	private double movementSpeed;
 	private double ticksPerSecond;
-	private final static double errorMargin = 0.01;
+	private final static double errorMargin = 0.0001;
 	public static final double SLOW_SPEED = 1.0;
 	public static final double WALKING_SPEED = 4.317;
 	public static final double SPRINTING_SPEED = 5.612;
@@ -38,7 +38,7 @@ public class MoveTo extends AbstractAction {
 		double xDiff = destination.getX() - current.getX();
 		double yDiff = destination.getY() - current.getY();
 		double zDiff = destination.getZ() - current.getZ();
-		connection.getPlayerStatus().setMidAir(yDiff > errorMargin);
+		connection.getPlayerStatus().setOnGround(!(yDiff > errorMargin));
 		double distance = Math.sqrt((xDiff * xDiff) + (yDiff * yDiff) + (zDiff * zDiff));
 		double timeTakenSeconds = distance / movementSpeed;
 		double timeTakenTicks = timeTakenSeconds * ticksPerSecond;
@@ -47,7 +47,7 @@ public class MoveTo extends AbstractAction {
 		}
 
 		return new Location(current.getX() + (xDiff / timeTakenTicks), current.getY() + (yDiff / timeTakenTicks),
-				current.getZ() + (zDiff / timeTakenTicks), current.getYaw(), current.getPitch());
+				current.getZ() + (zDiff / timeTakenTicks));
 	}
 
 	public boolean hasReachedDesto(Location current) {
@@ -62,8 +62,8 @@ public class MoveTo extends AbstractAction {
 	public void sendLocationPacket() {
 		Location playerLoc = connection.getPlayerStatus().getLocation();
 		try {
-			connection.sendPacket(new PlayerPositionPacket(playerLoc.getX(), playerLoc.getY(), playerLoc.getZ(), !connection
-					.getPlayerStatus().isMidAir()));
+			connection.sendPacket(new PlayerPositionPacket(playerLoc.getX(), playerLoc.getY(), playerLoc.getZ(), connection
+					.getPlayerStatus().isOnGround()));
 		} catch (IOException e) {
 			connection.getLogger().error("Failed to update location", e);
 		}
@@ -72,11 +72,11 @@ public class MoveTo extends AbstractAction {
 	@Override
 	public void execute() {
 		this.ticksPerSecond = connection.getTicksPerSecond();
-		PlayerStatus status = connection.getPlayerStatus();
+		ThePlayer status = connection.getPlayerStatus();
 		status.updateLocation(getNextLocation(status.getLocation(), movementSpeed, ticksPerSecond));
 		sendLocationPacket();
 		if (isDone()) {
-			connection.getPlayerStatus().setMidAir(false);
+			connection.getPlayerStatus().setOnGround(true);
 		}
 	}
 

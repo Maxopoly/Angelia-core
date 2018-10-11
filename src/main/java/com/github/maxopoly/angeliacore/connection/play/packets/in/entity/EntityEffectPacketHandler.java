@@ -1,9 +1,10 @@
-package com.github.maxopoly.angeliacore.connection.play.packets.in;
+package com.github.maxopoly.angeliacore.connection.play.packets.in.entity;
 
 import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
 import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.AbstractIncomingPacketHandler;
 import com.github.maxopoly.angeliacore.model.potion.PotionEffect;
 import com.github.maxopoly.angeliacore.model.potion.PotionType;
 
@@ -17,7 +18,7 @@ public class EntityEffectPacketHandler extends AbstractIncomingPacketHandler {
 	public void handlePacket(ReadOnlyPacket packet) {
 		try {
 			int entityId = packet.readVarInt();
-			if (entityId != connection.getPlayerStatus().getEntityID()) {
+			if (entityId != connection.getPlayerStatus().getID()) {
 				// we only care about the player
 				return;
 			}

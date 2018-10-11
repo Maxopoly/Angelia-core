@@ -4,8 +4,9 @@ import com.github.maxopoly.angeliacore.actions.AbstractAction;
 import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionAndLookPacket;
-import com.github.maxopoly.angeliacore.model.PlayerStatus;
+import com.github.maxopoly.angeliacore.model.ThePlayer;
 import com.github.maxopoly.angeliacore.model.location.BlockFace;
+import com.github.maxopoly.angeliacore.model.location.DirectedLocation;
 import com.github.maxopoly.angeliacore.model.location.Location;
 import java.io.IOException;
 
@@ -38,7 +39,7 @@ public class LookAt extends AbstractAction {
 	 *          Relative side to look at
 	 */
 	public LookAt(ServerConnection connection, Location block, BlockFace face) {
-		this(connection, block.getBlockCenter().addVector(face.toVector().multiply(0.5)));
+		this(connection, new Location(block.getBlockCenter().add(face.toVector().multiply(0.5))));
 	}
 
 	/**
@@ -54,7 +55,7 @@ public class LookAt extends AbstractAction {
 		this.target = offSet;
 		this.totalTicksToTake = ticksToTake;
 		this.ticksLeft = ticksToTake;
-		Location loc = connection.getPlayerStatus().getHeadLocation();
+		DirectedLocation loc = connection.getPlayerStatus().getHeadLocation();
 		double deltaX = loc.getX() - offSet.getX();
 		double deltaY = loc.getY() - offSet.getY();
 		double deltaZ = loc.getZ() - offSet.getZ();
@@ -79,7 +80,7 @@ public class LookAt extends AbstractAction {
 		if (isDone()) {
 			return;
 		}
-		PlayerStatus status = connection.getPlayerStatus();
+		ThePlayer status = connection.getPlayerStatus();
 		status.updateLookingDirection(status.getLocation().getYaw() + yawPerTick, status.getLocation().getPitch()
 				+ pitchPerTick);
 		try {

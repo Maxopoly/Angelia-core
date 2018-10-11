@@ -8,13 +8,14 @@ import com.github.maxopoly.angeliacore.connection.login.AuthenticationHandler;
 import com.github.maxopoly.angeliacore.connection.login.EncryptionHandler;
 import com.github.maxopoly.angeliacore.connection.login.GameJoinHandler;
 import com.github.maxopoly.angeliacore.connection.login.HandShake;
+import com.github.maxopoly.angeliacore.connection.play.EntityManager;
 import com.github.maxopoly.angeliacore.connection.play.Heartbeat;
 import com.github.maxopoly.angeliacore.connection.play.ItemTransactionManager;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.ClientSettingPacket;
 import com.github.maxopoly.angeliacore.encryption.AES_CFB8_Encrypter;
 import com.github.maxopoly.angeliacore.event.EventBroadcaster;
 import com.github.maxopoly.angeliacore.exceptions.MalformedCompressedDataException;
-import com.github.maxopoly.angeliacore.model.PlayerStatus;
+import com.github.maxopoly.angeliacore.model.ThePlayer;
 import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;
 import com.github.maxopoly.angeliacore.plugin.PluginManager;
 
@@ -27,12 +28,14 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Timer;
+import java.util.UUID;
 
 import org.apache.logging.log4j.Logger;
 
 /**
- * Represents a connection to a server. Attributes may contain invalid/null values before the connect() method was
- * called and should only be accessed afterwards (except for constructor fields)
+ * Represents a connection to a server. Attributes may contain invalid/null
+ * values before the connect() method was called and should only be accessed
+ * afterwards (except for constructor fields)
  *
  */
 public class ServerConnection {
@@ -44,7 +47,7 @@ public class ServerConnection {
 	private int port;
 	private Socket socket;
 	private Heartbeat playPacketHandler;
-	private PlayerStatus playerStatus;
+	private ThePlayer playerStatus;
 	private EventBroadcaster eventHandler;
 	private ActionQueue actionQueue;
 	private Timer tickTimer;
@@ -52,6 +55,7 @@ public class ServerConnection {
 	private PluginManager pluginManager;
 	private OtherPlayerManager otherPlayerManager;
 	private ChunkHolder chunkHolder;
+	private EntityManager entityManager;
 	private boolean localHost;
 
 	private boolean encryptionEnabled;
@@ -67,14 +71,10 @@ public class ServerConnection {
 	/**
 	 * Standard Constructor
 	 *
-	 * @param adress
-	 *          IP or domain of the server
-	 * @param port
-	 *          Port of the server
-	 * @param logger
-	 *          Logger to use
-	 * @param auth
-	 *          Account authentication to use
+	 * @param adress IP or domain of the server
+	 * @param port   Port of the server
+	 * @param logger Logger to use
+	 * @param auth   Account authentication to use
 	 */
 	public ServerConnection(String adress, int port, Logger logger, AuthenticationHandler auth) {
 		this.serverAdress = adress;
@@ -94,12 +94,9 @@ public class ServerConnection {
 	/**
 	 * Constructor with the default port 25565
 	 *
-	 * @param adress
-	 *          IP or domain of the server
-	 * @param logger
-	 *          Logger to use
-	 * @param auth
-	 *          Account authentication to use
+	 * @param adress IP or domain of the server
+	 * @param logger Logger to use
+	 * @param auth   Account authentication to use
 	 */
 	public ServerConnection(String adress, Logger logger, AuthenticationHandler auth) {
 		this(adress, 25565, logger, auth); // default port
@@ -124,18 +121,22 @@ public class ServerConnection {
 	}
 
 	/**
-	 * Does everything from 0 to 100 needed for a working connection to a server. Initially this checks whether the
-	 * provided account auth is still valid, refreshes it if needed and returns if it can't be refreshed. Next it
-	 * handshakes the server to get its protocol version, resets the connection and begin a new login handshake with the
-	 * retrieved protocol version. Note that no actual adjustments are made based on the protocol version sent by the
-	 * server, it's just copied and assumed to be our version. After the initial version handshake, we exchange encryption
-	 * details, authenticate the connection attempt against Yggdrassil's (minecraft auth) server, enable sync encryption,
-	 * enable compression if requested by the server, join the game and finally setup packet handlers for all kinds of
-	 * incoming packets. The packet handling happens in a freshly spawned thread, which also handles consuming actions
-	 * from the ActionQueue, this method will return once the connection is fully set up
+	 * Does everything from 0 to 100 needed for a working connection to a server.
+	 * Initially this checks whether the provided account auth is still valid,
+	 * refreshes it if needed and returns if it can't be refreshed. Next it
+	 * handshakes the server to get its protocol version, resets the connection and
+	 * begin a new login handshake with the retrieved protocol version. Note that no
+	 * actual adjustments are made based on the protocol version sent by the server,
+	 * it's just copied and assumed to be our version. After the initial version
+	 * handshake, we exchange encryption details, authenticate the connection
+	 * attempt against Yggdrassil's (minecraft auth) server, enable sync encryption,
+	 * enable compression if requested by the server, join the game and finally
+	 * setup packet handlers for all kinds of incoming packets. The packet handling
+	 * happens in a freshly spawned thread, which also handles consuming actions
+	 * from the ActionQueue, this method will return once the connection is fully
+	 * set up
 	 *
-	 * @throws IOException
-	 *           If something goes wrong
+	 * @throws IOException If something goes wrong
 	 */
 	public void connect() throws IOException {
 		if (!authHandler.validateToken(logger)) {
@@ -152,7 +153,8 @@ public class ServerConnection {
 			// handshake
 			logger.info("Requesting protocol version from " + serverAdress);
 			protocolVersion = shake.requestProtocolVersion();
-			// we need to set up a new socket after protocol test handshaking as we want to properly connect now, which
+			// we need to set up a new socket after protocol test handshaking as we want to
+			// properly connect now, which
 			// the server wouldnt allow right away on the same connection
 			reestablishConnection();
 		}
@@ -177,18 +179,21 @@ public class ServerConnection {
 		// everything from here on is encrypted
 		logger.info("Enabling sync encryption with " + serverAdress);
 		encryptionEnabled = true;
-		syncEncryptionHandler = new AES_CFB8_Encrypter(asyncEncHandler.getSharedSecret(), asyncEncHandler.getSharedSecret());
+		syncEncryptionHandler = new AES_CFB8_Encrypter(asyncEncHandler.getSharedSecret(),
+				asyncEncHandler.getSharedSecret());
 		GameJoinHandler joinHandler = new GameJoinHandler(this);
 		joinHandler.parseLoginSuccess();
-		// if we reach this point, we successfully logged in and the connection state switches to PLAY, so from now on
+		// if we reach this point, we successfully logged in and the connection state
+		// switches to PLAY, so from now on
 		// everything is handled by our standard packet handler
 		logger.info("Switching connection to play state");
-		playerStatus = new PlayerStatus(this);
+		playerStatus = new ThePlayer(this);
 		playPacketHandler = new Heartbeat(this);
 		pluginManager = new PluginManager(this);
 		actionQueue = new ActionQueue(this);
 		otherPlayerManager = new OtherPlayerManager();
 		chunkHolder = new ChunkHolder();
+		entityManager = new EntityManager();
 		tickTimer = new Timer("Angelia tick");
 		tickTimer.schedule(playPacketHandler, tickDelay, tickDelay);
 		// still have to do this
@@ -196,10 +201,10 @@ public class ServerConnection {
 	}
 
 	/**
-	 * Sends a packet to the server. This method also handles both compression and encryption
+	 * Sends a packet to the server. This method also handles both compression and
+	 * encryption
 	 *
-	 * @param packet
-	 *          Packet to send
+	 * @param packet Packet to send
 	 * @throws IOException
 	 */
 	public void sendPacket(WriteOnlyPacket packet) throws IOException {
@@ -217,7 +222,8 @@ public class ServerConnection {
 					// standard append length of total packet at the front to finish compression
 					data = compressedPacket.toByteArrayIncludingLength();
 				} else {
-					// no compression in which case we write 0 as uncompressed size and directly copy the data
+					// no compression in which case we write 0 as uncompressed size and directly
+					// copy the data
 					WriteOnlyPacket fakeCompressedPacket = new WriteOnlyPacket();
 					fakeCompressedPacket.writeByte((byte) 0);
 					fakeCompressedPacket.writeBytes(packet.toByteArray());
@@ -242,10 +248,11 @@ public class ServerConnection {
 	}
 
 	/**
-	 * Gets a received packet if one is available and waits (non-blocking) until one is available if none is available.
+	 * Gets a received packet if one is available and waits (non-blocking) until one
+	 * is available if none is available.
 	 *
 	 * @return Packet read
-	 * @throws MalformedCompressedDataException 
+	 * @throws MalformedCompressedDataException
 	 */
 	public ReadOnlyPacket getPacket() throws IOException, MalformedCompressedDataException {
 		synchronized (input) {
@@ -297,7 +304,8 @@ public class ServerConnection {
 			byte[] decompressedData;
 			decompressedData = CompressionManager.decompressZLib(dataArray, logger);
 			if (decompressedData.length != uncompressedPacketLength) {
-				throw new MalformedCompressedDataException("Decompression failed and result in incorrect packet length");
+				throw new MalformedCompressedDataException(
+						"Decompression failed and result in incorrect packet length");
 			}
 			return new ReadOnlyPacket(decompressedData);
 		}
@@ -344,9 +352,10 @@ public class ServerConnection {
 	}
 
 	/**
-	 * @return Object containing all known information regarding the state of the player
+	 * @return Object containing all known information regarding the state of the
+	 *         player
 	 */
-	public PlayerStatus getPlayerStatus() {
+	public ThePlayer getPlayerStatus() {
 		return playerStatus;
 	}
 
@@ -400,10 +409,15 @@ public class ServerConnection {
 	}
 
 	/**
-	 * @return Manager which holds chunk data and is gate way for all block data access
+	 * @return Manager which holds chunk data and is gate way for all block data
+	 *         access
 	 */
 	public ChunkHolder getChunkHolder() {
 		return chunkHolder;
+	}
+
+	public EntityManager getEntityManager() {
+		return entityManager;
 	}
 
 	/**
@@ -437,5 +451,14 @@ public class ServerConnection {
 	 */
 	public String getPlayerName() {
 		return authHandler.getPlayerName();
+	}
+
+	/**
+	 * @return The UUID of the player connected
+	 */
+	public UUID getPlayerUUID() {
+		String withoutDash = authHandler.getPlayerUUID();
+		return UUID.fromString(withoutDash.substring(0, 8) + "-" + withoutDash.substring(8, 12) + "-"
+				+ withoutDash.substring(12, 16) + "-" + withoutDash.substring(16, 24) + "-" + withoutDash.substring(24, 32));
 	}
 }

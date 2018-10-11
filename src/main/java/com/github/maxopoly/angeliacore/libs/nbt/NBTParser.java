@@ -138,7 +138,7 @@ public class NBTParser extends BinaryReadOnlyData {
 		return new NBTIntArray(name, iArray);
 	}
 
-	private NBTList parseNBTList(boolean inList) throws EndOfPacketException {
+	private NBTList<NBTElement> parseNBTList(boolean inList) throws EndOfPacketException {
 		String name = inList ? null : readString(2);
 		byte typeID = readByte();
 		NBTList<NBTElement> list = new NBTList<NBTElement>(name, typeID);

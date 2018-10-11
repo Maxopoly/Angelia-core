@@ -72,6 +72,7 @@ public final class ItemStack {
 		if (!(list instanceof NBTList)) {
 			return enchants;
 		}
+		@SuppressWarnings("unchecked")
 		NBTList<NBTCompound> enchantList = (NBTList<NBTCompound>) list;
 		for (NBTCompound comp : enchantList) {
 			short id = ((NBTShort) comp.getElement("id")).getValue();

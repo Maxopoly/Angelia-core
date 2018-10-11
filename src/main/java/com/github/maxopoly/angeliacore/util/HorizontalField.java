@@ -22,8 +22,8 @@ public class HorizontalField implements Iterable<Location> {
 	private int sidewardsMovementLeft;
 
 	public HorizontalField(int lowerX, int upperX, int lowerZ, int upperZ, int y,
-			MovementDirection primaryMovementDirection, MovementDirection secondaryMovementDirection, boolean snakeLines,
-			int[] sidewardsIncrements) {
+			MovementDirection primaryMovementDirection, MovementDirection secondaryMovementDirection,
+			boolean snakeLines, int[] sidewardsIncrements) {
 		this.lowerX = lowerX;
 		this.upperX = upperX;
 		this.lowerZ = lowerZ;
@@ -41,14 +41,15 @@ public class HorizontalField implements Iterable<Location> {
 	}
 
 	public HorizontalField(int lowerX, int upperX, int lowerZ, int upperZ, int y,
-			MovementDirection primaryMovementDirection, MovementDirection secondaryMovementDirection, boolean snakeLines,
-			int sidewardsIncrement) {
+			MovementDirection primaryMovementDirection, MovementDirection secondaryMovementDirection,
+			boolean snakeLines, int sidewardsIncrement) {
 		this(lowerX, upperX, lowerZ, upperZ, y, primaryMovementDirection, secondaryMovementDirection, snakeLines,
 				new int[] { sidewardsIncrement });
 	}
 
 	/**
-	 * Creates a fresh copy with the same values as this instance, but different y level
+	 * Creates a fresh copy with the same values as this instance, but different y
+	 * level
 	 *
 	 * @param y
 	 * @return
@@ -59,82 +60,83 @@ public class HorizontalField implements Iterable<Location> {
 	}
 
 	/**
-	 * The primary and secondary movement direction implicitly define in which corner we start
+	 * The primary and secondary movement direction implicitly define in which
+	 * corner we start
 	 */
 	public Location getStartingLocation() {
 		double currentZ = 0;
 		double currentX = 0;
 		switch (originalMovementDirection) {
-			case NORTH:
-				currentZ = upperZ;
-				break;
-			case SOUTH:
-				currentZ = lowerZ;
-				break;
-			case EAST:
-				currentX = lowerX;
-				break;
-			case WEST:
-				currentX = upperX;
-				break;
-			default:
-				throw new IllegalArgumentException("Invalid primary direction " + secondaryMovementDirection.name());
+		case NORTH:
+			currentZ = upperZ;
+			break;
+		case SOUTH:
+			currentZ = lowerZ;
+			break;
+		case EAST:
+			currentX = lowerX;
+			break;
+		case WEST:
+			currentX = upperX;
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid primary direction " + secondaryMovementDirection.name());
 		}
 		switch (secondaryMovementDirection) {
-			case NORTH:
-				currentZ = upperZ;
-				break;
-			case SOUTH:
-				currentZ = lowerZ;
-				break;
-			case EAST:
-				currentX = lowerX;
-				break;
-			case WEST:
-				currentX = upperX;
-				break;
-			default:
-				throw new IllegalArgumentException("Invalid second direction " + secondaryMovementDirection.name());
+		case NORTH:
+			currentZ = upperZ;
+			break;
+		case SOUTH:
+			currentZ = lowerZ;
+			break;
+		case EAST:
+			currentX = lowerX;
+			break;
+		case WEST:
+			currentX = upperX;
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid second direction " + secondaryMovementDirection.name());
 		}
-		return new Location(currentX, y, currentZ, 0.0f, 0.0f);
+		return new Location(currentX, y, currentZ);
 	}
 
 	public Location getFinalLocation() {
 		double currentZ = 0;
 		double currentX = 0;
 		switch (originalMovementDirection) {
-			case NORTH:
-				currentZ = lowerZ;
-				break;
-			case SOUTH:
-				currentZ = upperZ;
-				break;
-			case EAST:
-				currentX = upperX;
-				break;
-			case WEST:
-				currentX = lowerX;
-				break;
-			default:
-				throw new IllegalArgumentException("Invalid primary direction " + secondaryMovementDirection.name());
+		case NORTH:
+			currentZ = lowerZ;
+			break;
+		case SOUTH:
+			currentZ = upperZ;
+			break;
+		case EAST:
+			currentX = upperX;
+			break;
+		case WEST:
+			currentX = lowerX;
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid primary direction " + secondaryMovementDirection.name());
 		}
 		switch (secondaryMovementDirection) {
-			case NORTH:
-				currentZ = lowerZ;
-				break;
-			case SOUTH:
-				currentZ = upperZ;
-				break;
-			case EAST:
-				currentX = upperX;
-				break;
-			case WEST:
-				currentX = lowerX;
-				break;
-			default:
-				throw new IllegalArgumentException("Invalid second direction " + secondaryMovementDirection.name());
+		case NORTH:
+			currentZ = lowerZ;
+			break;
+		case SOUTH:
+			currentZ = upperZ;
+			break;
+		case EAST:
+			currentX = upperX;
+			break;
+		case WEST:
+			currentX = lowerX;
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid second direction " + secondaryMovementDirection.name());
 		}
-		return new Location(currentX, y, currentZ, 0.0f, 0.0f);
+		return new Location(currentX, y, currentZ);
 	}
 
 	private void backAndSidewards() {
@@ -155,15 +157,16 @@ public class HorizontalField implements Iterable<Location> {
 
 	@Override
 	public Iterator<Location> iterator() {
-		// we define the iterator behavior here, so we only have to define the individual method behavior in the
+		// we define the iterator behavior here, so we only have to define the
+		// individual method behavior in the
 		// subclasses
 		return new Iterator<Location>() {
 
 			@Override
 			public boolean hasNext() {
 				Location curr = new Location(currentX, y, currentZ);
-				return !(outsideField(curr.addVector(primaryMovementDirection.toVector())) && outsideField(curr
-						.addVector(secondaryMovementDirection.toVector())));
+				return !(outsideField(new Location(curr.add(primaryMovementDirection.toVector())))
+						&& outsideField(new Location(curr.add(secondaryMovementDirection.toVector()))));
 			}
 
 			@Override
@@ -191,8 +194,8 @@ public class HorizontalField implements Iterable<Location> {
 	 * @return Current movement direction
 	 */
 	public MovementDirection getCurrentDirection() {
-		Location nextLoc = new Location(currentX + (int) primaryMovementDirection.toVector().getX(), y, currentZ
-				+ (int) primaryMovementDirection.toVector().getZ());
+		Location nextLoc = new Location(currentX + (int) primaryMovementDirection.toVector().getX(), y,
+				currentZ + (int) primaryMovementDirection.toVector().getZ());
 		if (sidewardsMovementLeft > 0 || outsideField(nextLoc)) {
 			return secondaryMovementDirection;
 		}
@@ -201,16 +204,17 @@ public class HorizontalField implements Iterable<Location> {
 
 	private boolean pastEnd() {
 		switch (primaryMovementDirection) {
-			case NORTH:
-				return currentZ < lowerZ;
-			case SOUTH:
-				return currentZ > upperZ;
-			case EAST:
-				return currentX > upperX;
-			case WEST:
-				return currentX < lowerX;
+		case NORTH:
+			return currentZ < lowerZ;
+		case SOUTH:
+			return currentZ > upperZ;
+		case EAST:
+			return currentX > upperX;
+		case WEST:
+			return currentX < lowerX;
+		default:
+			throw new IllegalStateException(primaryMovementDirection.name() + " is not a valid movement direction");
 		}
-		throw new IllegalStateException(primaryMovementDirection.name() + " is not a valid movement direction");
 	}
 
 	public MovementDirection getOriginalPrimaryMovementDirection() {
@@ -218,24 +222,27 @@ public class HorizontalField implements Iterable<Location> {
 	}
 
 	private boolean outsideField(Location loc) {
-		return loc.getBlockX() > upperX || loc.getBlockZ() > upperZ || loc.getBlockX() < lowerX || loc.getBlockZ() < lowerZ;
+		return loc.getBlockX() > upperX || loc.getBlockZ() > upperZ || loc.getBlockX() < lowerX
+				|| loc.getBlockZ() < lowerZ;
 	}
 
 	public boolean isAtSide(MovementDirection side, Location loc) {
-		if(loc.getBlockY() != y) {
+		if (loc.getBlockY() != y) {
 			return false;
 		}
 		switch (side) {
-			case NORTH:
-				return loc.getBlockZ() == getLowerZ();
-			case SOUTH:
-				return loc.getBlockZ() == getUpperZ();
-			case EAST:
-				return loc.getBlockX() == getUpperX();
-			case WEST:
-				return loc.getBlockX() == getLowerX();
+		case NORTH:
+			return loc.getBlockZ() == getLowerZ();
+		case SOUTH:
+			return loc.getBlockZ() == getUpperZ();
+		case EAST:
+			return loc.getBlockX() == getUpperX();
+		case WEST:
+			return loc.getBlockX() == getLowerX();
+		default:
+			// should never happen
+			throw new IllegalStateException(side.toString() + " is an illegal movement direction");
 		}
-		return false;
 	}
 
 	public int getLowerX() {

@@ -12,6 +12,7 @@ public class BreakTimeCalculator {
 	public static int getBreakTicks(double baseHardness, boolean acceptableTool, boolean rightTool, ItemStack tool,
 			List<PotionEffect> activeBuffs, double ticksPerSecond) {
 		double totalHardness = baseHardness * 30;
+		@SuppressWarnings("unused")
 		ToolType toolType;
 		int multiplier;
 		if (!rightTool || tool == null || tool.isEmpty()) {

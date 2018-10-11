@@ -94,7 +94,7 @@ public class WriteOnlyPacket {
 	}
 
 	public void writeItemStack(ItemStack is) throws IOException {
-		short id = is.getMaterial().getID();
+		short id = (short)is.getMaterial().getID();
 		writeShort(id);
 		if (id == -1) {
 			return;

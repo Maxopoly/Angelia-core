@@ -1,56 +1,21 @@
 package com.github.maxopoly.angeliacore.model.location;
 
-import java.text.DecimalFormat;
+public class Location extends Vector {
+	
+	public Location() {
+		super();
+	}
 
-public final class Location {
-
-	private static DecimalFormat format = new DecimalFormat("#.##");
-
-	private double x;
-	private double y;
-	private double z;
-	private float yaw;
-	private float pitch;
-
-	public Location(double x, double y, double z, float yaw, float pitch) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.yaw = yaw;
-		this.pitch = pitch;
+	public Location(double x, double y, double z) {
+		super(x, y, z);
 	}
 
 	public Location(Vector v) {
-		this(v.getX(), v.getY(), v.getZ(), 0.0f, 0.0f);
+		this(v.getX(), v.getY(), v.getZ());
 	}
 
 	public Location(int x, int y, int z) {
-		this(x, y, z, 0.0f, 0.0f);
-	}
-
-	public Location addVector(Vector v) {
-		return new Location(this.x + v.getX(), this.y + v.getY(), this.z + v.getZ(), yaw, pitch);
-	}
-
-	/**
-	 * @return x coordinate
-	 */
-	public double getX() {
-		return x;
-	}
-
-	/**
-	 * @return y coordinate
-	 */
-	public double getY() {
-		return y;
-	}
-
-	/**
-	 * @return z coordinate
-	 */
-	public double getZ() {
-		return z;
+		super(x, y, z);
 	}
 
 	/**
@@ -75,12 +40,12 @@ public final class Location {
 	}
 
 	/**
-	 * Drops yaw and pitch and rounds all coordinates to integers
+	 * Rounds all coordinates to integers
 	 *
 	 * @return
 	 */
 	public Location toBlockLocation() {
-		return new Location(Math.floor(x), Math.floor(y), Math.floor(z), 0.0f, 0.0f);
+		return new Location(Math.floor(x), Math.floor(y), Math.floor(z));
 	}
 
 	/**
@@ -104,7 +69,7 @@ public final class Location {
 	 * @return Modified location
 	 */
 	public Location relativeBlock(double x, double y, double z) {
-		return new Location(this.x + x, this.y + y, this.z + z, this.yaw, this.pitch);
+		return new Location(this.x + x, this.y + y, this.z + z);
 	}
 
 	/**
@@ -114,7 +79,7 @@ public final class Location {
 	 * @return Block center
 	 */
 	public Location getBlockCenter() {
-		return new Location(x + 0.5, y + 0.5, z + 0.5, yaw, pitch);
+		return new Location(Math.floor(x) + 0.5,Math.floor(y) + 0.5, Math.floor(z) + 0.5);
 	}
 
 	/**
@@ -124,21 +89,7 @@ public final class Location {
 	 * @return Block center only for the x and z coordinate
 	 */
 	public Location getBlockCenterXZ() {
-		return new Location(x + 0.5, y, z + 0.5, yaw, pitch);
-	}
-
-	/**
-	 * @return current yaw, used to calculate the direction the entity is facing
-	 */
-	public float getYaw() {
-		return yaw;
-	}
-
-	/**
-	 * @return current pitch, used to calculate the direction the entity is facing
-	 */
-	public float getPitch() {
-		return pitch;
+		return new Location(Math.floor(x) + 0.5, y, Math.floor(z) + 0.5);
 	}
 
 	/**
@@ -149,7 +100,7 @@ public final class Location {
 	 * @return The middle between the locations
 	 */
 	public Location getMiddle(Location other) {
-		return new Location((x + other.x) / 2, (y + other.y) / 2, (z + other.z) / 2, yaw, pitch);
+		return new Location((x + other.x) / 2, (y + other.y) / 2, (z + other.z) / 2);
 	}
 
 	/**
@@ -162,16 +113,7 @@ public final class Location {
 	 * @return
 	 */
 	public Location getScaledMiddle(Location other, double factor) {
-		return new Location(x + (other.x - x) * factor, y + (other.y - y) * factor, z + (other.z - z) * factor, yaw, pitch);
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("Loc: " + format.format(x) + " " + format.format(y) + " " + format.format(z));
-		sb.append(", Yaw: " + format.format(yaw));
-		sb.append(", Pitch: " + format.format(pitch));
-		return sb.toString();
+		return new Location(x + (other.x - x) * factor, y + (other.y - y) * factor, z + (other.z - z) * factor);
 	}
 
 	@Override
@@ -180,13 +122,7 @@ public final class Location {
 			return false;
 		}
 		Location loc = (Location) o;
-		double accuracy = 0.001;
 		// view and pitch dont really matter for location comparison
-		return Math.abs(loc.x - x) < accuracy && Math.abs(loc.y - y) < accuracy && Math.abs(loc.z - z) < accuracy;
+		return Math.abs(loc.x - x) < ACCURACY && Math.abs(loc.y - y) < ACCURACY && Math.abs(loc.z - z) < ACCURACY;
 	}
-
-	public static float translateAngleFrom256Step(byte step) {
-		return (step) * 180f;
-	}
-
 }

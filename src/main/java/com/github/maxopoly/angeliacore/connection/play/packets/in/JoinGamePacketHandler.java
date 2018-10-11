@@ -4,6 +4,8 @@ import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
 import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
+import com.github.maxopoly.angeliacore.event.events.ConnectedToServerEvent;
+import com.github.maxopoly.angeliacore.model.entity.LivingEntity;
 
 public class JoinGamePacketHandler extends AbstractIncomingPacketHandler {
 
@@ -15,13 +17,14 @@ public class JoinGamePacketHandler extends AbstractIncomingPacketHandler {
 	public void handlePacket(ReadOnlyPacket packet) {
 		try {
 			int playerEntityID = packet.readInt();
-			connection.getPlayerStatus().setEntityID(playerEntityID);
 			byte gameMode = packet.readByte();
 			int dimension = packet.readInt();
 			byte difficulty = packet.readByte();
 			byte maxPlayers = packet.readByte();
 			String lvlType = packet.readString();
 			boolean debugInfo = packet.readBoolean();
+			connection.getPlayerStatus().setPlayerEntityID(playerEntityID);
+			connection.getEventHandler().broadcast(new ConnectedToServerEvent());
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse Join game packet", e);
 		}

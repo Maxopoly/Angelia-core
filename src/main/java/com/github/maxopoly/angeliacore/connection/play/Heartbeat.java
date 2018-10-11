@@ -3,21 +3,13 @@ package com.github.maxopoly.angeliacore.connection.play;
 import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.connection.DisconnectReason;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.connection.play.packets.in.AbstractIncomingPacketHandler;
-import com.github.maxopoly.angeliacore.connection.play.packets.in.ChatMessagePacketHandler;
-import com.github.maxopoly.angeliacore.connection.play.packets.in.DisconnectPacketHandler;
-import com.github.maxopoly.angeliacore.connection.play.packets.in.EntityEffectPacketHandler;
-import com.github.maxopoly.angeliacore.connection.play.packets.in.ForceInventoryClosurePacketHandler;
-import com.github.maxopoly.angeliacore.connection.play.packets.in.HealthChangeHandler;
-import com.github.maxopoly.angeliacore.connection.play.packets.in.JoinGamePacketHandler;
-import com.github.maxopoly.angeliacore.connection.play.packets.in.KeepAlivePacketHandler;
-import com.github.maxopoly.angeliacore.connection.play.packets.in.PlayerListItemPacketHandler;
-import com.github.maxopoly.angeliacore.connection.play.packets.in.PlayerPositionLookPacketHandler;
-import com.github.maxopoly.angeliacore.connection.play.packets.in.SetSlotPacketHandler;
-import com.github.maxopoly.angeliacore.connection.play.packets.in.SpawnPlayerPacketHandler;
-import com.github.maxopoly.angeliacore.connection.play.packets.in.TransActionConfirmationPacketHandler;
-import com.github.maxopoly.angeliacore.connection.play.packets.in.WindowItemsPacketHandler;
-import com.github.maxopoly.angeliacore.connection.play.packets.in.XPChangeHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.*;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityEffectPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityLookAndRelativeMovePacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityLookPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityRelativeMovePacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityTeleportPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionPacket;
 import com.github.maxopoly.angeliacore.exceptions.MalformedCompressedDataException;
 import java.io.IOException;
@@ -45,23 +37,28 @@ public class Heartbeat extends TimerTask {
 	 * Used to setup all native handlers for incoming packets
 	 */
 	private void registerAllHandler() {
-		registerPacketHandler(new KeepAlivePacketHandler(connection));
-		registerPacketHandler(new PlayerPositionLookPacketHandler(connection));
+		//registerPacketHandler(new BlockBreakAnimationPacketHandler(connection));
 		registerPacketHandler(new ChatMessagePacketHandler(connection));
-		registerPacketHandler(new XPChangeHandler(connection));
-		registerPacketHandler(new HealthChangeHandler(connection));
+		registerPacketHandler(new DestroyEntitiesPacketHandler(connection));
 		registerPacketHandler(new DisconnectPacketHandler(connection));
-		registerPacketHandler(new WindowItemsPacketHandler(connection));
-		registerPacketHandler(new SetSlotPacketHandler(connection));
-		registerPacketHandler(new TransActionConfirmationPacketHandler(connection));
-		registerPacketHandler(new JoinGamePacketHandler(connection));
 		registerPacketHandler(new EntityEffectPacketHandler(connection));
+		registerPacketHandler(new EntityLookAndRelativeMovePacketHandler(connection));
+		registerPacketHandler(new EntityLookPacketHandler(connection));
+		registerPacketHandler(new EntityPacketHandler(connection));
+		registerPacketHandler(new EntityRelativeMovePacketHandler(connection));
+		registerPacketHandler(new EntityTeleportPacketHandler(connection));
 		registerPacketHandler(new ForceInventoryClosurePacketHandler(connection));
+		registerPacketHandler(new HealthChangeHandler(connection));
+		registerPacketHandler(new JoinGamePacketHandler(connection));
+		registerPacketHandler(new KeepAlivePacketHandler(connection));
+		//registerPacketHandler(new OpenInventoryPacketHandler(connection));
 		registerPacketHandler(new PlayerListItemPacketHandler(connection));
+		registerPacketHandler(new PlayerPositionLookPacketHandler(connection));
+		registerPacketHandler(new SetSlotPacketHandler(connection));
 		registerPacketHandler(new SpawnPlayerPacketHandler(connection));
-		//registerPacketHandler(new ChunkDataPacketHandler(connection));
-		// no use for block break animation right now, as it only tells us about other peoples breaking
-		// registerPacketHandler(new BlockBreakAnimationPacketHandler(connection));
+		registerPacketHandler(new TransActionConfirmationPacketHandler(connection));
+		registerPacketHandler(new WindowItemsPacketHandler(connection));
+		registerPacketHandler(new XPChangeHandler(connection));
 	}
 
 	/**
@@ -124,8 +121,8 @@ public class Heartbeat extends TimerTask {
 			if (now - lastPositionPacket > POSITION_UPDATE_INTERVALL) {
 				//send every second where player is and if he is midair
 				try {
-					connection.sendPacket(new PlayerPositionPacket(connection.getPlayerStatus().getLocation(), !connection
-							.getPlayerStatus().isMidAir()));
+					connection.sendPacket(new PlayerPositionPacket(connection.getPlayerStatus().getLocation(), connection
+							.getPlayerStatus().isOnGround()));
 					lastPositionPacket = now;
 				} catch (IOException e1) {
 					connection.getLogger().error("Failed to send player state/position packet", e1);

@@ -1,6 +1,6 @@
 package com.github.maxopoly.angeliacore.event.events;
 
-import com.github.maxopoly.angeliacore.model.location.Location;
+import com.github.maxopoly.angeliacore.model.location.DirectedLocation;
 
 /**
  * Called when the player is teleported by the player. This is useful to dermine when the player is stuck running
@@ -9,10 +9,10 @@ import com.github.maxopoly.angeliacore.model.location.Location;
  */
 public class TeleportByServerEvent implements AngeliaEvent {
 
-	private Location previousClientsideLocation;
-	private Location serverDictatedLocation;
+	private DirectedLocation previousClientsideLocation;
+	private DirectedLocation serverDictatedLocation;
 
-	public TeleportByServerEvent(Location previousClientsideLocation, Location serverDictatedLocation) {
+	public TeleportByServerEvent(DirectedLocation previousClientsideLocation, DirectedLocation serverDictatedLocation) {
 		this.previousClientsideLocation = previousClientsideLocation;
 		this.serverDictatedLocation = serverDictatedLocation;
 	}
@@ -20,14 +20,14 @@ public class TeleportByServerEvent implements AngeliaEvent {
 	/**
 	 * @return Where the client thought it was before it got teleported
 	 */
-	public Location getPreviousClientSideLocation() {
+	public DirectedLocation getPreviousClientSideLocation() {
 		return previousClientsideLocation;
 	}
 
 	/**
 	 * @return Location teleported (back) to
 	 */
-	public Location getLocationTeleportedTo() {
+	public DirectedLocation getLocationTeleportedTo() {
 		return serverDictatedLocation;
 	}
 
