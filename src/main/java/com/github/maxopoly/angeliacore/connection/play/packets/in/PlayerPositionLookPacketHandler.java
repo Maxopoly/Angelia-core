@@ -48,6 +48,7 @@ public class PlayerPositionLookPacketHandler extends AbstractIncomingPacketHandl
             connection.getPlayerStatus().updateLookingDirection(newLocation.getPitch(), newLocation.getYaw());
 			connection.sendPacket(new TeleportConfirmPacket(teleID));
 			connection.sendPacket(new PlayerPositionAndLookPacket(x, y, z, yaw, pitch, true));
+			connection.getPlayerStatus().setInitialized();
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse PlayerPositionAndLookPacket", e);
 		} catch (IOException e) {

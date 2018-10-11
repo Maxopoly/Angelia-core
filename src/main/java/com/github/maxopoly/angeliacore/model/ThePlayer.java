@@ -99,6 +99,10 @@ public class ThePlayer extends LivingEntity {
 	public boolean isInitialized() {
 		return initialized;
 	}
+	
+	public void setInitialized() {
+		initialized = true;
+	}
 
 	/**
 	 * @return Players inventory

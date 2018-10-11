@@ -23,6 +23,9 @@ public class EntityRelativeMovePacketHandler extends AbstractIncomingPacketHandl
 			short deltaZ = packet.readShort();
 			boolean grounded = packet.readBoolean();
 			Entity entity = connection.getEntityManager().getEntity(entityId);
+			if (entity == null) {
+				return;
+			}
 			Location location = entity.getLocation();
 			int currentX = location.getBlockX();
 			int currentY = location.getBlockY();

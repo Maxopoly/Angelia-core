@@ -25,6 +25,9 @@ public class EntityTeleportPacketHandler extends AbstractIncomingPacketHandler {
             float pitch = packet.readByte();
             boolean grounded = packet.readBoolean();
             LivingEntity entity = connection.getEntityManager().getLivingEntity(entityId);
+			if (entity == null) {
+				return;
+			}
             DirectedLocation newLoc = new DirectedLocation(x, y, z, yaw, pitch);
             connection.getEventHandler().broadcast(new EntityTeleportEvent(entity, entity.getLocation(), newLoc));
             entity.updateLocation(newLoc);

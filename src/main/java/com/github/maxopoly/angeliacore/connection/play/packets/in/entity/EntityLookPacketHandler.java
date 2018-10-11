@@ -23,8 +23,6 @@ public class EntityLookPacketHandler extends AbstractIncomingPacketHandler {
 			boolean grounded = packet.readBoolean();
 			LivingEntity entity = connection.getEntityManager().getLivingEntity(entityId);
 			if (entity == null) {
-				connection.getLogger().error(
-						"Failed to apply EntityLookPacket, living entity with id " + entityId + " was not known");
 				return;
 			}
 			DirectedLocation updatedLoc = new DirectedLocation(entity.getLocation(), yaw, pitch); 

@@ -1,11 +1,8 @@
 package com.github.maxopoly.angeliacore.model.location;
 
-import java.text.DecimalFormat;
-
 public class Vector {
 	
 
-	protected static DecimalFormat format = new DecimalFormat("#.##");
 	protected static final double ACCURACY = 0.0000001;
 
 	protected final double x;

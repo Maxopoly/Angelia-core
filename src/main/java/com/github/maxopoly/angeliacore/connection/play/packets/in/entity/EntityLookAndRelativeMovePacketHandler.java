@@ -27,8 +27,6 @@ public class EntityLookAndRelativeMovePacketHandler extends AbstractIncomingPack
 			boolean grounded = packet.readBoolean();
 			LivingEntity entity = connection.getEntityManager().getLivingEntity(entityId);
 			if (entity == null) {
-				connection.getLogger().error("Failed to apply EntityLookAndRelativeMovePacket, living entity with id "
-						+ entityId + " was not known");
 				return;
 			}
 			DirectedLocation location = entity.getLocation();
