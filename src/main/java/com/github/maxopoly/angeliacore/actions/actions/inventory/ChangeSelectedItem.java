@@ -2,11 +2,12 @@ package com.github.maxopoly.angeliacore.actions.actions.inventory;
 
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
 import com.github.maxopoly.angeliacore.actions.ActionLock;
+import com.github.maxopoly.angeliacore.actions.SingleExecutionAction;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.HeldItemChangePacket;
 import java.io.IOException;
 
-public class ChangeSelectedItem extends AbstractAction {
+public class ChangeSelectedItem extends SingleExecutionAction {
 
 	private int slot;
 
@@ -16,18 +17,13 @@ public class ChangeSelectedItem extends AbstractAction {
 	}
 
 	@Override
-	public void execute() {
+	public void executeAction() {
 		try {
 			connection.sendPacket(new HeldItemChangePacket(slot));
 			connection.getPlayerStatus().setSelectedHotbarSlot(slot);
 		} catch (IOException e) {
 			connection.getLogger().error("Failed to update item held", e);
 		}
-	}
-
-	@Override
-	public boolean isDone() {
-		return true;
 	}
 
 	@Override

@@ -63,7 +63,6 @@ public class RefillHotbarWithType extends InventoryAction {
 				} else {
 					successfull = false;
 				}
-				new CloseInventoryWindow(connection, (byte) 0);
 				done = true;
 			}
 		}

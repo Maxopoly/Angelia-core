@@ -21,7 +21,7 @@ public class OpenInventoryPacketHandler extends AbstractIncomingPacketHandler {
 			String windowType = packet.readString();
 			String name = ChatParser.getRawText(packet.readString());
 			byte numberOfSlots = packet.readByte();
-			Inventory inv = Inventory.constructInventory(windowType, name, numberOfSlots);
+			Inventory inv = Inventory.constructInventory(windowType, name, numberOfSlots, windowID);
 			if (inv != null) {
 				connection.getEventHandler().broadcast(new OpenInventoryEvent(inv, windowID));
 				connection.getPlayerStatus().addInventory(inv, windowID);

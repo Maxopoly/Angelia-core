@@ -6,8 +6,8 @@ import java.util.Arrays;
 
 public class PlayerInventory extends Inventory implements CraftingInventory {
 
-	public PlayerInventory() {
-		super(46);
+	public PlayerInventory(byte windowID) {
+		super(46, windowID);
 	}
 
 	public void setOffHand(ItemStack is) {
@@ -16,37 +16,6 @@ public class PlayerInventory extends Inventory implements CraftingInventory {
 
 	public ItemStack getOffHand() {
 		return slots[45];
-	}
-
-	@Override
-	public short translateStorageSlotToTotal(int slot) {
-		if (slot < 0 || slot > 35) {
-			throw new IllegalArgumentException("Invalid slot " + slot + " is not a storage slot");
-		}
-		return (short) (slot + 9);
-	}
-
-	@Override
-	public short translateHotbarToTotal(int slot) {
-		if (slot < 0 || slot > 8) {
-			throw new IllegalArgumentException("Invalid slot " + slot + " is not a hotbar slot");
-		}
-		return (short) (slot + 36);
-	}
-
-	@Override
-	public DummyInventory getHotbar() {
-		return new DummyInventory(Arrays.copyOfRange(slots, 36, 45));
-	}
-
-	@Override
-	public DummyInventory getPlayerStorage() {
-		return new DummyInventory(Arrays.copyOfRange(slots, 9, 45));
-	}
-
-	@Override
-	public DummyInventory getPlayerStorageWithoutHotbar() {
-		return new DummyInventory(Arrays.copyOfRange(slots, 9, 36));
 	}
 
 	@Override
@@ -67,6 +36,11 @@ public class PlayerInventory extends Inventory implements CraftingInventory {
 	@Override
 	public short translateCraftingSlotToTotal(int slot) {
 		return (short) (slot + 1);
+	}
+
+	@Override
+	protected int getPlayerStorageStartingSlot() {
+		return 9;
 	}
 
 }

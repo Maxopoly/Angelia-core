@@ -2,6 +2,8 @@ package com.github.maxopoly.angeliacore.model.inventory;
 
 import com.github.maxopoly.angeliacore.model.item.ItemStack;
 import com.github.maxopoly.angeliacore.model.item.Material;
+
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,37 +12,65 @@ public abstract class Inventory implements Iterable<ItemStack> {
 
 	private boolean isInitialized = false;
 
-	public static Inventory constructInventory(String type, String name, byte size) {
+	public static Inventory constructInventory(String type, String name, byte size, byte windowID) {
 		Inventory inv;
 		switch (type) {
-			case "minecraft:container":
-				if (size % 9 != 0) {
-					inv = null;
-					break;
-				}
-				inv = new ChestInventory(size / 9, name);
-				break;
-
-			default:
+		case "minecraft:container":
+			if (size % 9 != 0) {
 				inv = null;
 				break;
+			}
+			inv = new ChestInventory(size / 9, name, windowID);
+			break;
+		case "minecraft:chest":
+			if (size % 9 != 0) {
+				inv = null;
+				break;
+			}
+			inv = new ChestInventory(size / 9, name, windowID);
+			break;
+		case "minecraft:crafting_table":
+			inv = new CraftingTableInventory(windowID);
+			break;
+		case "minecraft:furnace":
+			inv = new FurnaceInventory(windowID);
+			break;
+		case "minecraft:dispenser":
+		case "minecraft:dropper":
+			inv = new DispenserInventory(windowID);
+			break;
+		case "minecraft:enchanting_table":
+			inv = new EnchantmentTableInventory(windowID);
+			break;
+		case "minecraft:hopper":
+			inv = new HopperInventory(windowID);
+			break;
+		default:
+			inv = null;
+			break;
 		}
 		return inv;
 	}
 
 	protected ItemStack[] slots;
+	private byte windowID;
 	private static ItemStack cursor;
 
-	public Inventory(int size) {
+	public Inventory(int size, byte windowID) {
 		slots = new ItemStack[size];
+		this.windowID = windowID;
 	}
 
-	public Inventory(ItemStack[] items) {
-		this(items.length);
+	public Inventory(ItemStack[] items, byte windowID) {
+		this(items.length, windowID);
 		isInitialized = true;
 		for (int i = 0; i < items.length; i++) {
 			updateSlot(i, items[i]);
 		}
+	}
+	
+	public byte getWindowID() {
+		return windowID;
 	}
 
 	public void setSlots(ItemStack[] content) {
@@ -72,12 +102,12 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	}
 
 	/**
-	 * Looks for the given item in any slot of this inventory. If the item is found, the index of the first find is
-	 * returned, otherwise -1 is returned. Note that in other context the slot -1 might stand for the cursor, but that's
-	 * not the case here
+	 * Looks for the given item in any slot of this inventory. If the item is found,
+	 * the index of the first find is returned, otherwise -1 is returned. Note that
+	 * in other context the slot -1 might stand for the cursor, but that's not the
+	 * case here
 	 *
-	 * @param is
-	 *          ItemStack to look for
+	 * @param is ItemStack to look for
 	 * @return Slot of the first find of the stack or -1 if none was found
 	 */
 	public short findSlot(ItemStack is) {
@@ -90,12 +120,12 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	}
 
 	/**
-	 * Looks for the given item id in any slot of this inventory. If the item is found, the index of the first find is
-	 * returned, otherwise -1 is returned. Note that in other context the slot -1 might stand for the cursor, but that's
+	 * Looks for the given item id in any slot of this inventory. If the item is
+	 * found, the index of the first find is returned, otherwise -1 is returned.
+	 * Note that in other context the slot -1 might stand for the cursor, but that's
 	 * not the case here
 	 *
-	 * @param is
-	 *          id of the ItemStack to look for
+	 * @param is id of the ItemStack to look for
 	 * @return Slot of the first find of the item id or -1 if none was found
 	 */
 	public short findSlotByType(ItemStack is) {
@@ -108,8 +138,9 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	}
 
 	/**
-	 * After opening an inventory, it's content is sent in a separate packet. If this packet was received yet and the
-	 * content of this chest is known, this will be true
+	 * After opening an inventory, it's content is sent in a separate packet. If
+	 * this packet was received yet and the content of this chest is known, this
+	 * will be true
 	 * 
 	 * @return Whether the chest content is initialized
 	 */
@@ -118,11 +149,10 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	}
 
 	/**
-	 * Gets the content of the slot with the given id. If the slot is empty, a dummy ItemStack with an id of -1 is
-	 * returned
+	 * Gets the content of the slot with the given id. If the slot is empty, a dummy
+	 * ItemStack with an id of -1 is returned
 	 *
-	 * @param id
-	 *          Slot id
+	 * @param id Slot id
 	 * @return ItemStack representing the content of the selected slot
 	 */
 	public ItemStack getSlot(int id) {
@@ -131,11 +161,10 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	}
 
 	/**
-	 * Checks whether the given ItemStack fits into this inventory by filling up existing stacks and using empty slot as
-	 * available
+	 * Checks whether the given ItemStack fits into this inventory by filling up
+	 * existing stacks and using empty slot as available
 	 *
-	 * @param is
-	 *          ItemStack to try
+	 * @param is ItemStack to try
 	 * @return True if the ItemStack would fit in the inventory, false if not
 	 */
 	public boolean hasSpaceFor(ItemStack is) {
@@ -155,7 +184,8 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	}
 
 	/**
-	 * Compresses this instance by combining all ItemStacks in it which are identical and adjusting amounts accordingly
+	 * Compresses this instance by combining all ItemStacks in it which are
+	 * identical and adjusting amounts accordingly
 	 *
 	 * @return Compressed version of this inventory with a variable size
 	 */
@@ -187,35 +217,54 @@ public abstract class Inventory implements Iterable<ItemStack> {
 	/**
 	 * @return The hotbar slots in this inventory
 	 */
-	public abstract DummyInventory getHotbar();
+	public DummyInventory getHotbar() {
+		return new DummyInventory(Arrays.copyOfRange(slots, getPlayerHotbarStartingSlot(), getSize()));
+	}
 
 	/**
-	 * @return The player storage slots, so the 27 normal inventory slots + the hotbar
+	 * @return The player storage slots, so the 27 normal inventory slots + the
+	 *         hotbar
 	 */
-	public abstract DummyInventory getPlayerStorage();
+	public DummyInventory getPlayerStorage() {
+		return new DummyInventory(Arrays.copyOfRange(slots, getPlayerStorageStartingSlot(), getSize()));
+	}
 
 	/**
-	 * @return The player storage slots, so the 27 normal inventory slots, but not the hotbar
+	 * @return The player storage slots, so the 27 normal inventory slots, but not
+	 *         the hotbar
 	 */
-	public abstract DummyInventory getPlayerStorageWithoutHotbar();
+	public DummyInventory getPlayerStorageWithoutHotbar() {
+		return new DummyInventory(
+				Arrays.copyOfRange(slots, getPlayerStorageStartingSlot(), getPlayerHotbarStartingSlot()));
+	}
 
 	/**
-	 * Translates a slot in the storage inventory to an absolute slot in the inventory
+	 * Translates a slot in the storage inventory to an absolute slot in the
+	 * inventory
 	 *
-	 * @param slot
-	 *          Relative slot in the storage section
+	 * @param slot Relative slot in the storage section
 	 * @return Absolute slot
 	 */
-	public abstract short translateStorageSlotToTotal(int slot);
+	public short translateStorageSlotToTotal(int slot) {
+		return (short) (slot + getPlayerStorageStartingSlot());
+	}
 
 	/**
-	 * Translates a slot in the hotbar of the inventory to an absolute slot in the inventory
+	 * Translates a slot in the hotbar of the inventory to an absolute slot in the
+	 * inventory
 	 *
-	 * @param slot
-	 *          Relative slot in the hotbar section
+	 * @param slot Relative slot in the hotbar section
 	 * @return Absolute slot
 	 */
-	public abstract short translateHotbarToTotal(int slot);
+	public short translateHotbarToTotal(int slot) {
+		return (short) (slot + getPlayerHotbarStartingSlot());
+	}
+
+	protected abstract int getPlayerStorageStartingSlot();
+
+	protected int getPlayerHotbarStartingSlot() {
+		return getPlayerStorageStartingSlot() + 27;
+	}
 
 	public static void updateCursor(ItemStack is) {
 		cursor = is;

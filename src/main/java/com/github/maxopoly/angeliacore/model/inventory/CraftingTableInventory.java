@@ -6,13 +6,13 @@ import java.util.Arrays;
 
 public class CraftingTableInventory extends Inventory implements CraftingInventory {
 
-	public CraftingTableInventory() {
-		super(45);
+	public CraftingTableInventory(byte windowID) {
+		super(45, windowID);
 	}
 
 	@Override
 	public DummyInventory getCraftingSlots() {
-		return new DummyInventory(Arrays.copyOfRange(slots, 1, 9));
+		return new DummyInventory(Arrays.copyOfRange(slots, 1, 10));
 	}
 
 	@Override
@@ -31,28 +31,7 @@ public class CraftingTableInventory extends Inventory implements CraftingInvento
 	}
 
 	@Override
-	public DummyInventory getHotbar() {
-		return new DummyInventory(Arrays.copyOfRange(slots, 37, 45));
+	protected int getPlayerStorageStartingSlot() {
+		return 10;
 	}
-
-	@Override
-	public DummyInventory getPlayerStorage() {
-		return new DummyInventory(Arrays.copyOfRange(slots, 10, 45));
-	}
-
-	@Override
-	public DummyInventory getPlayerStorageWithoutHotbar() {
-		return new DummyInventory(Arrays.copyOfRange(slots, 10, 36));
-	}
-
-	@Override
-	public short translateStorageSlotToTotal(int slot) {
-		return (short) (slot + 10);
-	}
-
-	@Override
-	public short translateHotbarToTotal(int slot) {
-		return (short) (slot + 37);
-	}
-
 }

@@ -2,31 +2,29 @@ package com.github.maxopoly.angeliacore.actions.actions.inventory;
 
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
 import com.github.maxopoly.angeliacore.actions.ActionLock;
+import com.github.maxopoly.angeliacore.actions.SingleExecutionAction;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.CloseWindowPacket;
+import com.github.maxopoly.angeliacore.model.inventory.Inventory;
+
 import java.io.IOException;
 
-public class CloseInventoryWindow extends AbstractAction {
+public class CloseInventoryWindow extends SingleExecutionAction {
 
 	private byte windowID;
-
-	public CloseInventoryWindow(ServerConnection connection, byte windowID) {
+	
+	public CloseInventoryWindow(ServerConnection connection, Inventory inventory) {
 		super(connection);
-		this.windowID = windowID;
+		this.windowID = inventory.getWindowID();
 	}
 
 	@Override
-	public void execute() {
+	public void executeAction() {
 		try {
 			connection.sendPacket(new CloseWindowPacket(windowID));
 		} catch (IOException e) {
 			connection.getLogger().error("Failed to send inventory close packet", e);
 		}
-	}
-
-	@Override
-	public boolean isDone() {
-		return true;
 	}
 
 	@Override
