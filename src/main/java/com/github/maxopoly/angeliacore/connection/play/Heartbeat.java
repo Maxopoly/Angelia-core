@@ -59,6 +59,7 @@ public class Heartbeat extends TimerTask {
 		registerPacketHandler(new TransActionConfirmationPacketHandler(connection));
 		registerPacketHandler(new WindowItemsPacketHandler(connection));
 		registerPacketHandler(new XPChangeHandler(connection));
+		registerPacketHandler(new ChunkDataPacketHandler(connection));
 	}
 
 	/**

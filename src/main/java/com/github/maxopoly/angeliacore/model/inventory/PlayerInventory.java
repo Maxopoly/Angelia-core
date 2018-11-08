@@ -6,8 +6,8 @@ import java.util.Arrays;
 
 public class PlayerInventory extends Inventory implements CraftingInventory {
 
-	public PlayerInventory(byte windowID) {
-		super(46, windowID);
+	public PlayerInventory() {
+		super(46, (byte) 0);
 	}
 
 	public void setOffHand(ItemStack is) {

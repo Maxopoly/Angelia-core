@@ -15,6 +15,10 @@ public class ChunkHolder {
 	public Chunk getChunk(int x, int z) {
 		return loadedChunks.get(encodeCoords(x, z));
 	}
+	
+	public void removeChunk(int x, int z) {
+		loadedChunks.remove(encodeCoords(x, z));
+	}
 
 	public void putChunk(Chunk chunk) {
 		loadedChunks.put(encodeCoords(chunk.getX(), chunk.getZ()), chunk);

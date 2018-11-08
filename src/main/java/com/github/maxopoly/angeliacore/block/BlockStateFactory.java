@@ -10,6 +10,8 @@ public class BlockStateFactory {
 
     private static Map<Integer, BlockState> blockStatesById = new ConcurrentHashMap<>();
     private static Map<String, BlockState> blockStatesByTextureName = new ConcurrentHashMap<>();
+    
+    private static BlockState placeHolder = new SolidStaticBlockState(1, 1.5f, "stone", "Stone");
 
     static {
         initialize();
@@ -18,7 +20,7 @@ public class BlockStateFactory {
     public static BlockState getStateByData(int data) {
         BlockState state = blockStatesById.get(data);
         if (state == null) {
-            // todo return placeholder
+        	return placeHolder;
         }
         return state;
     }
@@ -29,7 +31,7 @@ public class BlockStateFactory {
 
     private static void register(BlockState state) {
         int data = state.getID() << 4;
-        data &= state.getMetaData();
+        data |= state.getMetaData() & 0xf;
         blockStatesById.put(data, state);
         blockStatesByTextureName.put(state.getTexturePackIdentifier(), state);
     }

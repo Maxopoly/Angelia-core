@@ -1,5 +1,7 @@
 package com.github.maxopoly.angeliacore.block.states;
 
+import com.github.maxopoly.angeliacore.block.RenderModule;
+
 public abstract class BlockState {
 
     private int id;
@@ -7,6 +9,7 @@ public abstract class BlockState {
     private float hardness;
     private String texturePackIdentifier;
     private String niceName;
+    private RenderModule render;
 
     public BlockState(int id, byte metaData, float hardness, String texturePackIdentifier, String niceName) {
         this.id = id;
@@ -30,6 +33,14 @@ public abstract class BlockState {
 
     public String getTexturePackIdentifier() {
         return texturePackIdentifier;
+    }
+    
+    public void setRenderModule(RenderModule renderModule) {
+    	this.render = renderModule;
+    }
+    
+    public RenderModule getRenderModule() {
+    	return render;
     }
 
     public abstract boolean isFullBlock();
