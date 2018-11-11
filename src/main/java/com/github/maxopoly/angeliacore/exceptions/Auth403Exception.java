@@ -7,6 +7,12 @@ package com.github.maxopoly.angeliacore.exceptions;
  */
 public class Auth403Exception extends Exception {
 
+	private static final long serialVersionUID = -6284844258918050318L;
+	
+	public Auth403Exception() {
+		super();
+	}
+
 	public Auth403Exception(String msg) {
 		super(msg);
 	}

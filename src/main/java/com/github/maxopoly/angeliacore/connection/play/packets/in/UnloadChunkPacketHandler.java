@@ -14,6 +14,9 @@ public class UnloadChunkPacketHandler extends AbstractIncomingPacketHandler {
 
 	@Override
 	public void handlePacket(ReadOnlyPacket packet) {
+		if (!connection.getChunkHolder().isHoldingModel()) {
+			return;
+		}
 		try {
 			int x = packet.readInt();
 			int z = packet.readInt();

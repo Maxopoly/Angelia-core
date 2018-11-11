@@ -4,6 +4,7 @@ import com.github.maxopoly.angeliacore.actions.ActionQueue;
 import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.binary.WriteOnlyPacket;
 import com.github.maxopoly.angeliacore.block.ChunkHolder;
+import com.github.maxopoly.angeliacore.config.GlobalConfig;
 import com.github.maxopoly.angeliacore.connection.login.AuthenticationHandler;
 import com.github.maxopoly.angeliacore.connection.login.EncryptionHandler;
 import com.github.maxopoly.angeliacore.connection.login.GameJoinHandler;
@@ -21,6 +22,7 @@ import com.github.maxopoly.angeliacore.plugin.PluginManager;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
@@ -56,6 +58,7 @@ public class ServerConnection {
 	private OtherPlayerManager otherPlayerManager;
 	private ChunkHolder chunkHolder;
 	private EntityManager entityManager;
+	private GlobalConfig config;
 	private boolean localHost;
 
 	private boolean encryptionEnabled;
@@ -88,7 +91,8 @@ public class ServerConnection {
 		this.protocolVersion = -1;
 		this.eventHandler = new EventBroadcaster(logger);
 		this.transActionManager = new ItemTransactionManager();
-		this.localHost = "localhost".equals(adress) || "127.0.0.1".equals(adress);
+		this.config = new GlobalConfig(this, logger, new File ("angeliaData/"));
+		this.localHost = "localhost".equalsIgnoreCase(adress) || "127.0.0.1".equals(adress);
 	}
 
 	/**
@@ -192,7 +196,7 @@ public class ServerConnection {
 		pluginManager = new PluginManager(this);
 		actionQueue = new ActionQueue(this);
 		otherPlayerManager = new OtherPlayerManager();
-		chunkHolder = new ChunkHolder();
+		chunkHolder = new ChunkHolder(config);
 		entityManager = new EntityManager();
 		tickTimer = new Timer("Angelia tick");
 		tickTimer.schedule(playPacketHandler, tickDelay, tickDelay);
@@ -444,6 +448,13 @@ public class ServerConnection {
 	 */
 	AuthenticationHandler getAuthHandler() {
 		return authHandler;
+	}
+	
+	/**
+	 * @return Clientside only configuration manager
+	 */
+	public GlobalConfig getConfig() {
+		return config;
 	}
 
 	/**

@@ -17,7 +17,7 @@ public class YamlParser {
 	private static final String BLANK_CONFIG = "{}\n";
 	private static final Yaml yaml = new Yaml();
 
-	public static void writeToFile(YamlMap map, File f) throws IOException {
+	public static void writeToFile(ConfigSection map, File f) throws IOException {
 		FileOutputStream fos = new FileOutputStream(f);
 		byte[] dataToWrite = saveToString(map).getBytes(StandardCharsets.UTF_8);
 		int steps = 1024;
@@ -37,7 +37,7 @@ public class YamlParser {
 		}
 	}
 
-	public static YamlMap loadFromFile(File f) throws FileNotFoundException, InvalidYamlFormatException, IOException {
+	public static ConfigSection loadFromFile(File f) throws FileNotFoundException, InvalidYamlFormatException, IOException {
 		return loadFromString(getFileContent(f));
 	}
 
@@ -57,24 +57,24 @@ public class YamlParser {
 		return sb.toString();
 	}
 
-	public static YamlMap loadFromString(String rawYaml) throws InvalidYamlFormatException {
-		Map input;
+	public static ConfigSection loadFromString(String rawYaml) throws InvalidYamlFormatException {
+		Map <String, Object> input;
 		try {
-			input = (Map) yaml.load(rawYaml);
+			input = (Map <String, Object>) yaml.load(rawYaml);
 		} catch (YAMLException e) {
 			throw new InvalidYamlFormatException(e.getMessage());
 		} catch (ClassCastException e) {
 			throw new InvalidYamlFormatException("Tried to parse yaml, but top level was not a map");
 		}
 		if (input != null) {
-			YamlMap superYaml = new YamlMap();
+			ConfigSection superYaml = new ConfigSection("");
 			convertMapsToSections(input, superYaml);
 			return superYaml;
 		}
 		return null;
 	}
 
-	public static String saveToString(YamlMap yamlMap) {
+	public static String saveToString(ConfigSection yamlMap) {
 		String dump = yaml.dump(yamlMap.dump());
 
 		if (dump.equals(BLANK_CONFIG)) {
@@ -84,13 +84,13 @@ public class YamlParser {
 		return dump;
 	}
 
-	private static void convertMapsToSections(Map<?, ?> input, YamlMap section) {
+	private static void convertMapsToSections(Map<?, ?> input, ConfigSection section) {
 		for (Map.Entry<?, ?> entry : input.entrySet()) {
 			String key = entry.getKey().toString();
 			Object value = entry.getValue();
 
 			if (value instanceof Map) {
-				convertMapsToSections((Map<?, ?>) value, section.createMap(key));
+				convertMapsToSections((Map<?, ?>) value, section.createConfigSection(key));
 			} else {
 				section.put(key, value);
 			}

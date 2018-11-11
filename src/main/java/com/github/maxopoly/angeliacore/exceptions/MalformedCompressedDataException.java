@@ -7,6 +7,15 @@ package com.github.maxopoly.angeliacore.exceptions;
  */
 public class MalformedCompressedDataException extends Exception {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2490078493605285149L;
+	
+	public MalformedCompressedDataException() {
+		super();
+	}
+
 	public MalformedCompressedDataException(String msg) {
 		super(msg);
 	}
