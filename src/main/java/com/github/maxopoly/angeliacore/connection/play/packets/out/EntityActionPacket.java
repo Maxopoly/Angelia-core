@@ -11,7 +11,7 @@ public class EntityActionPacket extends WriteOnlyPacket {
 	}
 
 	public EntityActionPacket(int entityID, Action type, int horseJumpStrength) throws IOException {
-		super(0x08);
+		super(0x15);
 		writeVarInt(entityID);
 		writeVarInt(type.index);
 		writeVarInt(horseJumpStrength);
