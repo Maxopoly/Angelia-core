@@ -22,6 +22,4 @@ public abstract class AbstractAction {
 	 */
 	public abstract ActionLock[] getActionLocks();
 	
-	public void finish() {
-	}
 }
