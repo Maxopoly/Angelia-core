@@ -71,6 +71,10 @@ public class Location extends Vector {
 	public Location relativeBlock(double x, double y, double z) {
 		return new Location(this.x + x, this.y + y, this.z + z);
 	}
+	
+	public Location relativeBlock(Vector v) {
+		return relativeBlock(v.getX(), v.getY(), v.getZ());
+	}
 
 	/**
 	 * If this location represents a block (using full integer coords), then this method will return the center of the
