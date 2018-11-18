@@ -1,15 +1,17 @@
 package com.github.maxopoly.angeliacore.block.states;
 
+import java.util.List;
+
 import com.github.maxopoly.angeliacore.block.RenderModule;
 
 public abstract class BlockState {
 
-    private int id;
-    private byte metaData;
-    private float hardness;
-    private String texturePackIdentifier;
-    private String niceName;
-    private RenderModule render;
+    protected int id;
+    protected byte metaData;
+    protected float hardness;
+    protected String texturePackIdentifier;
+    protected String niceName;
+    protected RenderModule render;
 
     public BlockState(int id, byte metaData, float hardness, String texturePackIdentifier, String niceName) {
         this.id = id;
@@ -48,6 +50,10 @@ public abstract class BlockState {
     public abstract boolean isLiquid();
 
     public abstract boolean isOpaque();
+    
+    public abstract BlockState getActualState(byte data);
+    
+    public abstract int getMetaData(List<Enum> enums);
 
     @Override
     public String toString() {

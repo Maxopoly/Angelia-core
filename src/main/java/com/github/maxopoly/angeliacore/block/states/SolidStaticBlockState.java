@@ -1,6 +1,6 @@
 package com.github.maxopoly.angeliacore.block.states;
 
-public class SolidStaticBlockState extends BlockState {
+public class SolidStaticBlockState extends SingleConstBlockState {
 
     public SolidStaticBlockState(int id, byte metaData, float hardness, String texturePackIdentifier,
             String niceName) {

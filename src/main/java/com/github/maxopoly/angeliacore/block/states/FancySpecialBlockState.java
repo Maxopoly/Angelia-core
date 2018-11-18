@@ -4,7 +4,7 @@ package com.github.maxopoly.angeliacore.block.states;
  * Stuff like saplings with custom models
  *
  */
-public class FancySpecialBlockState extends BlockState {
+public class FancySpecialBlockState extends SingleConstBlockState {
 	
     public FancySpecialBlockState(int id, byte metaData, float hardness, String texturePackIdentifier,
             String niceName) {
