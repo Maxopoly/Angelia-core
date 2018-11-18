@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.sun.jdi.Value;
-
 /**
  * Wrapper for a configuration parsed from a YAML file. Conceptually very
  * similar to Bukkits ConfigurationSection

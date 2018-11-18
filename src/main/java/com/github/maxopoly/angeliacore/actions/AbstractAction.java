@@ -21,4 +21,5 @@ public abstract class AbstractAction {
 	 * @return Action locks of this action
 	 */
 	public abstract ActionLock[] getActionLocks();
+	
 }
