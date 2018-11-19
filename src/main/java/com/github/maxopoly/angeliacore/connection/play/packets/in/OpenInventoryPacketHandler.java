@@ -4,7 +4,7 @@ import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
 import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.event.events.OpenInventoryEvent;
+import com.github.maxopoly.angeliacore.event.events.inventory.OpenInventoryEvent;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.util.ChatParser;
 

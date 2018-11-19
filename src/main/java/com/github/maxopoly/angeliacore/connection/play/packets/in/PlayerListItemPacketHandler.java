@@ -50,7 +50,7 @@ public class PlayerListItemPacketHandler extends AbstractIncomingPacketHandler {
 						properties.add(prop);
 					}
 					int gameModeInt = packet.readVarInt();
-					GameMode gameMode = GameMode.values()[gameModeInt];
+					GameMode gameMode = GameMode.parse(gameModeInt);
 					int ping = packet.readVarInt();
 					boolean hasDisplayName = packet.readBoolean();
 					String displayName = hasDisplayName ? packet.readString() : null;
@@ -61,7 +61,7 @@ public class PlayerListItemPacketHandler extends AbstractIncomingPacketHandler {
 				case 1:
 					// update gamemode
 					int updatedGameModeInt = packet.readVarInt();
-					GameMode updatedgameMode = GameMode.values()[updatedGameModeInt];
+					GameMode updatedgameMode = GameMode.parse(updatedGameModeInt);
 					if (existingPlayer != null) {
 						eventHandler.broadcast(new OtherPlayerGameModeUpdateEvent(existingPlayer, updatedgameMode));
 						existingPlayer.setGameMode(updatedgameMode);

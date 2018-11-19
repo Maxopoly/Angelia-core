@@ -71,9 +71,9 @@ public abstract class AngeliaPlugin {
 	public void printHelp(Logger logger) {
 		StringBuilder sb = new StringBuilder(getHelp());
 		if (options.size() == 0) {
-			sb.append("This bot has no options");
+			sb.append("\nThis bot has no options\n");
 		} else {
-			sb.append("--- Options: ---\n");
+			sb.append("\n--- Options: ---\n");
 			for (Option opt : options) {
 				sb.append(" - " + opt.getOpt() + " -- " + opt.getDescription());
 				sb.append(opt.isRequired() ? " (Required) " : " (Optional) ");

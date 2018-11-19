@@ -37,7 +37,7 @@ public class Heartbeat extends TimerTask {
 	 * Used to setup all native handlers for incoming packets
 	 */
 	private void registerAllHandler() {
-		//registerPacketHandler(new BlockBreakAnimationPacketHandler(connection));
+		registerPacketHandler(new BlockBreakAnimationPacketHandler(connection));
 		registerPacketHandler(new ChatMessagePacketHandler(connection));
 		registerPacketHandler(new DestroyEntitiesPacketHandler(connection));
 		registerPacketHandler(new DisconnectPacketHandler(connection));
@@ -51,7 +51,7 @@ public class Heartbeat extends TimerTask {
 		registerPacketHandler(new HealthChangeHandler(connection));
 		registerPacketHandler(new JoinGamePacketHandler(connection));
 		registerPacketHandler(new KeepAlivePacketHandler(connection));
-		//registerPacketHandler(new OpenInventoryPacketHandler(connection));
+		registerPacketHandler(new OpenInventoryPacketHandler(connection));
 		registerPacketHandler(new PlayerListItemPacketHandler(connection));
 		registerPacketHandler(new PlayerPositionLookPacketHandler(connection));
 		registerPacketHandler(new SetSlotPacketHandler(connection));
@@ -72,7 +72,14 @@ public class Heartbeat extends TimerTask {
 		int packetID = packet.getPacketID();
 		AbstractIncomingPacketHandler properHandler = handlerMap.get(packetID);
 		if (properHandler != null) {
-			properHandler.handlePacket(packet);
+			try {
+				properHandler.handlePacket(packet);
+			}
+			catch (Exception e) {
+				//not nice to catch Exception, but we dont want to crash the entire application 
+				//if an exception occurs here and there are just way too many that possibly could occur
+				connection.getLogger().warn("Exception occured handling packet", e);
+			}
 		}
 		// we just skip the packet if we dont have a proper handler
 	}
