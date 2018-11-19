@@ -11,10 +11,10 @@ public class OnlinePlayer {
 	private UUID uuid;
 	private String name;
 	private String displayName;
-	private int gameMode;
+	private GameMode gameMode;
 	private int ping;
 
-	public OnlinePlayer(UUID uuid, String name, List<PlayerProperty> properties, int gameMode, int ping, String displayName) {
+	public OnlinePlayer(UUID uuid, String name, List<PlayerProperty> properties, GameMode gameMode, int ping, String displayName) {
 		this.uuid = uuid;
 		this.name = name;
 		this.properties = new HashMap<>();
@@ -46,11 +46,11 @@ public class OnlinePlayer {
 		return displayName;
 	}
 
-	public void setGameMode(int gameMode) {
+	public void setGameMode(GameMode gameMode) {
 		this.gameMode = gameMode;
 	}
 
-	public int getGameMode() {
+	public GameMode getGameMode() {
 		return gameMode;
 	}
 

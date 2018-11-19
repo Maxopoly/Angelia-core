@@ -59,7 +59,7 @@ public class PluginService {
 			try {
 				urlsList.add(file.toURI().toURL());
 			} catch (MalformedURLException e) {
-				e.printStackTrace();
+				logger.error("Failed to load jar, invalid path", e);
 			}
 		}
 		return URLClassLoader.newInstance(urlsList.toArray(new URL[] {}), Thread.currentThread()

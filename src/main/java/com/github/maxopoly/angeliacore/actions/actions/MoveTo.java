@@ -26,8 +26,6 @@ public class MoveTo extends AbstractAction {
 		this.destination = desto;
 		this.movementSpeed = movementSpeed;
 	}
-	
-	private long lastLog;
 
 	/**
 	 * Calculates the location to which the player should move on the next client tick

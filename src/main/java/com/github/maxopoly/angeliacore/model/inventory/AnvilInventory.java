@@ -3,6 +3,8 @@ package com.github.maxopoly.angeliacore.model.inventory;
 import com.github.maxopoly.angeliacore.model.item.ItemStack;
 
 public class AnvilInventory extends Inventory {
+	
+	private int repairCost;
 
 	public AnvilInventory(byte windowID) {
 		super(39, windowID);
@@ -23,6 +25,17 @@ public class AnvilInventory extends Inventory {
 	@Override
 	protected int getPlayerStorageStartingSlot() {
 		return 3;
+	}
+	
+	public void setRepairCost(int cost) {
+		this.repairCost = cost;
+	}
+	
+	/**
+	 * @return Repair cost in levels
+	 */
+	public int getRepairCost() {
+		return repairCost;
 	}
 
 }
