@@ -25,6 +25,11 @@ public class OpenInventoryPacketHandler extends AbstractIncomingPacketHandler {
 			if (inv != null) {
 				connection.getEventHandler().broadcast(new OpenInventoryEvent(inv, windowID));
 				connection.getPlayerStatus().addInventory(inv, windowID);
+			} else {
+				connection.getLogger()
+						.warn(String.format(
+								"Unsupported inventory of size %d with window type %s and name %s was opened",
+								numberOfSlots, windowType, name));
 			}
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse open inventory packet", e);

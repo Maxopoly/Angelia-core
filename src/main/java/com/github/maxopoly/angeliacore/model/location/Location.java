@@ -119,6 +119,10 @@ public class Location extends Vector {
 	public Location getScaledMiddle(Location other, double factor) {
 		return new Location(x + (other.x - x) * factor, y + (other.y - y) * factor, z + (other.z - z) * factor);
 	}
+	
+	public Location add(Vector vec) {
+		return new Location(super.add(vec));
+	}
 
 	@Override
 	public boolean equals(Object o) {

@@ -45,6 +45,12 @@ public abstract class Inventory implements Iterable<ItemStack> {
 		case "minecraft:hopper":
 			inv = new HopperInventory(windowID);
 			break;
+		case "minecraft:beacon":
+			inv = new BeaconInventory(windowID);
+			break;
+		case "minecraft:brewing_stand":
+			inv = new BrewingStandInventory(windowID);
+			break;
 		default:
 			inv = null;
 			break;

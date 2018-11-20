@@ -4,7 +4,7 @@ import com.github.maxopoly.angeliacore.model.item.ItemStack;
 
 public class AnvilInventory extends Inventory {
 	
-	private int repairCost;
+	private short repairCost;
 
 	public AnvilInventory(byte windowID) {
 		super(39, windowID);
@@ -27,14 +27,14 @@ public class AnvilInventory extends Inventory {
 		return 3;
 	}
 	
-	public void setRepairCost(int cost) {
+	public void setRepairCost(short cost) {
 		this.repairCost = cost;
 	}
 	
 	/**
 	 * @return Repair cost in levels
 	 */
-	public int getRepairCost() {
+	public short getRepairCost() {
 		return repairCost;
 	}
 
