@@ -1,7 +1,9 @@
 package com.github.maxopoly.angeliacore.actions;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.event.events.ActionQueueEmptiedEvent;
+import com.github.maxopoly.angeliacore.event.events.angelia.ActionQueueEmptiedEvent;
+import com.github.maxopoly.angeliacore.event.events.angelia.AngeliaTickEvent;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -22,6 +24,8 @@ public class ActionQueue {
 	}
 
 	public synchronized void tick() {
+		connection.getEventHandler()
+				.broadcast(new AngeliaTickEvent(connection.getIncomingPlayPacketHandler().getTickCounter()));
 		if (actions.size() == 0) {
 			return;
 		}
