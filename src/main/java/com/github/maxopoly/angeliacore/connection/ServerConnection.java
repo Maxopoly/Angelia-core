@@ -15,6 +15,7 @@ import com.github.maxopoly.angeliacore.connection.play.ItemTransactionManager;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.ClientSettingPacket;
 import com.github.maxopoly.angeliacore.encryption.AES_CFB8_Encrypter;
 import com.github.maxopoly.angeliacore.event.EventBroadcaster;
+import com.github.maxopoly.angeliacore.exceptions.Auth403Exception;
 import com.github.maxopoly.angeliacore.exceptions.MalformedCompressedDataException;
 import com.github.maxopoly.angeliacore.model.ThePlayer;
 import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;
@@ -142,15 +143,10 @@ public class ServerConnection {
 	 * set up
 	 *
 	 * @throws IOException If something goes wrong
+	 * @throws Auth403Exception If the auth is not valid and can't possibly be refreshed
 	 */
-	public void connect() throws IOException {
-		if (!authHandler.validateToken(logger)) {
-			logger.info("Token for " + authHandler.getPlayerName() + " is no longer valid, refreshing it");
-			authHandler.refreshToken(logger);
-		}
-		logger.info("Initializing connection process for account " + authHandler.getPlayerName() + " to " + serverAdress
-				+ ":" + port);
-		// connect
+	public void connect() throws IOException, Auth403Exception {
+		// poke the server first to see if it exists
 		reestablishConnection();
 		HandShake shake = new HandShake(this);
 		if (protocolVersion == -1) {
@@ -165,6 +161,12 @@ public class ServerConnection {
 		}
 		logger.info("Sending handshake to " + serverAdress);
 		shake.send(true, protocolVersion);
+		if (!authHandler.validateToken(logger)) {
+			logger.info("Token for " + authHandler.getPlayerName() + " is no longer valid, refreshing it");
+			authHandler.refreshToken(logger);
+		}
+		logger.info("Initializing connection process for account " + authHandler.getPlayerName() + " to " + serverAdress
+				+ ":" + port);
 		// begin login
 		logger.info("Beginning login to " + serverAdress);
 		shake.sendLoginStartMessage(authHandler.getPlayerName());

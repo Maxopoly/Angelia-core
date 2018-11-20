@@ -94,6 +94,7 @@ public class SessionManager {
 			String name = authObj.optString("displayName", null);
 			String accessToken = authObj.getString("accessToken");
 			String email = authObj.getString("username");
+			long lastRefresh = authObj.optLong("refresh");
 			legacyFormat = name != null;
 			AuthenticationHandler auth;
 			String userID;
@@ -121,7 +122,7 @@ public class SessionManager {
 				}
 			}
 			try {
-				auth = new AuthenticationHandler(this, name, accessToken, email, uuid, userID, clientToken, logger);
+				auth = new AuthenticationHandler(this, name, accessToken, email, uuid, userID, clientToken, logger, lastRefresh);
 			} catch (IOException e) {
 				logger.warn("Failed to load auth for  " + name);
 				continue;
@@ -186,6 +187,7 @@ public class SessionManager {
 		}
 		authObj.put("accessToken", auth.getAccessToken());
 		authObj.put("username", auth.getEmail());
+		authObj.put("refresh", auth.getLastTokenRefresh());
 		saveJSON(saveFile, json);
 	}
 

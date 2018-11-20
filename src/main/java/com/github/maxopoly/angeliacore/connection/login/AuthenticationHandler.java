@@ -1,10 +1,12 @@
 package com.github.maxopoly.angeliacore.connection.login;
 
 import com.github.maxopoly.angeliacore.SessionManager;
+import com.github.maxopoly.angeliacore.config.GlobalConfig;
 import com.github.maxopoly.angeliacore.exceptions.Auth403Exception;
 import com.github.maxopoly.angeliacore.exceptions.OutDatedAuthException;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -22,6 +24,7 @@ public class AuthenticationHandler {
 	private String playerName;
 	private String playerUUID;
 	private String email;
+	private long lastRefresh;
 	private SessionManager sessionManager;
 	private String userID;
 
@@ -43,7 +46,7 @@ public class AuthenticationHandler {
 	 *           If the String wasnt properly formatted
 	 */
 	public AuthenticationHandler(SessionManager sessionManager, String userName, String accessToken, String email,
-			String playerUUID, String userID, String clientToken, Logger logger) throws IOException, OutDatedAuthException {
+			String playerUUID, String userID, String clientToken, Logger logger, long lastRefresh) throws IOException, OutDatedAuthException {
 		this.sessionManager = sessionManager;
 		this.playerName = userName;
 		this.accessToken = accessToken;
@@ -51,6 +54,7 @@ public class AuthenticationHandler {
 		this.email = email;
 		this.userID = userID;
 		this.clientToken = clientToken;
+		this.lastRefresh = lastRefresh;
 		if (!validateToken(logger)) {
 			if (!refreshToken(logger)) {
 				throw new OutDatedAuthException("Could not refresh token");
@@ -59,6 +63,7 @@ public class AuthenticationHandler {
 	}
 
 	private boolean authenticate(String userName, String password, Logger logger) throws IOException {
+		this.lastRefresh = System.currentTimeMillis();
 		String result;
 		try {
 			result = sendPost(constructAuthenticationJSON(userName, password, clientToken), authServerAdress
@@ -91,8 +96,9 @@ public class AuthenticationHandler {
 	 * @throws IOException
 	 */
 	public boolean refreshToken(Logger logger) throws IOException {
-		if (accessToken == null || playerUUID == null || playerName == null || clientToken == null) {
-			throw new IOException("Can not refresh auth token with missing auth information");
+		if (getRefreshDelay(logger) > (System.currentTimeMillis() - lastRefresh)) {
+			//assume valid
+			return true;
 		}
 		String result;
 		try {
@@ -110,13 +116,19 @@ public class AuthenticationHandler {
 			throw new IOException("Received different client token during access token refresh");
 		}
 		logger.info("Successfully refreshed access token for " + playerName);
+		this.lastRefresh = System.currentTimeMillis();
 		sessionManager.updateAuth(this);
 		return true;
 	}
 
 	public boolean validateToken(Logger logger) throws IOException {
+		if (getRefreshDelay(logger) > (System.currentTimeMillis() - lastRefresh)) {
+			//assume valid
+			return true;
+		}
 		try {
 			sendPost(constructValidationJSON(accessToken, clientToken), authServerAdress + "/validate", logger);
+			this.lastRefresh = System.currentTimeMillis();
 		} catch (Auth403Exception e) {
 			return false;
 		}
@@ -126,7 +138,7 @@ public class AuthenticationHandler {
 		return true;
 	}
 
-	public void authAgainstSessionServer(String sha, Logger logger) throws IOException {
+	public void authAgainstSessionServer(String sha, Logger logger) throws IOException, Auth403Exception {
 		if (accessToken == null || playerUUID == null) {
 			throw new IOException("Access token isn't available yet");
 		}
@@ -138,6 +150,7 @@ public class AuthenticationHandler {
 			sendPost(json.toString(), sessionServerAdress, logger);
 		} catch (Auth403Exception e) {
 			sessionManager.deleteAuth(this);
+			throw e;
 		}
 	}
 
@@ -163,6 +176,10 @@ public class AuthenticationHandler {
 
 	public String getEmail() {
 		return email;
+	}
+	
+	public long getLastTokenRefresh() {
+		return lastRefresh;
 	}
 
 	private String sendPost(String content, String url, Logger logger) throws IOException, Auth403Exception {
@@ -232,6 +249,10 @@ public class AuthenticationHandler {
 		json.put("accessToken", accessToken);
 		json.put("clientToken", clientToken);
 		return json.toString();
+	}
+	
+	private static long getRefreshDelay(Logger logger) {
+		return new GlobalConfig(null, logger, new File ("angeliaData/")).getTokenRefreshDelay();
 	}
 
 }

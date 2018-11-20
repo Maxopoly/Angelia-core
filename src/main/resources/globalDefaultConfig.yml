@@ -1,2 +1,8 @@
 block:
   holdModel: false
+auth:
+  refreshDelay: 300000
+connection:
+  reconnectDelay: 30000
+  autoReconnect: false
+  

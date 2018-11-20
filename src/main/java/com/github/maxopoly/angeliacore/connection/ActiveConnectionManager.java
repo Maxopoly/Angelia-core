@@ -7,6 +7,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.github.maxopoly.angeliacore.event.events.ConnectedToServerEvent;
+
 public class ActiveConnectionManager {
 
 	private static ActiveConnectionManager instance;
@@ -22,13 +24,13 @@ public class ActiveConnectionManager {
 	private ActiveConnectionManager() {
 	}
 
-	public void initConnection(ServerConnection newConnection, boolean retry, ServerConnection oldConnection) {
+	public void initConnection(ServerConnection newConnection, ServerConnection oldConnection) {
 		try {
 			newConnection.connect();
 		} catch (Exception e) {
 			newConnection.getLogger().error("Could not connect to server", e);
-			if (!retry) {
-				System.exit(1);
+			if (oldConnection == null) {
+				scheduleConnectionReattempt(newConnection);
 			} else {
 				scheduleConnectionReattempt(oldConnection);
 			}
@@ -45,11 +47,20 @@ public class ActiveConnectionManager {
 		}
 		activeConnections.put(newConnection.getPlayerName(), newConnection);
 		if (oldConnection != null) {
+			oldConnection.getEventHandler().transferListeners(newConnection.getEventHandler());
 			oldConnection.getPluginManager().passPluginsOver(newConnection);
 		}
 	}
 
 	private void scheduleConnectionReattempt(final ServerConnection failed) {
+		if (!failed.getConfig().useAutoReconnect()) {
+			failed.getLogger().info("Autoreconnecting is disabled, connection will remain closed");
+			System.exit(0);
+			return;
+		}
+		else {
+			failed.getLogger().info("Autoreconnecting in " + failed.getConfig().getAuthReconnectDelay() + " ms");
+		}
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 		scheduler.schedule(new Runnable() {
 
@@ -57,10 +68,10 @@ public class ActiveConnectionManager {
 			public void run() {
 				ServerConnection conn = new ServerConnection(failed.getAdress(), failed.getPort(), failed.getLogger(),
 						failed.getAuthHandler());
-				initConnection(conn, true, failed);
+				initConnection(conn, failed);
 
 			}
-		}, 10, TimeUnit.SECONDS);
+		}, failed.getConfig().getAuthReconnectDelay(), TimeUnit.MILLISECONDS);
 	}
 
 	public ServerConnection getConnection(String playerName) {
@@ -91,16 +102,15 @@ public class ActiveConnectionManager {
 				break;
 			case Unknown_Connection_Error:
 				conn.getLogger().info(
-						"Server connection was closed for unknown reasons! Attempting to reconnect in 10 seconds...");
+						"Server connection was closed for unknown reasons!");
 				break;
 			case Server_Disconnected_Intentionally:
-				conn.getLogger().info("Server disconnected us! Attempting to reconnect in 10 seconds...");
+				conn.getLogger().info("Server disconnected us!");
 				break;
 			case Server_Timed_Out:
-				conn.getLogger().info("Server connection timed out! Attempting to reconnect in 10 seconds...");
+				conn.getLogger().info("Server connection timed out!");
 				break;
 		}
 		scheduleConnectionReattempt(conn);
-
 	}
 }

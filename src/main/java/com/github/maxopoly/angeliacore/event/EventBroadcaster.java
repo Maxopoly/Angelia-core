@@ -21,6 +21,7 @@ public class EventBroadcaster {
 		this.logger = logger;
 	}
 
+	@SuppressWarnings("unchecked")
 	public synchronized void registerListener(AngeliaListener listener) {
 		for (Method method : listener.getClass().getMethods()) {
 			if (!Modifier.isPublic(method.getModifiers())) {
@@ -32,9 +33,11 @@ public class EventBroadcaster {
 				continue;
 			}
 			boolean eventHandlerAnnotationFound = false;
+			boolean autoTransferListener = false;
 			for (Annotation annotation : method.getAnnotations()) {
 				if (annotation instanceof AngeliaEventHandler) {
 					eventHandlerAnnotationFound = true;
+					autoTransferListener = ((AngeliaEventHandler) annotation).autoTransfer();
 					break;
 				}
 			}
@@ -46,20 +49,25 @@ public class EventBroadcaster {
 				// parameter should only be the event object
 				continue;
 			}
-			Class eventClass = method.getParameterTypes()[0];
-			if (!AngeliaEvent.class.isAssignableFrom(eventClass)) {
+			Class<?> eventClass = method.getParameterTypes()[0];
+			if (!AngeliaEvent.class.isAssignableFrom(method.getParameterTypes()[0])) {
 				// only parameter is not a subtype of the event class
 				continue;
 			}
 			// we found a valid listener method at this point
-			List<MethodListenerTuple> existingListeners = listenerMapping.get(eventClass);
-			if (existingListeners == null) {
-				existingListeners = new LinkedList<EventBroadcaster.MethodListenerTuple>();
-				listenerMapping.put(eventClass, existingListeners);
-			}
-			method.setAccessible(true);
-			existingListeners.add(new MethodListenerTuple(method, listener));
+			internalRegister((Class<? extends AngeliaEvent>) eventClass, method, autoTransferListener, listener);
 		}
+	}
+
+	private void internalRegister(Class<? extends AngeliaEvent> eventClass, Method method, boolean autoTransfer,
+			AngeliaListener listener) {
+		List<MethodListenerTuple> existingListeners = listenerMapping.get(eventClass);
+		if (existingListeners == null) {
+			existingListeners = new LinkedList<EventBroadcaster.MethodListenerTuple>();
+			listenerMapping.put(eventClass, existingListeners);
+		}
+		method.setAccessible(true);
+		existingListeners.add(new MethodListenerTuple(method, listener, autoTransfer));
 	}
 
 	public synchronized void broadcast(AngeliaEvent e) {
@@ -71,7 +79,8 @@ public class EventBroadcaster {
 			try {
 				tuple.method.invoke(tuple.listener, e);
 			} catch (Exception ex) {
-				// catching just any kind of exception isnt nice behavior, but this is where code outside of the core will run
+				// catching just any kind of exception isnt nice behavior, but this is where
+				// code outside of the core will run
 				// and we dont want the exceptions of that code to mess with the core
 				logger.error("Executing listener in class " + tuple.listener.getClass() + " threw exception ", ex);
 			}
@@ -91,13 +100,26 @@ public class EventBroadcaster {
 		}
 	}
 
+	public synchronized void transferListeners(EventBroadcaster newInstance) {
+		for (Entry<Class<? extends AngeliaEvent>, List<MethodListenerTuple>> entry : listenerMapping.entrySet()) {
+			List<MethodListenerTuple> currList = entry.getValue();
+			for (MethodListenerTuple curr : currList) {
+				if (curr.autoTransfer) {
+					internalRegister(entry.getKey(), curr.method, true, curr.listener);
+				}
+			}
+		}
+	}
+
 	private class MethodListenerTuple {
 		private Method method;
 		private AngeliaListener listener;
+		private boolean autoTransfer;
 
-		private MethodListenerTuple(Method m, AngeliaListener listener) {
+		private MethodListenerTuple(Method m, AngeliaListener listener, boolean autoTransfer) {
 			this.method = m;
 			this.listener = listener;
+			this.autoTransfer = autoTransfer;
 		}
 	}
 }

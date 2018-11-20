@@ -89,5 +89,17 @@ public class GlobalConfig {
 		chunkHolder.setActivationState(state);
 		writeBackConfig();
 	}
+	
+	public long getTokenRefreshDelay() {
+		return config.getInt("auth.refreshDelay", 60 * 5 * 1000);
+	}
+	
+	public long getAuthReconnectDelay() {
+		return config.getInt("connection.reconnectDelay", 30 * 1000);
+	}
+	
+	public boolean useAutoReconnect() {
+		return config.getBoolean("connection.autoReconnect", false);
+	}
 
 }
