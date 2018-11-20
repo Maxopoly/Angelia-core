@@ -7,14 +7,15 @@ import java.util.UUID;
 
 public class OnlinePlayer {
 
-	private Map<String, PlayerProperty> properties;
-	private UUID uuid;
-	private String name;
+	private final Map<String, PlayerProperty> properties;
+	private final UUID uuid;
+	private final String name;
 	private String displayName;
 	private GameMode gameMode;
 	private int ping;
 
-	public OnlinePlayer(UUID uuid, String name, List<PlayerProperty> properties, GameMode gameMode, int ping, String displayName) {
+	public OnlinePlayer(UUID uuid, String name, List<PlayerProperty> properties, GameMode gameMode, int ping,
+			String displayName) {
 		this.uuid = uuid;
 		this.name = name;
 		this.properties = new HashMap<>();
@@ -56,5 +57,11 @@ public class OnlinePlayer {
 
 	public UUID getUUID() {
 		return uuid;
+	}
+
+	public String toString() {
+		//neat for debugging
+		return String.format("%s (%s), %s, GM: %s, Ping: %d", name, displayName, uuid.toString(), gameMode.toString(),
+				ping);
 	}
 }

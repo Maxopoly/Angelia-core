@@ -26,11 +26,13 @@ public class Heartbeat extends TimerTask {
 	private ServerConnection connection;
 	private long lastKeepAlive;
 	private long lastPositionPacket;
+	private long tickCounter;
 
 	public Heartbeat(ServerConnection connection) {
 		this.connection = connection;
 		this.handlerMap = new TreeMap<>();
 		registerAllHandler();
+		this.tickCounter = 0;
 	}
 
 	/**
@@ -153,8 +155,16 @@ public class Heartbeat extends TimerTask {
 			}
 			// tick the action queue
 			connection.getActionQueue().tick();
-
+			++tickCounter;
 		}
+	}
+	
+	/**
+	 * Counter that starts at 0 when the connection is established and is incremented every tick
+	 * @return Tick counter
+	 */
+	public long getTickCounter() {
+		return tickCounter;
 	}
 
 }
