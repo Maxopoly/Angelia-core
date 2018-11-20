@@ -18,6 +18,7 @@ import com.github.maxopoly.angeliacore.event.EventBroadcaster;
 import com.github.maxopoly.angeliacore.exceptions.MalformedCompressedDataException;
 import com.github.maxopoly.angeliacore.model.ThePlayer;
 import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;
+import com.github.maxopoly.angeliacore.plugin.AngeliaPlugin;
 import com.github.maxopoly.angeliacore.plugin.PluginManager;
 
 import java.io.DataInputStream;
@@ -333,6 +334,9 @@ public class ServerConnection {
 			if (tickTimer != null) {
 				tickTimer.cancel();
 				tickTimer.purge();
+			}
+			if (pluginManager != null) {
+				pluginManager.shutDown();
 			}
 			closed = true;
 		} catch (IOException e) {

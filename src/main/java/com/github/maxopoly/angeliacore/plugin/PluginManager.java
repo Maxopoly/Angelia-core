@@ -3,6 +3,7 @@ package com.github.maxopoly.angeliacore.plugin;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -108,13 +109,26 @@ public class PluginManager {
 	public int stopPlugin(String name) {
 		int stopped = 0;
 		name = name.toLowerCase();
-		for (int i = 0; i < runningPlugins.size(); i++) {
-			if (runningPlugins.get(i).getName().toLowerCase().equals(name)) {
-				runningPlugins.get(i).finish();
+		Iterator<AngeliaPlugin> iterator = runningPlugins.iterator();
+		while (iterator.hasNext()) {
+			AngeliaPlugin plugin = iterator.next();
+			if (plugin.getName().toLowerCase().equals(name)) {
+				plugin.finish();
+				iterator.remove();
 				stopped++;
 			}
 		}
 		return stopped;
+	}
+	
+	/**
+	 * Called after the connection has been terminated to finish all plugins,
+	 * but not remove them so new connections can take them over
+	 */
+	public void shutDown() {
+		for(AngeliaPlugin plugin : runningPlugins) {
+			plugin.finish();
+		}
 	}
 
 	/**
@@ -128,9 +142,6 @@ public class PluginManager {
 	public void passPluginsOver(ServerConnection newConnection) {
 		PluginManager replacement = newConnection.getPluginManager();
 		for (AngeliaPlugin plugin : runningPlugins) {
-			if (plugin.isFinished()) {
-				continue;
-			}
 			AngeliaPlugin replacePlugin = plugin.transistionToNewConnection(newConnection);
 			replacement.runningPlugins.add(replacePlugin);
 			replacePlugin.start();
