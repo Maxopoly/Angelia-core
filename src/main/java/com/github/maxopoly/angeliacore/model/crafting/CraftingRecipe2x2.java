@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.crafting;
+package com.github.maxopoly.angeliacore.model.crafting;
 
 import com.github.maxopoly.angeliacore.model.item.Material;
 

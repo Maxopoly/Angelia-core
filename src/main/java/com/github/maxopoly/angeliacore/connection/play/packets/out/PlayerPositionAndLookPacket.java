@@ -1,6 +1,6 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.out;
 
-import com.github.maxopoly.angeliacore.binary.WriteOnlyPacket;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.WriteOnlyPacket;
 import com.github.maxopoly.angeliacore.model.location.DirectedLocation;
 import java.io.IOException;
 

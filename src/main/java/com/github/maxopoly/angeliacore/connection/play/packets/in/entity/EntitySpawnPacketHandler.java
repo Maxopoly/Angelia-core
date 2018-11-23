@@ -1,9 +1,8 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in.entity;
 
-import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
-
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.AbstractIncomingPacketHandler;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 
 public class EntitySpawnPacketHandler extends AbstractIncomingPacketHandler {
 

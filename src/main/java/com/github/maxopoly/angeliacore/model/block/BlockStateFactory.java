@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.block;
+package com.github.maxopoly.angeliacore.model.block;
 
 import com.github.maxopoly.angeliacore.block.states.ActivatableFacingBlock;
 import com.github.maxopoly.angeliacore.block.states.AirBlockState;

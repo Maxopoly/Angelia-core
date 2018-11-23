@@ -4,8 +4,8 @@ import com.github.maxopoly.angeliacore.model.item.Material;
 
 import com.github.maxopoly.angeliacore.model.item.ItemStack;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.crafting.CraftingRecipe;
-import com.github.maxopoly.angeliacore.crafting.CraftingRecipe2x2;
+import com.github.maxopoly.angeliacore.model.crafting.CraftingRecipe;
+import com.github.maxopoly.angeliacore.model.crafting.CraftingRecipe2x2;
 import com.github.maxopoly.angeliacore.model.inventory.DummyInventory;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
 

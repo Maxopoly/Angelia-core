@@ -1,7 +1,7 @@
 package com.github.maxopoly.angeliacore.libs.nbt;
 
-import com.github.maxopoly.angeliacore.binary.BinaryReadOnlyData;
-import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.BinaryReadOnlyData;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
 
 public class NBTParser extends BinaryReadOnlyData {
 

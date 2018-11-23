@@ -1,11 +1,10 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
-import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
-import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
-
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.events.HealthChangeEvent;
 import com.github.maxopoly.angeliacore.event.events.HungerChangeEvent;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 
 public class HealthChangeHandler extends AbstractIncomingPacketHandler {
 

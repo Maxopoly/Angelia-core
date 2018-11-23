@@ -3,7 +3,6 @@ package nbt;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
 import com.github.maxopoly.angeliacore.connection.CompressionManager;
 import com.github.maxopoly.angeliacore.exceptions.MalformedCompressedDataException;
 import com.github.maxopoly.angeliacore.libs.nbt.NBTByte;
@@ -13,6 +12,7 @@ import com.github.maxopoly.angeliacore.libs.nbt.NBTList;
 import com.github.maxopoly.angeliacore.libs.nbt.NBTLong;
 import com.github.maxopoly.angeliacore.libs.nbt.NBTParser;
 import com.github.maxopoly.angeliacore.libs.nbt.NBTString;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
 
 import java.io.File;
 import java.io.FileInputStream;

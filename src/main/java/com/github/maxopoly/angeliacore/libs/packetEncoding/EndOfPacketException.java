@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.binary;
+package com.github.maxopoly.angeliacore.libs.packetEncoding;
 
 public class EndOfPacketException extends Exception {
 

@@ -5,4 +5,3 @@ auth:
 connection:
   reconnectDelay: 30000
   autoReconnect: false
-  

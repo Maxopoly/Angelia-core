@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.block;
+package com.github.maxopoly.angeliacore.model.block;
 
 /**
  * Thrown by the chunk holder when holding block data is disabled through the

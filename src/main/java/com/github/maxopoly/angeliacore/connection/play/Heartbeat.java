@@ -1,6 +1,5 @@
 package com.github.maxopoly.angeliacore.connection.play;
 
-import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.connection.DisconnectReason;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.*;
@@ -12,6 +11,8 @@ import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityR
 import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityTeleportPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionPacket;
 import com.github.maxopoly.angeliacore.exceptions.MalformedCompressedDataException;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.TimerTask;

@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.block;
+package com.github.maxopoly.angeliacore.model.block;
 
 import java.util.Collection;
 import java.util.Map;

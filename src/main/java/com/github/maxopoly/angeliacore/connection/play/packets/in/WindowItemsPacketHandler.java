@@ -1,11 +1,10 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
-import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
-import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
-
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.events.inventory.InventoryInitializationEvent;
 import com.github.maxopoly.angeliacore.event.events.inventory.UpdateInventoryEvent;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.item.ItemStack;
 

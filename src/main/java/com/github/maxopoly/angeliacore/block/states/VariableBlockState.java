@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import com.github.maxopoly.angeliacore.block.RenderModule;
+import com.github.maxopoly.angeliacore.model.block.RenderModule;
 
 public class VariableBlockState extends BlockState {
 	

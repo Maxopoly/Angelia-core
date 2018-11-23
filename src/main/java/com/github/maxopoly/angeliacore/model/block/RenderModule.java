@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.block;
+package com.github.maxopoly.angeliacore.model.block;
 
 /**
  * Placeholder which allows rendering to directly hook into block state, but

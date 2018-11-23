@@ -1,8 +1,8 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.out;
 
-import com.github.maxopoly.angeliacore.binary.WriteOnlyPacket;
-
 import java.io.IOException;
+
+import com.github.maxopoly.angeliacore.libs.packetEncoding.WriteOnlyPacket;
 
 public class UseEntityPacket extends WriteOnlyPacket {
 

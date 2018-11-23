@@ -11,11 +11,11 @@ import java.nio.file.StandardCopyOption;
 
 import org.apache.logging.log4j.Logger;
 
-import com.github.maxopoly.angeliacore.block.ChunkHolder;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.libs.yaml.ConfigSection;
 import com.github.maxopoly.angeliacore.libs.yaml.InvalidYamlFormatException;
 import com.github.maxopoly.angeliacore.libs.yaml.YamlParser;
+import com.github.maxopoly.angeliacore.model.block.ChunkHolder;
 
 public class GlobalConfig {
 

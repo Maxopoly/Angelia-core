@@ -1,10 +1,8 @@
 package com.github.maxopoly.angeliacore.connection;
 
 import com.github.maxopoly.angeliacore.actions.ActionQueue;
-import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
-import com.github.maxopoly.angeliacore.binary.WriteOnlyPacket;
-import com.github.maxopoly.angeliacore.block.ChunkHolder;
 import com.github.maxopoly.angeliacore.config.GlobalConfig;
+import com.github.maxopoly.angeliacore.connection.encryption.AES_CFB8_Encrypter;
 import com.github.maxopoly.angeliacore.connection.login.AuthenticationHandler;
 import com.github.maxopoly.angeliacore.connection.login.EncryptionHandler;
 import com.github.maxopoly.angeliacore.connection.login.GameJoinHandler;
@@ -13,11 +11,13 @@ import com.github.maxopoly.angeliacore.connection.play.EntityManager;
 import com.github.maxopoly.angeliacore.connection.play.Heartbeat;
 import com.github.maxopoly.angeliacore.connection.play.ItemTransactionManager;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.ClientSettingPacket;
-import com.github.maxopoly.angeliacore.encryption.AES_CFB8_Encrypter;
 import com.github.maxopoly.angeliacore.event.EventBroadcaster;
 import com.github.maxopoly.angeliacore.exceptions.Auth403Exception;
 import com.github.maxopoly.angeliacore.exceptions.MalformedCompressedDataException;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.WriteOnlyPacket;
 import com.github.maxopoly.angeliacore.model.ThePlayer;
+import com.github.maxopoly.angeliacore.model.block.ChunkHolder;
 import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;
 import com.github.maxopoly.angeliacore.plugin.AngeliaPlugin;
 import com.github.maxopoly.angeliacore.plugin.PluginManager;

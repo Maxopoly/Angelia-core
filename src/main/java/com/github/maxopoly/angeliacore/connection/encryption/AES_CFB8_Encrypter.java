@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.encryption;
+package com.github.maxopoly.angeliacore.connection.encryption;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;

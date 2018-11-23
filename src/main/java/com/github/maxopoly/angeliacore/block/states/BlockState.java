@@ -2,7 +2,7 @@ package com.github.maxopoly.angeliacore.block.states;
 
 import java.util.List;
 
-import com.github.maxopoly.angeliacore.block.RenderModule;
+import com.github.maxopoly.angeliacore.model.block.RenderModule;
 
 public abstract class BlockState {
 

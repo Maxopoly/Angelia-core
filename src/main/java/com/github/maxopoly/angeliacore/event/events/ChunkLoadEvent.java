@@ -1,6 +1,6 @@
 package com.github.maxopoly.angeliacore.event.events;
 
-import com.github.maxopoly.angeliacore.block.Chunk;
+import com.github.maxopoly.angeliacore.model.block.Chunk;
 
 /**
  * Called when a new chunk to load has been received from the server

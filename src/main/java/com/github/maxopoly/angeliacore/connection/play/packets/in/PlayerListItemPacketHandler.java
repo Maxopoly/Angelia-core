@@ -1,8 +1,5 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
-import com.github.maxopoly.angeliacore.binary.EndOfPacketException;
-import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
-
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.EventBroadcaster;
 import com.github.maxopoly.angeliacore.event.events.tablist.OtherPlayerDisplayNameChangeEvent;
@@ -10,6 +7,8 @@ import com.github.maxopoly.angeliacore.event.events.tablist.OtherPlayerGameModeU
 import com.github.maxopoly.angeliacore.event.events.tablist.OtherPlayerJoinEvent;
 import com.github.maxopoly.angeliacore.event.events.tablist.OtherPlayerLeaveGameEvent;
 import com.github.maxopoly.angeliacore.event.events.tablist.OtherPlayerPingUpdateEvent;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.model.player.GameMode;
 import com.github.maxopoly.angeliacore.model.player.OnlinePlayer;
 import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;

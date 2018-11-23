@@ -1,8 +1,8 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
-import com.github.maxopoly.angeliacore.binary.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.events.entity.EntityUnloadEvent;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.model.entity.Entity;
 
 public class DestroyEntitiesPacketHandler extends AbstractIncomingPacketHandler {
