@@ -1,16 +1,12 @@
 package com.github.maxopoly.angeliacore;
 
 import com.github.maxopoly.angeliacore.connection.login.AuthenticationHandler;
-import com.github.maxopoly.angeliacore.exceptions.OutDatedAuthException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -27,7 +23,7 @@ public class SessionManager {
 	public SessionManager(Logger logger, File saveFile) {
 		this.logger = logger;
 		this.saveFile = saveFile == null ? defaultSaveFile : saveFile;
-		//do once to load client token
+		// do once to load client token
 		getAvailableAccounts();
 		if (clientToken == null) {
 			clientToken = UUID.randomUUID().toString();
@@ -35,8 +31,8 @@ public class SessionManager {
 	}
 
 	public AuthenticationHandler getAccountByEmail(String email) {
-		for(AuthenticationHandler auth : getAvailableAccounts()) {
-			if(auth.getEmail().equalsIgnoreCase(email)) {
+		for (AuthenticationHandler auth : getAvailableAccounts()) {
+			if (auth.getEmail().equalsIgnoreCase(email)) {
 				return auth;
 			}
 		}
@@ -99,7 +95,6 @@ public class SessionManager {
 			String email = authObj.getString("username");
 			long lastRefresh = authObj.optLong("refresh");
 			legacyFormat = name != null;
-			AuthenticationHandler auth;
 			String userID;
 			String uuid;
 			if (legacyFormat) {
@@ -124,16 +119,8 @@ public class SessionManager {
 					name = section.getString("displayName");
 				}
 			}
-			try {
-				auth = new AuthenticationHandler(this, name, accessToken, email, uuid, userID, clientToken, logger, lastRefresh);
-			} catch (IOException e) {
-				logger.warn("Failed to load auth for  " + name);
-				continue;
-			}
-			catch (OutDatedAuthException e) {
-				logger.info("Auth for " + name + " was outdated, it was ignored");
-				continue;
-			}
+			AuthenticationHandler auth = new AuthenticationHandler(this, name, accessToken, email, uuid, userID,
+					clientToken, logger, lastRefresh);
 			auths.add(auth);
 		}
 		return auths;
@@ -179,8 +166,8 @@ public class SessionManager {
 			authObj.put("displayName", auth.getPlayerName());
 			authObj.put("userid", auth.getUserID());
 			// quick way to add the dashes into the uuid
-			authObj.put("uuid", auth.getPlayerUUID()
-					.replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
+			authObj.put("uuid",
+					auth.getPlayerUUID().replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
 		} else {
 			JSONObject profilesObject = new JSONObject();
 			authObj.put("profiles", profilesObject);
@@ -195,20 +182,23 @@ public class SessionManager {
 	}
 
 	private void saveJSON(File file, JSONObject json) {
-	    File parent = file.getParentFile();
-	    if (!parent.isDirectory()) {
-	         logger.info("Path to token save file did not exst, creating it: " +  parent.getAbsolutePath());
-	         if (!file.getParentFile().mkdirs()) {
-	             logger.error("Failed to create folder for auth token save file. This likely means that you messed up file permissions");
-	             return;
-	         }
-	    }
-	    try {
-            file.createNewFile();
-        } catch (IOException e1) {
-            logger.error("Failed to recreate auth token save file. This likely means that you messed up file permissions", e1);
-            return;
-        }
+		File parent = file.getParentFile();
+		if (!parent.isDirectory()) {
+			logger.info("Path to token save file did not exst, creating it: " + parent.getAbsolutePath());
+			if (!file.getParentFile().mkdirs()) {
+				logger.error(
+						"Failed to create folder for auth token save file. This likely means that you messed up file permissions");
+				return;
+			}
+		}
+		try {
+			file.createNewFile();
+		} catch (IOException e1) {
+			logger.error(
+					"Failed to recreate auth token save file. This likely means that you messed up file permissions",
+					e1);
+			return;
+		}
 		try (FileWriter writer = new FileWriter(file)) {
 			writer.write(json.toString());
 		} catch (IOException e) {

@@ -52,6 +52,10 @@ public class ConfigSection {
 
 	private Map<String, Object> mapping;
 	private String location;
+	
+	public ConfigSection() {
+		this("");
+	}
 
 	ConfigSection(String location) {
 		mapping = new HashMap<>();

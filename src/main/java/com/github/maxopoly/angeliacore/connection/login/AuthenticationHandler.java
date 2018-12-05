@@ -1,9 +1,8 @@
 package com.github.maxopoly.angeliacore.connection.login;
 
 import com.github.maxopoly.angeliacore.SessionManager;
-import com.github.maxopoly.angeliacore.config.GlobalConfig;
-import com.github.maxopoly.angeliacore.exceptions.Auth403Exception;
-import com.github.maxopoly.angeliacore.exceptions.OutDatedAuthException;
+import com.github.maxopoly.angeliacore.libs.yaml.config.GlobalConfig;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -27,6 +26,7 @@ public class AuthenticationHandler {
 	private long lastRefresh;
 	private SessionManager sessionManager;
 	private String userID;
+	private Logger logger;
 
 	public AuthenticationHandler(SessionManager sessionManager, String userName, String password, String clientToken,
 			Logger logger) throws IOException {
@@ -38,15 +38,14 @@ public class AuthenticationHandler {
 	}
 
 	/**
-	 * Constructs an instance from a serialize line containing an accesstoken, client token, player name and player uuid
-	 * which all belong together.
+	 * Constructs an instance from a serialize line containing an accesstoken,
+	 * client token, player name and player uuid which all belong together.
 	 *
 	 * @param serialized
-	 * @throws IOException
-	 *           If the String wasnt properly formatted
+	 * @throws IOException If the String wasnt properly formatted
 	 */
 	public AuthenticationHandler(SessionManager sessionManager, String userName, String accessToken, String email,
-			String playerUUID, String userID, String clientToken, Logger logger, long lastRefresh) throws IOException, OutDatedAuthException {
+			String playerUUID, String userID, String clientToken, Logger logger, long lastRefresh) {
 		this.sessionManager = sessionManager;
 		this.playerName = userName;
 		this.accessToken = accessToken;
@@ -55,10 +54,18 @@ public class AuthenticationHandler {
 		this.userID = userID;
 		this.clientToken = clientToken;
 		this.lastRefresh = lastRefresh;
-		if (!validateToken(logger)) {
-			if (!refreshToken(logger)) {
-				throw new OutDatedAuthException("Could not refresh token");
+		this.logger = logger;
+	}
+
+	public void attemptValidation() throws IOException, Auth403Exception {
+		try {
+			if (!validateToken(logger)) {
+				refreshToken(logger);
 			}
+		} catch (Auth403Exception e) {
+			logger.warn("Auth for " + email + " could not be refreshed, deleting it");
+			sessionManager.deleteAuth(this);
+			throw e;
 		}
 	}
 
@@ -66,10 +73,11 @@ public class AuthenticationHandler {
 		this.lastRefresh = System.currentTimeMillis();
 		String result;
 		try {
-			result = sendPost(constructAuthenticationJSON(userName, password, clientToken), authServerAdress
-					+ "/authenticate", logger);
+			result = sendPost(constructAuthenticationJSON(userName, password, clientToken),
+					authServerAdress + "/authenticate", logger);
 		} catch (Auth403Exception e) {
-			logger.info("Failed to auth account " + userName + ". Either you are rate limited or the auth server is down");
+			logger.info(
+					"Failed to auth account " + userName + ". Either you are rate limited or the auth server is down");
 			return false;
 		}
 		JSONObject jsonResult = new JSONObject(result);
@@ -88,27 +96,17 @@ public class AuthenticationHandler {
 	}
 
 	/**
-	 * Attempts to refresh the current access token. Note that even though a token might no longer be valid, it may still
-	 * be possible to refresh it
+	 * Attempts to refresh the current access token. Note that even though a token
+	 * might no longer be valid, it may still be possible to refresh it
 	 *
-	 * @param logger
-	 *          Logger used
+	 * @param logger Logger used
 	 * @throws IOException
+	 * @throws Auth403Exception
 	 */
-	public boolean refreshToken(Logger logger) throws IOException {
-		if (getRefreshDelay(logger) > (System.currentTimeMillis() - lastRefresh)) {
-			//assume valid
-			return true;
-		}
+	private void refreshToken(Logger logger) throws IOException, Auth403Exception {
 		String result;
-		try {
-			result = sendPost(constructRefreshJSON(accessToken, playerUUID, playerName, clientToken), authServerAdress
-					+ "/refresh", logger);
-		} catch (Auth403Exception e) {
-			logger.info("Failed to refresh token for " + email);
-			sessionManager.deleteAuth(this);
-			return false;
-		}
+		result = sendPost(constructRefreshJSON(accessToken, playerUUID, playerName, clientToken),
+				authServerAdress + "/refresh", logger);
 		JSONObject jsonResult = new JSONObject(result);
 		accessToken = jsonResult.getString("accessToken");
 		String receivedClientToken = jsonResult.getString("clientToken");
@@ -118,12 +116,11 @@ public class AuthenticationHandler {
 		logger.info("Successfully refreshed access token for " + playerName);
 		this.lastRefresh = System.currentTimeMillis();
 		sessionManager.updateAuth(this);
-		return true;
 	}
 
 	public boolean validateToken(Logger logger) throws IOException {
 		if (getRefreshDelay(logger) > (System.currentTimeMillis() - lastRefresh)) {
-			//assume valid
+			// assume valid
 			return true;
 		}
 		try {
@@ -133,7 +130,8 @@ public class AuthenticationHandler {
 			return false;
 		}
 		// we dont have an actual response in this case, just a 204 response
-		// Interesting enough it is impossible to tell being rate limited apart from an invalid token just based on the
+		// Interesting enough it is impossible to tell being rate limited apart from an
+		// invalid token just based on the
 		// validation attempt
 		return true;
 	}
@@ -177,47 +175,42 @@ public class AuthenticationHandler {
 	public String getEmail() {
 		return email;
 	}
-	
+
 	public long getLastTokenRefresh() {
 		return lastRefresh;
 	}
 
 	private String sendPost(String content, String url, Logger logger) throws IOException, Auth403Exception {
-		try {
-			byte[] contentBytes = content.getBytes("UTF-8");
-			URL obj = new URL(url);
-			HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
-			con.setDoOutput(true);
-			con.setDoInput(true);
-			con.setRequestProperty("Content-Type", "application/json");
-			con.setRequestProperty("Accept-Charset", "UTF-8");
-			con.setRequestProperty("Content-Length", Integer.toString(contentBytes.length));
+		byte[] contentBytes = content.getBytes("UTF-8");
+		URL obj = new URL(url);
+		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+		con.setDoOutput(true);
+		con.setDoInput(true);
+		con.setRequestProperty("Content-Type", "application/json");
+		con.setRequestProperty("Accept-Charset", "UTF-8");
+		con.setRequestProperty("Content-Length", Integer.toString(contentBytes.length));
 
-			DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-			wr.write(contentBytes, 0, contentBytes.length);
-			wr.close();
-			int responseCode = con.getResponseCode();
-			if ((responseCode / 100) != 2) { // we want a 200 something response code
-				if (responseCode == 403) {
-					throw new Auth403Exception("Auth server rejected auth attempt for account " + email
-							+ ". Either you are rate limited or the auth server is down");
-				} else {
-					throw new IOException("POST to " + url + " returned bad response code " + responseCode);
-				}
+		DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+		wr.write(contentBytes, 0, contentBytes.length);
+		wr.close();
+		int responseCode = con.getResponseCode();
+		if ((responseCode / 100) != 2) { // we want a 200 something response code
+			if (responseCode == 403) {
+				throw new Auth403Exception("Auth server rejected auth attempt for account " + email
+						+ ". Either you are rate limited or the auth server is down");
+			} else {
+				throw new IOException("POST to " + url + " returned bad response code " + responseCode);
 			}
-			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-			String inputLine;
-			StringBuffer response = new StringBuffer();
-
-			while ((inputLine = in.readLine()) != null) {
-				response.append(inputLine);
-			}
-			in.close();
-			return response.toString();
-		} catch (Exception e) {
-			logger.error("Exception occured", e);
-			throw new IOException("Failed to send POST to " + url + " : " + e.getClass());
 		}
+		BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+		String inputLine;
+		StringBuffer response = new StringBuffer();
+
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+		}
+		in.close();
+		return response.toString();
 	}
 
 	private static String constructAuthenticationJSON(String userName, String password, String clientToken) {
@@ -233,7 +226,8 @@ public class AuthenticationHandler {
 		return json.toString();
 	}
 
-	private static String constructRefreshJSON(String oldToken, String playerUUID, String playerName, String clientToken) {
+	private static String constructRefreshJSON(String oldToken, String playerUUID, String playerName,
+			String clientToken) {
 		JSONObject json1 = new JSONObject();
 		json1.put("id", playerUUID);
 		json1.put("name", playerName);
@@ -250,9 +244,9 @@ public class AuthenticationHandler {
 		json.put("clientToken", clientToken);
 		return json.toString();
 	}
-	
+
 	private static long getRefreshDelay(Logger logger) {
-		return new GlobalConfig(null, logger, new File ("angeliaData/")).getTokenRefreshDelay();
+		return new GlobalConfig(null, logger, new File("angeliaData/")).getTokenRefreshDelay();
 	}
 
 }

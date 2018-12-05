@@ -5,8 +5,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import org.apache.logging.log4j.Logger;
 
@@ -37,8 +39,14 @@ public class PluginService {
 
 	public synchronized List<AngeliaPlugin> getAvailablePlugins() {
 		List<AngeliaPlugin> plugins = new LinkedList<AngeliaPlugin>();
-		for (AngeliaPlugin plugin : loader) {
-			plugins.add(plugin);
+		Iterator<AngeliaPlugin> iter = loader.iterator();
+		while (iter.hasNext()) {
+			try {
+				plugins.add(iter.next());
+			} catch (ServiceConfigurationError e) {
+				logger.warn("Failed to load a plugin, here's some debug info for its dev: ", e);
+				continue;
+			}
 		}
 		return plugins;
 	}
@@ -62,7 +70,7 @@ public class PluginService {
 				logger.error("Failed to load jar, invalid path", e);
 			}
 		}
-		return URLClassLoader.newInstance(urlsList.toArray(new URL[] {}), Thread.currentThread()
-				.getContextClassLoader());
+		return URLClassLoader.newInstance(urlsList.toArray(new URL[] {}),
+				Thread.currentThread().getContextClassLoader());
 	}
 }

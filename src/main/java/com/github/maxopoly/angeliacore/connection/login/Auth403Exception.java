@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.exceptions;
+package com.github.maxopoly.angeliacore.connection.login;
 
 /**
  * Thrown when auth is attempted to be updated, but the auth server returns 403, indicating that this account or the

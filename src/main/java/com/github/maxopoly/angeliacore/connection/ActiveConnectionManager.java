@@ -7,7 +7,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.github.maxopoly.angeliacore.event.events.ConnectedToServerEvent;
+import com.github.maxopoly.angeliacore.connection.login.Auth403Exception;
+import com.github.maxopoly.angeliacore.event.events.angelia.ReconnectEvent;
 
 public class ActiveConnectionManager {
 
@@ -25,8 +26,13 @@ public class ActiveConnectionManager {
 	}
 
 	public void initConnection(ServerConnection newConnection, ServerConnection oldConnection) {
+		System.out.println("New " + newConnection);
+		System.out.println("Old " + oldConnection);
 		try {
 			newConnection.connect();
+		} catch (Auth403Exception e) {
+			newConnection.getLogger().error("Auth was invalid, no automated reconnecting possible", e);
+			System.exit(0);
 		} catch (Exception e) {
 			newConnection.getLogger().error("Could not connect to server", e);
 			if (oldConnection == null) {
@@ -46,10 +52,13 @@ public class ActiveConnectionManager {
 			}
 		}
 		activeConnections.put(newConnection.getPlayerName(), newConnection);
+		System.out.println("New " + newConnection);
+		System.out.println("Old " + oldConnection);
 		if (oldConnection != null) {
 			oldConnection.getEventHandler().transferListeners(newConnection.getEventHandler());
 			oldConnection.getPluginManager().passPluginsOver(newConnection);
 		}
+		newConnection.getEventHandler().broadcast(new ReconnectEvent(oldConnection, newConnection));
 	}
 
 	private void scheduleConnectionReattempt(final ServerConnection failed) {

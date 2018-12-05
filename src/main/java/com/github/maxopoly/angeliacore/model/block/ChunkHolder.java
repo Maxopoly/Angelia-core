@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.github.maxopoly.angeliacore.config.GlobalConfig;
+import com.github.maxopoly.angeliacore.libs.yaml.config.GlobalConfig;
 
 /**
  * Holds all chunks, which contain all block data. For performance reasons

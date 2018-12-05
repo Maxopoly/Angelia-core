@@ -3,8 +3,8 @@ package nbt;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.github.maxopoly.angeliacore.connection.CompressionManager;
-import com.github.maxopoly.angeliacore.exceptions.MalformedCompressedDataException;
+import com.github.maxopoly.angeliacore.connection.compression.CompressionManager;
+import com.github.maxopoly.angeliacore.connection.compression.MalformedCompressedDataException;
 import com.github.maxopoly.angeliacore.libs.nbt.NBTByte;
 import com.github.maxopoly.angeliacore.libs.nbt.NBTCompound;
 import com.github.maxopoly.angeliacore.libs.nbt.NBTInt;

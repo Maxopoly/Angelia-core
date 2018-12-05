@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.exceptions;
+package com.github.maxopoly.angeliacore.connection.compression;
 
 /**
  * Thrown when data is attempted to be decompressed, but the data does not match

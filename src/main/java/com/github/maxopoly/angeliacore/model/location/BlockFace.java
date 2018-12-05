@@ -100,7 +100,7 @@ public enum BlockFace {
 		case "special":
 			return BlockFace.SPECIAL;
 		}
-		return null;
+		throw new IllegalArgumentException(name + " is not a block face");
 	}
 
 	public int placementVectorX() {

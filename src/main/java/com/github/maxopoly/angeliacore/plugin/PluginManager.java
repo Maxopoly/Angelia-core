@@ -1,21 +1,19 @@
 package com.github.maxopoly.angeliacore.plugin;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import java.util.Arrays;
+import com.github.maxopoly.angeliacore.plugin.parameter.InvalidParameterValueException;
+import com.github.maxopoly.angeliacore.plugin.parameter.ParameterLoad;
+import com.github.maxopoly.angeliacore.plugin.parameter.ParameterParser;
+import com.github.maxopoly.angeliacore.plugin.parameter.ParameterParsingFactory;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.MissingArgumentException;
-import org.apache.commons.cli.MissingOptionException;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.UnrecognizedOptionException;
 
 public class PluginManager {
 
@@ -23,12 +21,14 @@ public class PluginManager {
 	private PluginService pluginService;
 	private Map<String, AngeliaPlugin> plugins;
 	private List<AngeliaPlugin> runningPlugins;
+	private ParameterParsingFactory parsingFactory;
 
 	public PluginManager(ServerConnection connection) {
 		this.plugins = new HashMap<String, AngeliaPlugin>();
 		this.runningPlugins = new LinkedList<AngeliaPlugin>();
 		this.pluginService = PluginService.getInstance(connection.getLogger());
 		this.connection = connection;
+		this.parsingFactory = new ParameterParsingFactory();
 		reloadPlugins();
 	}
 
@@ -45,16 +45,31 @@ public class PluginManager {
 	}
 
 	private void registerPlugin(AngeliaPlugin plugin) {
-		if (plugins.containsKey(plugin.getName().toLowerCase())) {
-			connection.getLogger().warn("Plugin " + plugin.getName() + " was already registered, did not register again");
+		Class<? extends AngeliaPlugin> pluginClass = plugin.getClass();
+		AngeliaLoad pluginAnnotation = pluginClass.getAnnotation(AngeliaLoad.class);
+		if (pluginAnnotation == null) {
+			connection.getLogger()
+					.warn("Plugin " + plugin.getClass().getName() + " had no AngeliaLoad annotation, it was ignored");
 			return;
 		}
-		connection.getLogger().info("Registering plugin " + plugin.getName());
-		plugins.put(plugin.getName().toLowerCase(), plugin);
+		Constructor<?> constr = pluginClass.getConstructors()[0];
+		if (constr.getParameterCount() != 0 || !constr.canAccess(this)) {
+			connection.getLogger()
+					.warn("Plugin " + plugin.getClass().getName() + " had no default constructor, it was ignored");
+			return;
+		}
+		String name = pluginAnnotation.name();
+		if (plugins.containsKey(name.toLowerCase())) {
+			connection.getLogger().warn("Plugin " + name + " was already registered, did not register again");
+			return;
+		}
+		connection.getLogger().info("Registering plugin " + name);
+		plugins.put(name.toLowerCase(), plugin);
 	}
 
 	public synchronized List<String> getAvailablePlugins() {
-		// map values are all lower case, so we use plugin.getName() instead to get proper names
+		// map values are all lower case, so we use plugin.getName() instead to get
+		// proper names
 		List<String> pluginNames = new LinkedList<String>();
 		for (AngeliaPlugin plugin : plugins.values()) {
 			pluginNames.add(plugin.getName());
@@ -65,13 +80,11 @@ public class PluginManager {
 	/**
 	 * Starts a plugin and returns the plugin started
 	 *
-	 * @param pluginName
-	 *          Name of the plugin to start
-	 * @param args
-	 *          Arguments to pass to the plugin on startup
+	 * @param pluginName Name of the plugin to start
+	 * @param args       Arguments to pass to the plugin on startup
 	 * @return Created plugin instance
 	 */
-	public AngeliaPlugin executePlugin(String pluginName, String[] args) {
+	public AngeliaPlugin executePlugin(String pluginName, Map<String, String> args) {
 		AngeliaPlugin plugin = getPlugin(pluginName);
 		if (plugin == null) {
 			connection.getLogger().warn("Plugin " + pluginName + " did not exist");
@@ -79,21 +92,24 @@ public class PluginManager {
 		}
 		// create new instance via reflection as we dont want to hand our original out
 		try {
-			plugin = plugin.getClass().newInstance();
-			runningPlugins.add(plugin);
+			plugin = (AngeliaPlugin) (plugin.getClass().getConstructors()[0].newInstance());
+			plugin.setConnection(connection);
+			plugin.loadConfig();
 			plugin.setRunning(true);
-			Map<String, List<String>> options = parseOptions(plugin, args);
-			if (options == null) {
-				return null;
-			}
-			plugin.parseOptions(connection, options);
-			if (plugin.isFinished()) {
-				// option parsing might have failed
+			boolean worked = loadOptions(plugin, args);
+			if (!worked) {
+				connection.getLogger().warn("Plugin could not be launched, because option parsing failed");
 				return null;
 			}
 			plugin.start();
+			if (plugin.isFinished()) {
+				// may have disabled itself already in the start method, in this case it must
+				// report errors itself
+				return null;
+			}
+			runningPlugins.add(plugin);
 			return plugin;
-		} catch (InstantiationException | IllegalAccessException e) {
+		} catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
 			connection.getLogger().error("Failed to reinstantiate plugin " + plugin.getName(), e);
 			return null;
 		}
@@ -102,8 +118,7 @@ public class PluginManager {
 	/**
 	 * Finishes all instances of a plugin with the given name
 	 *
-	 * @param name
-	 *          Name of the plugin to stop
+	 * @param name Name of the plugin to stop
 	 * @return How many plugins were stopped
 	 */
 	public int stopPlugin(String name) {
@@ -113,84 +128,91 @@ public class PluginManager {
 		while (iterator.hasNext()) {
 			AngeliaPlugin plugin = iterator.next();
 			if (plugin.getName().toLowerCase().equals(name)) {
-				plugin.finish();
+				plugin.stop();
 				iterator.remove();
 				stopped++;
 			}
 		}
 		return stopped;
 	}
-	
-	/**
-	 * Called after the connection has been terminated to finish all plugins,
-	 * but not remove them so new connections can take them over
-	 */
-	public void shutDown() {
-		for(AngeliaPlugin plugin : runningPlugins) {
-			plugin.finish();
-		}
-	}
 
 	/**
-	 * When a new server connection is made (after reconnecting), a new plugin manager is created along with it. This
-	 * method passes the old plugin managers plugins to the new one. The actual plugins passed are not the ones previously
-	 * used, but instead copies specifically made for use in a new connection and to handle errors coming along with that.
+	 * When a new server connection is made (after reconnecting), a new plugin
+	 * manager is created along with it. This method passes the old plugin managers
+	 * plugins to the new one.
 	 *
-	 * @param replacement
-	 *          new plugin manager
+	 * @param replacement new plugin manager
 	 */
 	public void passPluginsOver(ServerConnection newConnection) {
 		PluginManager replacement = newConnection.getPluginManager();
 		for (AngeliaPlugin plugin : runningPlugins) {
-			AngeliaPlugin replacePlugin = plugin.transistionToNewConnection(newConnection);
-			replacement.runningPlugins.add(replacePlugin);
-			replacePlugin.start();
-			replacePlugin.setRunning(plugin.isRunning());
+			replacement.runningPlugins.add(plugin);
+			plugin.setConnection(newConnection);
 		}
 	}
 
-	private Map<String, List<String>> parseOptions(AngeliaPlugin plugin, String[] args) {
-		CommandLineParser parser = new DefaultParser();
-		Options options = new Options();
-		for (Option opt : plugin.getOptions()) {
-			options.addOption(opt);
-		}
-		CommandLine cmd;
-		try {
-			cmd = parser.parse(options, args, true);
-		} catch (MissingArgumentException e) {
-			Option opt = e.getOption();
-			connection.getLogger().warn(
-					"An incorrect amount of argument(s) was supplied for the option " + opt.getArgName() + ". Run \"helpplugin "
-							+ plugin.getName() + "\" for more information on how to use this command");
-			return null;
-		} catch (MissingOptionException e) {
-			List<String> missingOptions = e.getMissingOptions();
-			StringBuilder sb = new StringBuilder();
-			for (String opt : missingOptions) {
-				sb.append(opt + " ");
+	private boolean loadOptions(AngeliaPlugin plugin, Map<String, String> args) {
+		Class<? extends AngeliaPlugin> pluginClass = plugin.getClass();
+		for (Field field : pluginClass.getDeclaredFields()) {
+			ParameterLoad annot = field.getAnnotation(ParameterLoad.class);
+			if (annot == null) {
+				continue;
 			}
-			connection.getLogger().warn(
-					"The required argument(s) " + sb.toString() + "were not supplied. Run \"helpplugin " + plugin.getName()
-							+ "\" for more information on how to use this command");
-			return null;
-		} catch (UnrecognizedOptionException e) {
-			connection.getLogger().warn(
-					"The supplied option " + e.getOption() + " could not be recognized. Run \"helpplugin " + plugin.getName()
-							+ "\" for more information on how to use this command");
-			return null;
-		} catch (ParseException e) {
-			connection.getLogger().error("An unknown exception occured while trying to parse arguments", e);
-			return null;
-		}
-		Map<String, List<String>> parsedValues = new HashMap<String, List<String>>();
-		for (Option option : cmd.getOptions()) {
-			if (option.hasArg()) {
-				parsedValues.put(option.getOpt(), Arrays.asList(cmd.getOptionValues(option.getOpt())));
+			String identifier;
+			if (annot.id().equals("")) {
+				identifier = field.getName();
 			} else {
-				parsedValues.put(option.getOpt(), new LinkedList<String>());
+				identifier = annot.id();
+			}
+			String rawValue = args.get(identifier);
+			if (rawValue == null) {
+				if (annot.isRequired()) {
+					connection.getLogger().warn("Required value " + identifier + " was not supplied");
+					return false;
+				}
+				continue;
+			}
+			Class<?> fieldClass = field.getType();
+			ParameterParser<?> parser = parsingFactory.getParser(fieldClass);
+			if (parser == null) {
+				connection.getLogger().warn("No parser available for field " + field.getName() + " in "
+						+ plugin.getClass().getName() + ", it not loaded");
+				if (annot.isRequired()) {
+					connection.getLogger().warn("Required value " + identifier + " could not be parsed");
+					return false;
+				}
+				continue;
+			}
+			if (!field.canAccess(this)) {
+				field.setAccessible(true);
+			}
+			Object value;
+			try {
+				value = parser.parse(rawValue);
+			} catch (InvalidParameterValueException e) {
+				connection.getLogger()
+						.warn("Value " + rawValue + "could not be parsed for type " + fieldClass.getName());
+				if (annot.isRequired()) {
+					connection.getLogger().warn("Required value " + identifier + " could not be parsed");
+					return false;
+				}
+				continue;
+			}
+			if (fieldClass.isPrimitive() && value == null) {
+				connection.getLogger()
+						.warn("Null value for primitive type " + fieldClass.getName() + " was not allowed");
+				if (annot.isRequired()) {
+					connection.getLogger().warn("Required value " + identifier + " could not be parsed");
+					return false;
+				}
+			}
+			try {
+				field.set(plugin, value);
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				connection.getLogger().warn("Could not set field " + identifier, e);
+				return false;
 			}
 		}
-		return parsedValues;
+		return true;
 	}
 }

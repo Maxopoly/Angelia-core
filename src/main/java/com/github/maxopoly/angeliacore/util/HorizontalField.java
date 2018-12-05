@@ -156,36 +156,8 @@ public class HorizontalField implements Iterable<Location> {
 	}
 
 	@Override
-	public Iterator<Location> iterator() {
-		// we define the iterator behavior here, so we only have to define the
-		// individual method behavior in the
-		// subclasses
-		return new Iterator<Location>() {
-
-			@Override
-			public boolean hasNext() {
-				Location curr = new Location(currentX, y, currentZ);
-				return !(outsideField(new Location(curr.add(primaryMovementDirection.toVector())))
-						&& outsideField(new Location(curr.add(secondaryMovementDirection.toVector()))));
-			}
-
-			@Override
-			public Location next() {
-				if (sidewardsMovementLeft > 0) {
-					currentX += secondaryMovementDirection.toVector().getX();
-					currentZ += secondaryMovementDirection.toVector().getZ();
-					sidewardsMovementLeft--;
-				} else {
-					currentX += primaryMovementDirection.toVector().getX();
-					currentZ += primaryMovementDirection.toVector().getZ();
-					if (pastEnd()) {
-						backAndSidewards();
-					}
-				}
-				Location loc = new Location(currentX, y, currentZ);
-				return loc;
-			}
-		};
+	public FieldIterator iterator() {
+		return new FieldIterator();
 	}
 
 	/**
@@ -275,5 +247,44 @@ public class HorizontalField implements Iterable<Location> {
 
 	public MovementDirection getSecondaryDirection() {
 		return secondaryMovementDirection;
+	}
+	
+	public class FieldIterator implements Iterator<Location> {
+
+		@Override
+		public boolean hasNext() {
+			Location curr = new Location(currentX, y, currentZ);
+			return !(outsideField(new Location(curr.add(primaryMovementDirection.toVector())))
+					&& outsideField(new Location(curr.add(secondaryMovementDirection.toVector()))));
+		}
+
+		@Override
+		public Location next() {
+			if (sidewardsMovementLeft > 0) {
+				currentX += secondaryMovementDirection.toVector().getX();
+				currentZ += secondaryMovementDirection.toVector().getZ();
+				sidewardsMovementLeft--;
+			} else {
+				currentX += primaryMovementDirection.toVector().getX();
+				currentZ += primaryMovementDirection.toVector().getZ();
+				if (pastEnd()) {
+					backAndSidewards();
+				}
+			}
+			Location loc = new Location(currentX, y, currentZ);
+			return loc;
+		}
+		
+		public boolean fastForward(Location loc) {
+			loc = loc.toBlockLocation();
+			while(hasNext()) {
+				Location curr = next();
+				if (curr.equals(loc)) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
 	}
 }

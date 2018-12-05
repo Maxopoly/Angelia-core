@@ -1,8 +1,10 @@
 package com.github.maxopoly.angeliacore.connection;
 
 import com.github.maxopoly.angeliacore.actions.ActionQueue;
-import com.github.maxopoly.angeliacore.config.GlobalConfig;
+import com.github.maxopoly.angeliacore.connection.compression.CompressionManager;
+import com.github.maxopoly.angeliacore.connection.compression.MalformedCompressedDataException;
 import com.github.maxopoly.angeliacore.connection.encryption.AES_CFB8_Encrypter;
+import com.github.maxopoly.angeliacore.connection.login.Auth403Exception;
 import com.github.maxopoly.angeliacore.connection.login.AuthenticationHandler;
 import com.github.maxopoly.angeliacore.connection.login.EncryptionHandler;
 import com.github.maxopoly.angeliacore.connection.login.GameJoinHandler;
@@ -12,14 +14,13 @@ import com.github.maxopoly.angeliacore.connection.play.Heartbeat;
 import com.github.maxopoly.angeliacore.connection.play.ItemTransactionManager;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.ClientSettingPacket;
 import com.github.maxopoly.angeliacore.event.EventBroadcaster;
-import com.github.maxopoly.angeliacore.exceptions.Auth403Exception;
-import com.github.maxopoly.angeliacore.exceptions.MalformedCompressedDataException;
+import com.github.maxopoly.angeliacore.event.events.angelia.ServerDisconnectEvent;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.WriteOnlyPacket;
+import com.github.maxopoly.angeliacore.libs.yaml.config.GlobalConfig;
 import com.github.maxopoly.angeliacore.model.ThePlayer;
 import com.github.maxopoly.angeliacore.model.block.ChunkHolder;
 import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;
-import com.github.maxopoly.angeliacore.plugin.AngeliaPlugin;
 import com.github.maxopoly.angeliacore.plugin.PluginManager;
 
 import java.io.DataInputStream;
@@ -62,6 +63,7 @@ public class ServerConnection {
 	private EntityManager entityManager;
 	private GlobalConfig config;
 	private boolean localHost;
+	private File dataFolder;
 
 	private boolean encryptionEnabled;
 	private boolean compressionEnabled;
@@ -93,8 +95,10 @@ public class ServerConnection {
 		this.protocolVersion = -1;
 		this.eventHandler = new EventBroadcaster(logger);
 		this.transActionManager = new ItemTransactionManager();
-		this.config = new GlobalConfig(this, logger, new File ("angeliaData/"));
+		this.config = new GlobalConfig(this, logger, new File("angeliaData/"));
 		this.localHost = "localhost".equalsIgnoreCase(adress) || "127.0.0.1".equals(adress);
+		this.dataFolder = new File("angeliaData/");
+		dataFolder.mkdirs();
 	}
 
 	/**
@@ -142,8 +146,9 @@ public class ServerConnection {
 	 * from the ActionQueue, this method will return once the connection is fully
 	 * set up
 	 *
-	 * @throws IOException If something goes wrong
-	 * @throws Auth403Exception If the auth is not valid and can't possibly be refreshed
+	 * @throws IOException      If something goes wrong
+	 * @throws Auth403Exception If the auth is not valid and can't possibly be
+	 *                          refreshed
 	 */
 	public void connect() throws IOException, Auth403Exception {
 		// poke the server first to see if it exists
@@ -161,10 +166,7 @@ public class ServerConnection {
 		}
 		logger.info("Sending handshake to " + serverAdress);
 		shake.send(true, protocolVersion);
-		if (!authHandler.validateToken(logger)) {
-			logger.info("Token for " + authHandler.getPlayerName() + " is no longer valid, refreshing it");
-			authHandler.refreshToken(logger);
-		}
+		authHandler.attemptValidation();
 		logger.info("Initializing connection process for account " + authHandler.getPlayerName() + " to " + serverAdress
 				+ ":" + port);
 		// begin login
@@ -337,9 +339,8 @@ public class ServerConnection {
 				tickTimer.cancel();
 				tickTimer.purge();
 			}
-			if (pluginManager != null) {
-				pluginManager.shutDown();
-			}
+			eventHandler.broadcast(
+					new ServerDisconnectEvent(reason, config.useAutoReconnect(), config.getAuthReconnectDelay()));
 			closed = true;
 		} catch (IOException e) {
 			// its ok, probably
@@ -455,7 +456,7 @@ public class ServerConnection {
 	AuthenticationHandler getAuthHandler() {
 		return authHandler;
 	}
-	
+
 	/**
 	 * @return Clientside only configuration manager
 	 */
@@ -475,7 +476,16 @@ public class ServerConnection {
 	 */
 	public UUID getPlayerUUID() {
 		String withoutDash = authHandler.getPlayerUUID();
-		return UUID.fromString(withoutDash.substring(0, 8) + "-" + withoutDash.substring(8, 12) + "-"
-				+ withoutDash.substring(12, 16) + "-" + withoutDash.substring(16, 24) + "-" + withoutDash.substring(24, 32));
+		return UUID.fromString(
+				withoutDash.substring(0, 8) + "-" + withoutDash.substring(8, 12) + "-" + withoutDash.substring(12, 16)
+						+ "-" + withoutDash.substring(16, 24) + "-" + withoutDash.substring(24, 32));
+	}
+	
+	/**
+	 * Folder in which data relevant to this connection including its plugins etc. is persisted
+	 * @return
+	 */
+	public File getDataFolder() {
+		return dataFolder;
 	}
 }

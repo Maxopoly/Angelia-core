@@ -72,6 +72,7 @@ public class NBTList<E extends NBTElement> extends NBTElement implements Iterabl
 		return ID;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof NBTList)) {
@@ -95,6 +96,7 @@ public class NBTList<E extends NBTElement> extends NBTElement implements Iterabl
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public NBTElement clone() {
 		NBTList<E> list = new NBTList<E>(name, elementID);

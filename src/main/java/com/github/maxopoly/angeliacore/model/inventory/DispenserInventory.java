@@ -2,8 +2,6 @@ package com.github.maxopoly.angeliacore.model.inventory;
 
 import java.util.Arrays;
 
-import com.github.maxopoly.angeliacore.model.item.ItemStack;
-
 public class DispenserInventory extends Inventory {
 	
 	public DispenserInventory(byte windowID) {

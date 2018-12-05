@@ -57,6 +57,7 @@ public class YamlParser {
 		return sb.toString();
 	}
 
+	@SuppressWarnings("unchecked")
 	public static ConfigSection loadFromString(String rawYaml) throws InvalidYamlFormatException {
 		Map <String, Object> input;
 		try {

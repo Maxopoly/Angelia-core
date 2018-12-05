@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.connection;
+package com.github.maxopoly.angeliacore.connection.compression;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,8 +11,6 @@ import java.util.zip.Inflater;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
-
-import com.github.maxopoly.angeliacore.exceptions.MalformedCompressedDataException;
 
 /**
  * Handles standard gzip compression as used in packets

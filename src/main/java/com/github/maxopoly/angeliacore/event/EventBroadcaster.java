@@ -105,7 +105,7 @@ public class EventBroadcaster {
 			List<MethodListenerTuple> currList = entry.getValue();
 			for (MethodListenerTuple curr : currList) {
 				if (curr.autoTransfer) {
-					internalRegister(entry.getKey(), curr.method, true, curr.listener);
+					newInstance.internalRegister(entry.getKey(), curr.method, true, curr.listener);
 				}
 			}
 		}
