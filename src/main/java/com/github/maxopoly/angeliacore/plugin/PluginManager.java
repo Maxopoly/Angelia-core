@@ -53,11 +53,12 @@ public class PluginManager {
 			return;
 		}
 		Constructor<?> constr = pluginClass.getConstructors()[0];
-		if (constr.getParameterCount() != 0 || !constr.canAccess(this)) {
+		if (constr.getParameterCount() != 0) {
 			connection.getLogger()
 					.warn("Plugin " + plugin.getClass().getName() + " had no default constructor, it was ignored");
 			return;
 		}
+		constr.setAccessible(true);
 		String name = pluginAnnotation.name();
 		if (plugins.containsKey(name.toLowerCase())) {
 			connection.getLogger().warn("Plugin " + name + " was already registered, did not register again");

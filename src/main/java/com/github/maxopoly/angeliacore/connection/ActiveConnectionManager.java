@@ -26,8 +26,6 @@ public class ActiveConnectionManager {
 	}
 
 	public void initConnection(ServerConnection newConnection, ServerConnection oldConnection) {
-		System.out.println("New " + newConnection);
-		System.out.println("Old " + oldConnection);
 		try {
 			newConnection.connect();
 		} catch (Auth403Exception e) {
