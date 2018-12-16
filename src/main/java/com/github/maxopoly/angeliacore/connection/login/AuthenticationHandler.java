@@ -182,6 +182,7 @@ public class AuthenticationHandler {
 
 	private String sendPost(String content, String url, Logger logger) throws IOException, Auth403Exception {
 		byte[] contentBytes = content.getBytes("UTF-8");
+		System.out.println(content);
 		URL obj = new URL(url);
 		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
 		con.setDoOutput(true);

@@ -1,0 +1,75 @@
+package com.github.maxopoly.angeliacore.plugin;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Elements;
+import javax.tools.Diagnostic.Kind;
+import javax.tools.FileObject;
+import javax.tools.StandardLocation;
+
+@SupportedAnnotationTypes("com.github.maxopoly.angeliacore.plugin.AngeliaLoad")
+public class AngeliaLoadAnnotationProcessor extends AbstractProcessor {
+
+	@Override
+	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+		if (roundEnv.processingOver()) {
+			return false;
+		}
+		Set<String> pluginClasses = new HashSet<>();
+		Elements elements = processingEnv.getElementUtils();
+		for (Element element : roundEnv.getElementsAnnotatedWith(AngeliaLoad.class)) {
+			AngeliaLoad annot = element.getAnnotation(AngeliaLoad.class);
+			if (annot == null) {
+				// ????
+				continue;
+			}
+			pluginClasses.add(elements.getBinaryName((TypeElement) element).toString());
+		}
+		// load existing
+		Filer filer = processingEnv.getFiler();
+		try {
+			FileObject file = filer.getResource(StandardLocation.CLASS_OUTPUT, "",
+					"META-INF/services/" + AngeliaPlugin.class.getName());
+			BufferedReader reader = new BufferedReader(new InputStreamReader(file.openInputStream(), "UTF-8"));
+			String line;
+			while ((line = reader.readLine()) != null) {
+				pluginClasses.add(line);
+			}
+			reader.close();
+		} catch (java.nio.file.NoSuchFileException | FileNotFoundException x) {
+			// doesn't exist, that's fine
+		} catch (IOException x) {
+			processingEnv.getMessager().printMessage(Kind.ERROR,
+					"Failed to load existing service definition files: " + x);
+		}
+
+		// write back
+		try {
+			FileObject f = filer.createResource(StandardLocation.CLASS_OUTPUT, "",
+					"META-INF/services/" + AngeliaPlugin.class.getName());
+			PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(f.openOutputStream(), "UTF-8"));
+			processingEnv.getMessager().printMessage(Kind.NOTE, "Writing " + f.getName());
+			for (String value : pluginClasses) {
+				printWriter.println(value);
+			}
+			printWriter.close();
+		} catch (IOException x) {
+			processingEnv.getMessager().printMessage(Kind.ERROR, "Failed to write service definition files: " + x);
+		}
+		return true;
+
+	}
+}

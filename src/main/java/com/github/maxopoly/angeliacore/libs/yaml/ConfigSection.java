@@ -140,7 +140,7 @@ public class ConfigSection {
 		internalPut(path, value);
 	}
 
-	private <T> T retrieve(String key, Class<T> parameterClass, boolean throwException) {
+	public <T> T retrieve(String key, Class<T> parameterClass, boolean throwException) {
 		return retrieve(splitPath(key), parameterClass, throwException);
 	}
 

@@ -165,13 +165,6 @@ public class PluginManager {
 				identifier = annot.id();
 			}
 			String rawValue = args.get(identifier);
-			if (rawValue == null) {
-				if (annot.isRequired()) {
-					connection.getLogger().warn("Required value " + identifier + " was not supplied");
-					return false;
-				}
-				continue;
-			}
 			Class<?> fieldClass = field.getType();
 			ParameterParser<?> parser = parsingFactory.getParser(fieldClass);
 			if (parser == null) {
@@ -186,28 +179,41 @@ public class PluginManager {
 			if (!field.canAccess(this)) {
 				field.setAccessible(true);
 			}
-			Object value;
-			try {
-				value = parser.parse(rawValue);
-			} catch (InvalidParameterValueException e) {
-				connection.getLogger()
-						.warn("Value " + rawValue + "could not be parsed for type " + fieldClass.getName());
-				if (annot.isRequired()) {
-					connection.getLogger().warn("Required value " + identifier + " could not be parsed");
-					return false;
+			Object inputValue;
+			Object yamlValue;
+			if (rawValue == null) {
+				inputValue = null;
+			} else {
+				try {
+					inputValue = parser.parse(rawValue);
+				} catch (InvalidParameterValueException e) {
+					connection.getLogger()
+							.warn("Value " + rawValue + "could not be parsed for type " + fieldClass.getName());
+					inputValue = null;
 				}
-				continue;
 			}
-			if (fieldClass.isPrimitive() && value == null) {
+			if (!annot.configId().equals("")) {
+				yamlValue = plugin.getConfig().getConfig().retrieve(annot.configId(), parser.getClassParsed(), false);
+			}
+			else {
+				yamlValue = null;
+			}
+			Object valueToUse = annot.policy().parse(inputValue, yamlValue);
+			if (annot.isRequired() && valueToUse == null) {
+				connection.getLogger().warn("Required value " + identifier + " was null");
+				return false;
+			}
+			if (fieldClass.isPrimitive() && valueToUse == null) {
 				connection.getLogger()
 						.warn("Null value for primitive type " + fieldClass.getName() + " was not allowed");
 				if (annot.isRequired()) {
 					connection.getLogger().warn("Required value " + identifier + " could not be parsed");
 					return false;
 				}
+				continue;
 			}
 			try {
-				field.set(plugin, value);
+				field.set(plugin, inputValue);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				connection.getLogger().warn("Could not set field " + identifier, e);
 				return false;
