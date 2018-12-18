@@ -177,9 +177,7 @@ public class PluginManager {
 				}
 				continue;
 			}
-			if (!field.canAccess(this)) {
-				field.setAccessible(true);
-			}
+			field.setAccessible(true);
 			Object inputValue;
 			Object yamlValue;
 			if (rawValue == null) {

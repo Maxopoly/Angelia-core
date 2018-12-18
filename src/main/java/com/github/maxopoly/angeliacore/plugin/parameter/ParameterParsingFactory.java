@@ -14,6 +14,7 @@ import com.github.maxopoly.angeliacore.plugin.parameter.impl.LocationParameterPa
 import com.github.maxopoly.angeliacore.plugin.parameter.impl.LongParameterParser;
 import com.github.maxopoly.angeliacore.plugin.parameter.impl.MovementDirectionParameterParser;
 import com.github.maxopoly.angeliacore.plugin.parameter.impl.ShortParameterParser;
+import com.github.maxopoly.angeliacore.plugin.parameter.impl.StringParameterParser;
 import com.github.maxopoly.angeliacore.plugin.parameter.impl.VectorParameterParser;
 
 public class ParameterParsingFactory {
@@ -39,6 +40,7 @@ public class ParameterParsingFactory {
 		readyParser(new MovementDirectionParameterParser());
 		readyParser(new ShortParameterParser());
 		readyParser(new VectorParameterParser());
+		readyParser(new StringParameterParser());
 		wrapperClasses = new HashMap<Class<?>, Class<?>>();
 		wrapperClasses.put(boolean.class, Boolean.class);
 		wrapperClasses.put(byte.class, Byte.class);
