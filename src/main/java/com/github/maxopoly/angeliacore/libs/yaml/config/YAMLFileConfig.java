@@ -43,9 +43,18 @@ public class YAMLFileConfig {
 			config = YamlParser.loadFromFile(configFile);
 			return;
 		} catch (FileNotFoundException e) {
-			logger.warn("Failed to load config file" + configFile.getAbsolutePath() + ", it did not exist");
+			logger.warn("Failed to load config file " + configFile.getAbsolutePath() + ", it did not exist");
+			logger.info("Creating empty config file" + configFile.getAbsolutePath());
+			try {
+				configFile.getParentFile().mkdirs();
+				configFile.createNewFile();
+			} catch (IOException e1) {
+				logger.warn("Failed to create config file " + configFile.getAbsolutePath()
+						+ ", did you setup permissions wrong?");
+			}
 		} catch (InvalidYamlFormatException e) {
-			logger.warn("Failed to load config file " + configFile.getAbsolutePath() + ", was not of valid yaml format", e);
+			logger.warn("Failed to load config file " + configFile.getAbsolutePath() + ", was not of valid yaml format",
+					e);
 		} catch (IOException e) {
 			logger.warn("IOException occured while loading config file " + configFile.getAbsolutePath(), e);
 		}

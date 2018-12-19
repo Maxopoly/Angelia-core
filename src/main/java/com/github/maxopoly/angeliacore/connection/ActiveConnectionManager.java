@@ -50,8 +50,6 @@ public class ActiveConnectionManager {
 			}
 		}
 		activeConnections.put(newConnection.getPlayerName(), newConnection);
-		System.out.println("New " + newConnection);
-		System.out.println("Old " + oldConnection);
 		if (oldConnection != null) {
 			oldConnection.getEventHandler().transferListeners(newConnection.getEventHandler());
 			oldConnection.getPluginManager().passPluginsOver(newConnection);

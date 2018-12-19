@@ -21,5 +21,4 @@ public class OtherPlayerLeaveGameEvent implements AngeliaEvent {
 	public OnlinePlayer getPlayer() {
 		return player;
 	}
-
 }
