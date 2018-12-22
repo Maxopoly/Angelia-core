@@ -56,7 +56,13 @@ public class PluginManager {
 				connection.getLogger().warn("Plugin could not be launched, because option parsing failed");
 				return null;
 			}
-			plugin.start();
+			try {
+				plugin.start();
+			} catch (Exception e) {
+				// user code is scary
+				connection.getLogger().warn("Failed to start plugin", e);
+				return null;
+			}
 			if (plugin.isFinished()) {
 				// may have disabled itself already in the start method, in this case it must
 				// report errors itself
@@ -198,12 +204,12 @@ public class PluginManager {
 		}
 		connection.getLogger().info("Loaded a total of " + plugins.size() + " plugin(s)");
 	}
-	
+
 	/**
 	 * Stops all plugins
 	 */
 	public void shutDown() {
-		while(!runningPlugins.isEmpty()) {
+		while (!runningPlugins.isEmpty()) {
 			stopPlugin(runningPlugins.get(0));
 		}
 	}
@@ -226,10 +232,14 @@ public class PluginManager {
 		}
 		return false;
 	}
-	
+
 	private void stopPlugin(AngeliaPlugin plugin) {
 		connection.getLogger().info("Stopping plugin " + plugin.getName());
-		plugin.stop();
+		try {
+			plugin.stop();
+		} catch (Exception e) {
+			connection.getLogger().warn("Failed to stop plugin", e);
+		}
 		runningPlugins.remove(plugin);
 	}
 }
