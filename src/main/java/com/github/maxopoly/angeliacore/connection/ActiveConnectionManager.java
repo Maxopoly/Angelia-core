@@ -13,6 +13,7 @@ import com.github.maxopoly.angeliacore.event.events.angelia.ReconnectEvent;
 public class ActiveConnectionManager {
 
 	private static ActiveConnectionManager instance;
+
 	public static ActiveConnectionManager getInstance() {
 		if (instance == null) {
 			instance = new ActiveConnectionManager();
@@ -78,11 +79,11 @@ public class ActiveConnectionManager {
 		switch (reason) {
 		case Critial_Exception:
 			conn.getLogger().info("Exiting, because continuing is no longer possible");
-			System.exit(1);
+			endConnection(conn);
 			break;
 		case Intentional_Disconnect:
 			// whoever called this is expected to tell the user why we are exiting
-			System.exit(0);
+			endConnection(conn);
 			break;
 		case Unknown_Connection_Error:
 			conn.getLogger().info("Server connection was closed for unknown reasons!");
@@ -116,5 +117,20 @@ public class ActiveConnectionManager {
 
 			}
 		}, failed.getConfig().getAuthReconnectDelay(), TimeUnit.MILLISECONDS);
+	}
+
+	/**
+	 * Finishes the connection off completly, ends a plugins and exits the
+	 * application if no more connections are running
+	 * 
+	 * @param connection Connection to end
+	 */
+	private void endConnection(ServerConnection connection) {
+		connection.getLogger().info("Stopping connection: " + connection.toString());
+		connection.getPluginManager().shutDown();
+		activeConnections.values().remove(connection);
+		if (activeConnections.isEmpty()) {
+			System.exit(0);
+		}
 	}
 }

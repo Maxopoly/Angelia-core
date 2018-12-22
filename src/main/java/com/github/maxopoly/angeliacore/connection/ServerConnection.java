@@ -511,4 +511,8 @@ public class ServerConnection {
 			}
 		}
 	}
+	
+	public String toString() {
+		return String.format("%s connected to %s:%d", authHandler.getPlayerName(), serverAdress, port);
+	}
 }

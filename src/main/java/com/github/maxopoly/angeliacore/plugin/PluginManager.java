@@ -198,25 +198,38 @@ public class PluginManager {
 		}
 		connection.getLogger().info("Loaded a total of " + plugins.size() + " plugin(s)");
 	}
+	
+	/**
+	 * Stops all plugins
+	 */
+	public void shutDown() {
+		while(!runningPlugins.isEmpty()) {
+			stopPlugin(runningPlugins.get(0));
+		}
+	}
 
 	/**
-	 * Finishes all instances of a plugin with the given name
+	 * Finishes the plugin with the given name
 	 *
 	 * @param name Name of the plugin to stop
-	 * @return How many plugins were stopped
+	 * @return Whether a plugin was stopped
 	 */
-	public int stopPlugin(String name) {
-		int stopped = 0;
+	public boolean stopPlugin(String name) {
 		name = name.toLowerCase();
 		Iterator<AngeliaPlugin> iterator = runningPlugins.iterator();
 		while (iterator.hasNext()) {
 			AngeliaPlugin plugin = iterator.next();
 			if (plugin.getName().toLowerCase().equals(name)) {
-				plugin.stop();
-				iterator.remove();
-				stopped++;
+				stopPlugin(plugin);
+				return true;
 			}
 		}
-		return stopped;
+		return false;
+	}
+	
+	private void stopPlugin(AngeliaPlugin plugin) {
+		connection.getLogger().info("Stopping plugin " + plugin.getName());
+		plugin.stop();
+		runningPlugins.remove(plugin);
 	}
 }
