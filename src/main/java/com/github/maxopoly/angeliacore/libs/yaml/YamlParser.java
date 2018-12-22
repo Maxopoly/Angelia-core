@@ -67,7 +67,7 @@ public class YamlParser {
 			convertMapsToSections(input, superYaml);
 			return superYaml;
 		}
-		return null;
+		return new ConfigSection("");
 	}
 
 	public static String saveToString(ConfigSection yamlMap) {
