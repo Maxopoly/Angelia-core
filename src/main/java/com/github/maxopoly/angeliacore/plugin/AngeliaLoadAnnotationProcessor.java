@@ -14,7 +14,10 @@ import javax.annotation.processing.Filer;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.ExecutableType;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.FileObject;
@@ -35,6 +38,9 @@ public class AngeliaLoadAnnotationProcessor extends AbstractProcessor {
 			if (annot == null) {
 				// ????
 				continue;
+			}
+			if (!validConstructor(element)) {
+				return true;
 			}
 			pluginClasses.add(elements.getBinaryName((TypeElement) element).toString());
 		}
@@ -70,6 +76,24 @@ public class AngeliaLoadAnnotationProcessor extends AbstractProcessor {
 			processingEnv.getMessager().printMessage(Kind.ERROR, "Failed to write service definition files: " + x);
 		}
 		return true;
+	}
 
+	private boolean validConstructor(Element el) {
+		for (Element subelement : el.getEnclosedElements()) {
+			if (subelement.getKind() == ElementKind.CONSTRUCTOR) {
+				if (!subelement.getModifiers().contains(Modifier.PUBLIC)) {
+					processingEnv.getMessager().printMessage(Kind.ERROR,
+							"Invalid constructor visibility for plugin " + subelement.toString());
+					return false;
+				}
+				ExecutableType mirror = (ExecutableType) subelement.asType();
+				if (!mirror.getParameterTypes().isEmpty()) {
+					processingEnv.getMessager().printMessage(Kind.ERROR,
+							"Invalid constructor for plugin, taking arguments is not allowed: " + subelement.toString());
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 }

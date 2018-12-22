@@ -143,7 +143,7 @@ public class PluginManager {
 				continue;
 			}
 			try {
-				field.set(plugin, inputValue);
+				field.set(plugin, valueToUse);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				connection.getLogger().warn("Could not set field " + identifier, e);
 				return false;
