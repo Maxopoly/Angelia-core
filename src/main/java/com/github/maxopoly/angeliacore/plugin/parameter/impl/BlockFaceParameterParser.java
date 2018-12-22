@@ -6,17 +6,16 @@ import com.github.maxopoly.angeliacore.plugin.parameter.InvalidParameterValueExc
 public class BlockFaceParameterParser extends AbstractObjectParameterParser<BlockFace> {
 
 	@Override
-	public BlockFace parseObject(String value) {
-		try {
-			return BlockFace.parse(value);
-		}
-		catch (IllegalArgumentException e) {
-			throw new InvalidParameterValueException();
-		}
+	public Class<BlockFace> getClassParsed() {
+		return BlockFace.class;
 	}
 
 	@Override
-	public Class<BlockFace> getClassParsed() {
-		return BlockFace.class;
+	public BlockFace parseObject(String value) {
+		try {
+			return BlockFace.parse(value);
+		} catch (IllegalArgumentException e) {
+			throw new InvalidParameterValueException();
+		}
 	}
 }

@@ -1,8 +1,8 @@
 package com.github.maxopoly.angeliacore.model.inventory;
 
-import com.github.maxopoly.angeliacore.model.item.ItemStack;
-
 import org.apache.commons.lang3.NotImplementedException;
+
+import com.github.maxopoly.angeliacore.model.item.ItemStack;
 
 /**
  * Not an actual inventory, but just convenient storage for ItemStacks *

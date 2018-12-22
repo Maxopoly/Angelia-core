@@ -1,9 +1,9 @@
 package com.github.maxopoly.angeliacore.block.states;
 
 public enum StairShapeEnum {
-	
+
 	STRAIGHT, OUTER_RIGHT, OUTER_LEFT, INNER_RIGHT, INNER_LEFT;
-	
+
 	public static StairShapeEnum parse(String key) {
 		switch (key.toLowerCase()) {
 		case "straight":

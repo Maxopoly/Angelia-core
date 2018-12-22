@@ -1,8 +1,7 @@
 package com.github.maxopoly.angeliacore.model.crafting;
 
-import com.github.maxopoly.angeliacore.model.item.Material;
-
 import com.github.maxopoly.angeliacore.model.item.ItemStack;
+import com.github.maxopoly.angeliacore.model.item.Material;
 
 public final class CraftingRecipe3x3 extends CraftingRecipe {
 

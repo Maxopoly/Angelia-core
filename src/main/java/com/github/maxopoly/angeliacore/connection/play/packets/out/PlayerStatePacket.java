@@ -5,7 +5,8 @@ import java.io.IOException;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.WriteOnlyPacket;
 
 /**
- * Needs to be sent on every tick so the server keeps properly updating the player location
+ * Needs to be sent on every tick so the server keeps properly updating the
+ * player location
  *
  */
 public class PlayerStatePacket extends WriteOnlyPacket {

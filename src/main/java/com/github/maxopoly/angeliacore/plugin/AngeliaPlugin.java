@@ -4,18 +4,12 @@ import java.io.File;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.libs.yaml.config.PluginConfig;
+
 /**
- * A parent class for all plugins which intend to use the Angelia API. All
- * plugins must specify an empty constructor, which calls the constructor of
- * this class with a unique name and the options expected by the plugin
- * 
- * For the creation of options using Apache's Options.Builder is recommended
- * 
- * Additionally so Java's ServiceLoader can find the plugin, it has to have a
- * service loader META-INF entry. This can easily be added with the
- * "@MetaInfServices(AngeliaPlugin.class)" annotation from the maven dependency
- * org.kohsuke.metainf-services:metainf-services:1.7 as demonstrated in my own
- * example plugins
+ * A parent class for all plugins which intend to use the Angelia API.
+ * Additionally every plugin needs to have the {@link AngeliaLoad} annotation.
+ * Specifying a constructor for your plugin class is not allowed, just leave the
+ * default constructor alone
  *
  */
 public abstract class AngeliaPlugin {
@@ -26,38 +20,66 @@ public abstract class AngeliaPlugin {
 	private File dataFolder;
 	private PluginConfig config;
 
-	protected AngeliaPlugin() {		
+	protected AngeliaPlugin() {
 	}
 
 	/**
-	 * Starts this bot with the parameters given to it. This will only be called if
-	 * all required options were supplied and every option used was given the right
-	 * amount of arguments.
-	 * 
-	 * The given parameter map will contain all options for which were given,
-	 * together with the values supplied to them. If an option was used without
-	 * supplying any arguments, then the value in the given map will be an empty
-	 * list for this option
-	 * 
-	 * @param connection Connections to run the bot on
-	 * @param args       Starting parameters
+	 * @return This plugins YAML config file
 	 */
-	public abstract void start();
+	protected PluginConfig getConfig() {
+		return config;
+	}
 
 	/**
-	 * Called when the plugin is stopped through external interference. This can be
-	 * explicitly requested by the user or another plugin or can be initiated
-	 * automatically when then entire instance is shutdown
+	 * @return Folder in which this plugins data (like its YAML config) is kept
 	 */
-	public abstract void stop();
+	public File getDataFolder() {
+		return dataFolder;
+	}
 
 	/**
-	 * Sets whether this plugin is actively running
-	 * 
-	 * @param running New running state
+	 * @return Optional description of the plugin as specified in its annotation
 	 */
-	void setRunning(boolean running) {
-		this.running = running;
+	public String getDescription() {
+		AngeliaLoad pluginAnnotation = getPluginAnnotation();
+		if (pluginAnnotation == null) {
+			return null;
+		}
+		return pluginAnnotation.description();
+	}
+
+	/**
+	 * @return Unique identifying name
+	 */
+	public String getName() {
+		AngeliaLoad pluginAnnotation = getPluginAnnotation();
+		if (pluginAnnotation == null) {
+			return null;
+		}
+		return pluginAnnotation.name();
+	}
+
+	private AngeliaLoad getPluginAnnotation() {
+		Class<? extends AngeliaPlugin> pluginClass = this.getClass();
+		return pluginClass.getAnnotation(AngeliaLoad.class);
+	}
+
+	/**
+	 * @return Version of the plugin
+	 */
+	public String getVersion() {
+		AngeliaLoad pluginAnnotation = getPluginAnnotation();
+		if (pluginAnnotation == null) {
+			return null;
+		}
+		return pluginAnnotation.version();
+	}
+
+	/**
+	 * @return Whether execution of this plugin is completly done
+	 */
+	public boolean isFinished() {
+		return finished;
 	}
 
 	/**
@@ -70,42 +92,10 @@ public abstract class AngeliaPlugin {
 		return running;
 	}
 
-	/**
-	 * @return Whether execution of this plugin is completly done
-	 */
-	public boolean isFinished() {
-		return finished;
+	void loadConfig() {
+		config.reloadConfig();
 	}
 
-	public String getName() {
-		AngeliaLoad pluginAnnotation = getPluginAnnotation();
-		if (pluginAnnotation == null) {
-			return null;
-		}
-		return pluginAnnotation.name();
-	}
-
-	public String getDescription() {
-		AngeliaLoad pluginAnnotation = getPluginAnnotation();
-		if (pluginAnnotation == null) {
-			return null;
-		}
-		return pluginAnnotation.description();
-	}
-
-	public String getVersion() {
-		AngeliaLoad pluginAnnotation = getPluginAnnotation();
-		if (pluginAnnotation == null) {
-			return null;
-		}
-		return pluginAnnotation.version();
-	}
-
-	private AngeliaLoad getPluginAnnotation() {
-		Class<? extends AngeliaPlugin> pluginClass = this.getClass();
-		return pluginClass.getAnnotation(AngeliaLoad.class);
-	}
-	
 	void setConnection(ServerConnection connection) {
 		this.connection = connection;
 		String name = getName();
@@ -115,16 +105,25 @@ public abstract class AngeliaPlugin {
 		this.dataFolder = new File(connection.getDataFolder(), name);
 		this.config = new PluginConfig(connection.getLogger(), new File(dataFolder, "config.yml"));
 	}
-	
-	void loadConfig() {
-		config.reloadConfig();
+
+	/**
+	 * Sets whether this plugin is actively running
+	 * 
+	 * @param running New running state
+	 */
+	void setRunning(boolean running) {
+		this.running = running;
 	}
-	
-	public File getDataFolder() {
-		return dataFolder;
-	}
-	
-	protected PluginConfig getConfig() {
-		return config;
-	}
+
+	/**
+	 * Called automatically when the plugin is started, put all your setup in here.
+	 * Assume that all your parameters and the YAML config are already fully loaded
+	 * at this point
+	 */
+	public abstract void start();
+
+	/**
+	 * Called automatically when the plugin is stopped, do any eventual tear down in this method
+	 */
+	public abstract void stop();
 }

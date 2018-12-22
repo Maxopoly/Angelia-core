@@ -1,15 +1,14 @@
 package com.github.maxopoly.angeliacore.actions.actions.inventory;
 
-import com.github.maxopoly.angeliacore.model.item.Material;
-
-import com.github.maxopoly.angeliacore.model.item.ItemStack;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
+import com.github.maxopoly.angeliacore.model.item.ItemStack;
+import com.github.maxopoly.angeliacore.model.item.Material;
 
 /**
- * Opens the inventory and moves a single stack of items of a certain type from the storage section of the inventory on
- * the hotbar
+ * Opens the inventory and moves a single stack of items of a certain type from
+ * the storage section of the inventory on the hotbar
  *
  */
 public class RefillHotbarWithType extends InventoryAction {

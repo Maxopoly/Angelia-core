@@ -17,7 +17,7 @@ public class BlockBreakAnimationPacketHandler extends AbstractIncomingPacketHand
 			int entityID = packet.readVarInt();
 			Location blockPos = packet.readPosition();
 			byte stage = packet.readByte();
-			//TODO?
+			// TODO?
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse break animation packet", e);
 		}

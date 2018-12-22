@@ -4,21 +4,22 @@ import com.github.maxopoly.angeliacore.block.states.BlockState;
 
 public class ChunkSection {
 
-	private BlockState [] blocks;
+	private BlockState[] blocks;
 
-
-	public ChunkSection(BlockState [] blocks) {
+	public ChunkSection(BlockState[] blocks) {
 		this.blocks = blocks;
-	}
-
-	public BlockState getBlock(int x, int y, int z) {
-		return blocks [x + 16 * z + 256 * y ];
 	}
 
 	/**
 	 * Dumps entire content array. Should only be used by rendering code
+	 * 
+	 * @return Internal array of block data
 	 */
-	public BlockState [] dump() {
-	    return blocks;
+	public BlockState[] dump() {
+		return blocks;
+	}
+
+	public BlockState getBlock(int x, int y, int z) {
+		return blocks[x + 16 * z + 256 * y];
 	}
 }

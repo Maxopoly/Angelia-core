@@ -29,30 +29,30 @@ public class BeaconInventory extends Inventory {
 	public short getPowerLevel() {
 		return powerLevel;
 	}
-	
-	public void setPowerLevel(short powerLevel) {
-		this.powerLevel = powerLevel;
-	}
-	
-	public void setPrimaryEffect(PotionType primary) {
-		this.primaryEffect = primary;
-	}
-	
-	public void setSecondaryEffect(PotionType secondary) {
-		this.secondaryEffect = secondary;
-	}
-	
+
 	/**
 	 * @return Primary selected effect of the beacon, may be null
 	 */
 	public PotionType getPrimaryEffect() {
 		return primaryEffect;
 	}
-	
+
 	/**
 	 * @return Secondary selected effect of the beacon, may be null
 	 */
 	public PotionType getSecondaryEffect() {
 		return secondaryEffect;
+	}
+
+	public void setPowerLevel(short powerLevel) {
+		this.powerLevel = powerLevel;
+	}
+
+	public void setPrimaryEffect(PotionType primary) {
+		this.primaryEffect = primary;
+	}
+
+	public void setSecondaryEffect(PotionType secondary) {
+		this.secondaryEffect = secondary;
 	}
 }

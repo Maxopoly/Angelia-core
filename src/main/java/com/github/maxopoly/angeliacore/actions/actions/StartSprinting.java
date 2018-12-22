@@ -17,20 +17,21 @@ public class StartSprinting extends AbstractAction {
 	@Override
 	public void execute() {
 		try {
-			connection.sendPacket(new EntityActionPacket(connection.getPlayerStatus().getID(), Action.START_SPRINTING, 0));
+			connection.sendPacket(
+					new EntityActionPacket(connection.getPlayerStatus().getID(), Action.START_SPRINTING, 0));
 		} catch (IOException e) {
 			connection.getLogger().error("Failed to send start sprint packet ", e);
 		}
 	}
 
 	@Override
-	public boolean isDone() {
-		return true;
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.MOVEMENT };
 	}
 
 	@Override
-	public ActionLock[] getActionLocks() {
-		return new ActionLock[] {ActionLock.MOVEMENT};
+	public boolean isDone() {
+		return true;
 	}
 
 }

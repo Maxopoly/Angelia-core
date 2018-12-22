@@ -13,12 +13,12 @@ public class InventoryClosureEvent implements AngeliaEvent {
 		this.inv = inv;
 	}
 
-	public byte getClosedInventoryId() {
-		return id;
-	}
-
 	public Inventory getClosedInventory() {
 		return inv;
+	}
+
+	public byte getClosedInventoryId() {
+		return id;
 	}
 
 }

@@ -17,7 +17,8 @@ public class LookAtAndBreakBlock extends AbstractAction {
 		super(connection);
 		this.block = block.toBlockLocation();
 		this.breakTime = breakTime;
-		// we dont want to do the location based calculations when creating this instance (and queueing it), but instead
+		// we dont want to do the location based calculations when creating this
+		// instance (and queueing it), but instead
 		// when it is executed
 	}
 
@@ -31,6 +32,11 @@ public class LookAtAndBreakBlock extends AbstractAction {
 	}
 
 	@Override
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.LOOKING_DIRECTION, ActionLock.HOTBAR_SLOT };
+	}
+
+	@Override
 	public boolean isDone() {
 		if (actions == null) {
 			setupActions();
@@ -41,13 +47,8 @@ public class LookAtAndBreakBlock extends AbstractAction {
 	private void setupActions() {
 		Location playerLoc = connection.getPlayerStatus().getHeadLocation();
 		BlockFace side = BlockFace.getRelative(playerLoc, block.getBlockCenter());
-		this.actions = new SequentialActionExecution(new LookAt(connection, block.getBlockCenter()), new BreakBlock(
-				connection, block, breakTime, side));
-	}
-
-	@Override
-	public ActionLock[] getActionLocks() {
-		return new ActionLock[] { ActionLock.LOOKING_DIRECTION, ActionLock.HOTBAR_SLOT };
+		this.actions = new SequentialActionExecution(new LookAt(connection, block.getBlockCenter()),
+				new BreakBlock(connection, block, breakTime, side));
 	}
 
 }

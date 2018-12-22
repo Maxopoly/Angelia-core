@@ -7,6 +7,10 @@ public class PlayerProperty {
 	private boolean isSigned;
 	private String signature;
 
+	public PlayerProperty(String name, String value) {
+		this(name, value, false, null);
+	}
+
 	public PlayerProperty(String name, String value, boolean isSigned, String signature) {
 		this.name = name;
 		this.value = value;
@@ -14,12 +18,12 @@ public class PlayerProperty {
 		this.signature = signature;
 	}
 
-	public PlayerProperty(String name, String value) {
-		this(name, value, false, null);
-	}
-
 	public String getName() {
 		return name;
+	}
+
+	public String getSignature() {
+		return signature;
 	}
 
 	public String getValue() {
@@ -28,10 +32,6 @@ public class PlayerProperty {
 
 	public boolean isSigned() {
 		return isSigned;
-	}
-
-	public String getSignature() {
-		return signature;
 	}
 
 }

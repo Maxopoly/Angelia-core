@@ -16,16 +16,16 @@ public class PlayerSpawnEvent implements AngeliaEvent {
 		this.entity = entity;
 	}
 
+	public LivingEntity getEntity() {
+		return entity;
+	}
+
 	public Location getLocation() {
 		return loc;
 	}
 
 	public OnlinePlayer getOnlinePlayer() {
 		return player;
-	}
-
-	public LivingEntity getEntity() {
-		return entity;
 	}
 
 }

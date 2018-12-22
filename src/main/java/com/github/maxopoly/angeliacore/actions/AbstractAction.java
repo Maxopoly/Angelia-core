@@ -12,14 +12,15 @@ public abstract class AbstractAction {
 
 	public abstract void execute();
 
-	public abstract boolean isDone();
-
 	/**
-	 * Each action may define certain properties, which it needs to operate. Multiple actions with completly separate
-	 * action locks may be executed simultaneously
+	 * Each action may define certain properties, which it needs to operate.
+	 * Multiple actions with completly separate action locks may be executed
+	 * simultaneously
 	 * 
 	 * @return Action locks of this action
 	 */
 	public abstract ActionLock[] getActionLocks();
-	
+
+	public abstract boolean isDone();
+
 }

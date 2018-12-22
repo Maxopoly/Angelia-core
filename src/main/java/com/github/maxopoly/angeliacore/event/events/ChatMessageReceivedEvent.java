@@ -11,18 +11,18 @@ public class ChatMessageReceivedEvent implements AngeliaEvent {
 	}
 
 	/**
+	 * @return The message received as a normal string without any metadata,
+	 *         highlighting etc. which may have been contained in the json
+	 */
+	public String getMessage() {
+		return message;
+	}
+
+	/**
 	 * @return The raw json which was received for this message
 	 */
 	public String getRawJSON() {
 		return rawJson;
-	}
-
-	/**
-	 * @return The message received as a normal string without any metadata, highlighting etc. which may have been
-	 *         contained in the json
-	 */
-	public String getMessage() {
-		return message;
 	}
 
 }

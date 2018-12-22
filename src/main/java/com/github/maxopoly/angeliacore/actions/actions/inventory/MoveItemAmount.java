@@ -1,13 +1,13 @@
 package com.github.maxopoly.angeliacore.actions.actions.inventory;
 
-import com.github.maxopoly.angeliacore.model.item.Material;
-
-import com.github.maxopoly.angeliacore.model.item.ItemStack;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
+import com.github.maxopoly.angeliacore.model.item.ItemStack;
+import com.github.maxopoly.angeliacore.model.item.Material;
 
 /**
- * Takes a given ItemStack and moves a partial amount of it into a different slot
+ * Takes a given ItemStack and moves a partial amount of it into a different
+ * slot
  *
  */
 public class MoveItemAmount extends InventoryAction {
@@ -48,7 +48,8 @@ public class MoveItemAmount extends InventoryAction {
 			// nothing was done so far, so we create the actions and begin the pickUp;
 			toMove = inv.getSlot(originSlot);
 			if (toMove.isEmpty() || toMove.getAmount() < amount) {
-				// we could just move as many here as we can, but I like this behavior better as it means the execution either
+				// we could just move as many here as we can, but I like this behavior better as
+				// it means the execution either
 				// completly works or it doesnt
 				this.done = true;
 				this.successfull = false;
@@ -68,8 +69,8 @@ public class MoveItemAmount extends InventoryAction {
 				// we need to right click as often as we have items we want to put down
 				this.buttonID = 1;
 			}
-			this.layDown = new ClickInventory(connection, windowID, (short) targetSlot, buttonID, 0, new ItemStack(
-					Material.EMPTY_SLOT));
+			this.layDown = new ClickInventory(connection, windowID, (short) targetSlot, buttonID, 0,
+					new ItemStack(Material.EMPTY_SLOT));
 			this.leftToPlaceDown = amount;
 			this.pickUp.execute();
 		}
@@ -90,7 +91,8 @@ public class MoveItemAmount extends InventoryAction {
 			return;
 		}
 		if (!layDown.wasSuccessfull()) {
-			// we count up how often the laydown failed. After 10 laydown fails, we cancel the whole thing
+			// we count up how often the laydown failed. After 10 laydown fails, we cancel
+			// the whole thing
 			fails++;
 			if (fails > 10) {
 				done = true;
@@ -98,8 +100,8 @@ public class MoveItemAmount extends InventoryAction {
 				return;
 			}
 			// reset pickup object after fail
-			this.layDown = new ClickInventory(connection, windowID, (short) targetSlot, buttonID, 0, new ItemStack(
-					Material.EMPTY_SLOT));
+			this.layDown = new ClickInventory(connection, windowID, (short) targetSlot, buttonID, 0,
+					new ItemStack(Material.EMPTY_SLOT));
 			return;
 		} else {
 			if (buttonID == 1) {
@@ -121,15 +123,16 @@ public class MoveItemAmount extends InventoryAction {
 			}
 		}
 		if (leftToPlaceDown > 0) {
-			this.layDown = new ClickInventory(connection, windowID, (short) targetSlot, buttonID, 0, new ItemStack(
-					Material.EMPTY_SLOT));
+			this.layDown = new ClickInventory(connection, windowID, (short) targetSlot, buttonID, 0,
+					new ItemStack(Material.EMPTY_SLOT));
 			return;
 		}
-		// successfully moved the items, so let's put the leftover back if needed and update the clientside model
+		// successfully moved the items, so let's put the leftover back if needed and
+		// update the clientside model
 		if (toMove.getAmount() > 0) {
 			if (putBack == null) {
-				putBack = new ClickInventory(connection, windowID, (short) originSlot, (byte) 0, 0, new ItemStack(
-						Material.EMPTY_SLOT));
+				putBack = new ClickInventory(connection, windowID, (short) originSlot, (byte) 0, 0,
+						new ItemStack(Material.EMPTY_SLOT));
 				putBack.execute();
 				return;
 			} else {

@@ -27,41 +27,41 @@ public class OnlinePlayer {
 		this.displayName = displayName;
 	}
 
-	public void updatePing(int ping) {
-		this.ping = ping;
-	}
-
-	public int getPing() {
-		return ping;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
-
 	public String getDisplayName() {
 		return displayName;
-	}
-
-	public void setGameMode(GameMode gameMode) {
-		this.gameMode = gameMode;
 	}
 
 	public GameMode getGameMode() {
 		return gameMode;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public int getPing() {
+		return ping;
+	}
+
 	public UUID getUUID() {
 		return uuid;
 	}
 
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
+	public void setGameMode(GameMode gameMode) {
+		this.gameMode = gameMode;
+	}
+
 	public String toString() {
-		//neat for debugging
+		// neat for debugging
 		return String.format("%s (%s), %s, GM: %s, Ping: %d", name, displayName, uuid.toString(), gameMode.toString(),
 				ping);
+	}
+
+	public void updatePing(int ping) {
+		this.ping = ping;
 	}
 }

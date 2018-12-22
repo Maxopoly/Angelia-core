@@ -8,9 +8,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface AngeliaLoad {
-	
-	String name();
-	String version();
+
 	String description() default "";
+
+	String name();
+
+	String version();
 
 }

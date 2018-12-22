@@ -5,24 +5,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import com.github.maxopoly.angeliacore.model.block.RenderModule;
-
 public class VariableBlockState extends BlockState {
-	
+
 	private Map<Byte, BlockState> stateMapping;
 	private Class<? extends BlockState> instanceClass;
 
-	public VariableBlockState(Class <? extends BlockState> instanceClass, int id, float hardness, String texturePackIdentifier, String niceName) {
+	public VariableBlockState(Class<? extends BlockState> instanceClass, int id, float hardness,
+			String texturePackIdentifier, String niceName) {
 		super(id, (byte) 0, hardness, texturePackIdentifier, niceName);
 		this.instanceClass = instanceClass;
 		stateMapping = new WeakHashMap<>();
 	}
-	
+
+	@Override
+	public BlockState getActualState(byte data) {
+		return getState((byte) (data & 0xf));
+	}
+
+	public double getHardness() {
+		throw new IllegalStateException();
+	}
+
+	public byte getMetaData() {
+		throw new IllegalStateException();
+	}
+
+	public int getMetaData(List<Enum> enums) {
+		throw new IllegalStateException();
+	}
+
 	private BlockState getState(byte data) {
 		BlockState state = stateMapping.get(data);
 		if (state == null) {
 			try {
-				state = (BlockState) instanceClass.getConstructors()[0].newInstance(id, data, hardness, texturePackIdentifier, niceName);
+				state = (BlockState) instanceClass.getConstructors()[0].newInstance(id, data, hardness,
+						texturePackIdentifier, niceName);
 				state.setRenderModule(this.render);
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | SecurityException e) {
@@ -47,23 +64,6 @@ public class VariableBlockState extends BlockState {
 	@Override
 	public boolean isOpaque() {
 		throw new IllegalStateException();
-	}
-
-    public byte getMetaData() {
-    	throw new IllegalStateException();
-    }
-
-    public double getHardness() {
-    	throw new IllegalStateException();
-    }
-    
-    public int getMetaData(List<Enum> enums) {
-    	throw new IllegalStateException();
-    }
-
-	@Override
-	public BlockState getActualState(byte data) {
-		return getState((byte) (data & 0xf));
 	}
 
 }

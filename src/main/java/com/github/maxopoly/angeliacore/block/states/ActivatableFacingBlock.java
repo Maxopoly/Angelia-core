@@ -12,7 +12,7 @@ public class ActivatableFacingBlock extends SingleConstBlockState {
 			String niceName) {
 		super(id, metaData, hardness, texturePackIdentifier, niceName);
 	}
-	
+
 	/**
 	 * @return In which direction is the block facing
 	 */
@@ -21,7 +21,7 @@ public class ActivatableFacingBlock extends SingleConstBlockState {
 		if (firstPart > 5) {
 			throw new IllegalStateException("Facing direction is " + (byte) firstPart + " with meta data " + metaData);
 		}
-		return BlockFace.values() [firstPart];
+		return BlockFace.values()[firstPart];
 	}
 
 	@Override

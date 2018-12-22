@@ -18,11 +18,10 @@ public class OtherPlayerDisplayNameChangeEvent implements AngeliaEvent {
 	}
 
 	/**
-	 * @return Updated display name to show in the tablist for this player. May be
-	 *         null
+	 * @return Player who had his display name changed
 	 */
-	public String getUpdatedName() {
-		return newName;
+	public OnlinePlayer getPlayer() {
+		return player;
 	}
 
 	/**
@@ -34,10 +33,11 @@ public class OtherPlayerDisplayNameChangeEvent implements AngeliaEvent {
 	}
 
 	/**
-	 * @return Player who had his display name changed
+	 * @return Updated display name to show in the tablist for this player. May be
+	 *         null
 	 */
-	public OnlinePlayer getPlayer() {
-		return player;
+	public String getUpdatedName() {
+		return newName;
 	}
 
 }

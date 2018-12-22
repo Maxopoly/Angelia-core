@@ -1,9 +1,9 @@
 package com.github.maxopoly.angeliacore.plugin.parameter;
 
 public enum LoadPolicy {
-	
+
 	CONFIG_ONLY, INPUT_ONLY, PRIORIZE_CONFIG, PRIORIZE_INPUT;
-	
+
 	public <T> T parse(T inputValue, T configValue) {
 		switch (this) {
 		case CONFIG_ONLY:
@@ -23,5 +23,5 @@ public enum LoadPolicy {
 		default:
 			throw new IllegalStateException();
 		}
-	}	
+	}
 }

@@ -19,14 +19,14 @@ public class Wait extends AbstractAction {
 	}
 
 	@Override
-	public boolean isDone() {
-		return ticksLeft <= 0;
-	}
-
-	@Override
 	public ActionLock[] getActionLocks() {
 		// fully block while waiting
 		return new ActionLock[] { ActionLock.EVERYTHING };
+	}
+
+	@Override
+	public boolean isDone() {
+		return ticksLeft <= 0;
 	}
 
 }

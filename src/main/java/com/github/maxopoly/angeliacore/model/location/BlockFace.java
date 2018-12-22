@@ -3,49 +3,6 @@ package com.github.maxopoly.angeliacore.model.location;
 public enum BlockFace {
 	BOTTOM, TOP, NORTH, SOUTH, WEST, EAST, SPECIAL;
 
-	public byte getEnumByte() {
-		switch (this) {
-		case BOTTOM:
-			return 0;
-		case EAST:
-			return 5;
-		case NORTH:
-			return 2;
-		case SOUTH:
-			return 3;
-		case SPECIAL:
-			// unsigned 255
-			return -1;
-		case TOP:
-			return 1;
-		case WEST:
-			return 4;
-		default:
-			return -1;
-		}
-	}
-
-	public Vector toVector() {
-		switch (this) {
-		case BOTTOM:
-			return new Vector(0, -0.5, 0.0);
-		case EAST:
-			return new Vector(0.5, 0.0, 0.0);
-		case NORTH:
-			return new Vector(0, 0.0, -0.5);
-		case SOUTH:
-			return new Vector(0, 0.0, 0.5);
-		case SPECIAL:
-			throw new IllegalAccessError("Cant convert special blockface to vector");
-		case TOP:
-			return new Vector(0, 0.5, 0.0);
-		case WEST:
-			return new Vector(-0.5, 0.0, 0.0);
-		default:
-			throw new IllegalAccessError("Cant convert unknown blockface to vector");
-		}
-	}
-
 	/**
 	 * Calculates which blockside is the primary one the player is seeing
 	 * 
@@ -103,6 +60,28 @@ public enum BlockFace {
 		throw new IllegalArgumentException(name + " is not a block face");
 	}
 
+	public byte getEnumByte() {
+		switch (this) {
+		case BOTTOM:
+			return 0;
+		case EAST:
+			return 5;
+		case NORTH:
+			return 2;
+		case SOUTH:
+			return 3;
+		case SPECIAL:
+			// unsigned 255
+			return -1;
+		case TOP:
+			return 1;
+		case WEST:
+			return 4;
+		default:
+			return -1;
+		}
+	}
+
 	public int placementVectorX() {
 		switch (this) {
 		case EAST:
@@ -133,6 +112,27 @@ public enum BlockFace {
 			return 0;
 		default:
 			return 7;
+		}
+	}
+
+	public Vector toVector() {
+		switch (this) {
+		case BOTTOM:
+			return new Vector(0, -0.5, 0.0);
+		case EAST:
+			return new Vector(0.5, 0.0, 0.0);
+		case NORTH:
+			return new Vector(0, 0.0, -0.5);
+		case SOUTH:
+			return new Vector(0, 0.0, 0.5);
+		case SPECIAL:
+			throw new IllegalAccessError("Cant convert special blockface to vector");
+		case TOP:
+			return new Vector(0, 0.5, 0.0);
+		case WEST:
+			return new Vector(-0.5, 0.0, 0.0);
+		default:
+			throw new IllegalAccessError("Cant convert unknown blockface to vector");
 		}
 	}
 }

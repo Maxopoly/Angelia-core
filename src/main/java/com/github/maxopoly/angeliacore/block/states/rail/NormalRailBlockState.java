@@ -5,11 +5,11 @@ public class NormalRailBlockState extends GeneralRailBlockState {
 	public NormalRailBlockState(int id, byte metaData, float hardness, String texturePackIdentifier, String niceName) {
 		super(id, metaData, hardness, texturePackIdentifier, niceName);
 		if (metaData > 9) {
-			throw new IllegalStateException("Rail can not have meta data "+ metaData);
+			throw new IllegalStateException("Rail can not have meta data " + metaData);
 		}
 	}
-	
+
 	public RailStateEnum getRailState() {
-		return RailStateEnum.values() [metaData];
+		return RailStateEnum.values()[metaData];
 	}
 }

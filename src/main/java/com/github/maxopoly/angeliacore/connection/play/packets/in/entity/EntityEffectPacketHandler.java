@@ -25,8 +25,8 @@ public class EntityEffectPacketHandler extends AbstractIncomingPacketHandler {
 			byte amplifier = packet.readByte();
 			int duration = packet.readVarInt();
 			byte flag = packet.readByte();
-			connection.getPlayerStatus().addPotionEffect(
-					new PotionEffect(PotionType.getById(effectID), amplifier + 1, duration));
+			connection.getPlayerStatus()
+					.addPotionEffect(new PotionEffect(PotionType.getById(effectID), amplifier + 1, duration));
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse entity effect packet", e);
 		}

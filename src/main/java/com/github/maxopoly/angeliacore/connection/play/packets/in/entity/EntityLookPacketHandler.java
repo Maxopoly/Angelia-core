@@ -25,7 +25,7 @@ public class EntityLookPacketHandler extends AbstractIncomingPacketHandler {
 			if (entity == null) {
 				return;
 			}
-			DirectedLocation updatedLoc = new DirectedLocation(entity.getLocation(), yaw, pitch); 
+			DirectedLocation updatedLoc = new DirectedLocation(entity.getLocation(), yaw, pitch);
 			connection.getEventHandler().broadcast(new EntityLookEvent(entity, entity.getLocation(), updatedLoc));
 			entity.updateLookingDirection(yaw, pitch);
 			entity.setOnGround(grounded);

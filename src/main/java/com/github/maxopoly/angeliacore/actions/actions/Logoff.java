@@ -17,14 +17,14 @@ public class Logoff extends AbstractAction {
 	}
 
 	@Override
-	public boolean isDone() {
-		return false;
-	}
-
-	@Override
 	public ActionLock[] getActionLocks() {
 		// everything so it's always done at the end
 		return new ActionLock[] { ActionLock.EVERYTHING };
+	}
+
+	@Override
+	public boolean isDone() {
+		return false;
 	}
 
 }

@@ -33,9 +33,10 @@ public class EntityLookAndRelativeMovePacketHandler extends AbstractIncomingPack
 			int currentX = location.getBlockX();
 			int currentY = location.getBlockY();
 			int currentZ = location.getBlockZ();
-			DirectedLocation updatedLoc = new DirectedLocation(currentX + deltaX, currentY + deltaY, currentZ + deltaZ, yaw, pitch);
+			DirectedLocation updatedLoc = new DirectedLocation(currentX + deltaX, currentY + deltaY, currentZ + deltaZ,
+					yaw, pitch);
 			connection.getEventHandler().broadcast(new EntityMoveEvent(entity, entity.getLocation(), updatedLoc));
-			connection.getEventHandler().broadcast(new EntityLookEvent(entity, entity.getLocation(), updatedLoc));			
+			connection.getEventHandler().broadcast(new EntityLookEvent(entity, entity.getLocation(), updatedLoc));
 			entity.updateLocation(updatedLoc);
 			entity.updateLookingDirection(yaw, pitch);
 			entity.setOnGround(grounded);

@@ -14,6 +14,26 @@ public class NBTDouble extends NBTElement {
 		this.value = value;
 	}
 
+	@Override
+	public NBTElement clone() {
+		return new NBTDouble(name, value);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof NBTDouble && ((NBTDouble) o).value == value;
+	}
+
+	@Override
+	public byte getID() {
+		return ID;
+	}
+
+	@Override
+	public String getTypeName() {
+		return "double";
+	}
+
 	public double getValue() {
 		return value;
 	}
@@ -26,27 +46,7 @@ public class NBTDouble extends NBTElement {
 	}
 
 	@Override
-	public byte getID() {
-		return ID;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		return o instanceof NBTDouble && ((NBTDouble) o).value == value;
-	}
-
-	@Override
-	public NBTElement clone() {
-		return new NBTDouble(name, value);
-	}
-
-	@Override
 	public String toString() {
 		return "" + value;
-	}
-
-	@Override
-	public String getTypeName() {
-		return "double";
 	}
 }

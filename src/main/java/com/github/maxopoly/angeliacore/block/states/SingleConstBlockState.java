@@ -12,7 +12,7 @@ public abstract class SingleConstBlockState extends BlockState {
 	public BlockState getActualState(byte data) {
 		return this;
 	}
-	
+
 	@Override
 	public int getMetaData(List<Enum> enums) {
 		return 0;

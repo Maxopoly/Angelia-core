@@ -13,12 +13,12 @@ public class OpenInventoryEvent implements AngeliaEvent {
 		this.invID = invID;
 	}
 
-	public byte getInventoryID() {
-		return invID;
-	}
-
 	public Inventory getInventory() {
 		return inv;
+	}
+
+	public byte getInventoryID() {
+		return invID;
 	}
 
 }

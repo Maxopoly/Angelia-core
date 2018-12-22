@@ -5,14 +5,14 @@ import com.github.maxopoly.angeliacore.model.entity.LivingEntity;
 
 public class LivingEntityLoadEvent implements AngeliaEvent {
 
-    private LivingEntity entity;
+	private LivingEntity entity;
 
-    public LivingEntityLoadEvent(LivingEntity entity) {
-        this.entity = entity;
-    }
+	public LivingEntityLoadEvent(LivingEntity entity) {
+		this.entity = entity;
+	}
 
-    public LivingEntity getEntity() {
-        return entity;
-    }
+	public LivingEntity getEntity() {
+		return entity;
+	}
 
 }

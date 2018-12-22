@@ -39,6 +39,11 @@ public class PickHotbarItemByType extends AbstractAction {
 	}
 
 	@Override
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.HOTBAR_SLOT };
+	}
+
+	@Override
 	public boolean isDone() {
 		return true;
 	}
@@ -48,11 +53,6 @@ public class PickHotbarItemByType extends AbstractAction {
 	 */
 	public boolean wasFound() {
 		return found;
-	}
-
-	@Override
-	public ActionLock[] getActionLocks() {
-		return new ActionLock[] { ActionLock.HOTBAR_SLOT };
 	}
 
 }

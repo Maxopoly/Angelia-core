@@ -19,7 +19,7 @@ public class YamlTest {
 		List <String> content = loadFile("test.yml");
 		try {
 			ConfigSection map = YamlParser.loadFromFile(new File("src/test/resources/test.yml"));
-			System.out.println(map.toString());
+			//System.out.println(map.toString());
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -1,11 +1,5 @@
 package com.github.maxopoly.angeliacore.plugin;
 
-import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.plugin.parameter.InvalidParameterValueException;
-import com.github.maxopoly.angeliacore.plugin.parameter.ParameterLoad;
-import com.github.maxopoly.angeliacore.plugin.parameter.ParameterParser;
-import com.github.maxopoly.angeliacore.plugin.parameter.ParameterParsingFactory;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -14,6 +8,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import com.github.maxopoly.angeliacore.connection.ServerConnection;
+import com.github.maxopoly.angeliacore.plugin.parameter.InvalidParameterValueException;
+import com.github.maxopoly.angeliacore.plugin.parameter.ParameterLoad;
+import com.github.maxopoly.angeliacore.plugin.parameter.ParameterParser;
+import com.github.maxopoly.angeliacore.plugin.parameter.ParameterParsingFactory;
 
 public class PluginManager {
 
@@ -30,52 +30,6 @@ public class PluginManager {
 		this.connection = connection;
 		this.parsingFactory = new ParameterParsingFactory();
 		reloadPlugins();
-	}
-
-	public AngeliaPlugin getPlugin(String name) {
-		return plugins.get(name.toLowerCase());
-	}
-
-	public void reloadPlugins() {
-		pluginService.reloadJars();
-		for (AngeliaPlugin plugin : pluginService.getAvailablePlugins()) {
-			registerPlugin(plugin);
-		}
-		connection.getLogger().info("Loaded a total of " + plugins.size() + " plugin(s)");
-	}
-
-	private void registerPlugin(AngeliaPlugin plugin) {
-		Class<? extends AngeliaPlugin> pluginClass = plugin.getClass();
-		AngeliaLoad pluginAnnotation = pluginClass.getAnnotation(AngeliaLoad.class);
-		if (pluginAnnotation == null) {
-			connection.getLogger()
-					.warn("Plugin " + plugin.getClass().getName() + " had no AngeliaLoad annotation, it was ignored");
-			return;
-		}
-		Constructor<?> constr = pluginClass.getConstructors()[0];
-		if (constr.getParameterCount() != 0) {
-			connection.getLogger()
-					.warn("Plugin " + plugin.getClass().getName() + " had no default constructor, it was ignored");
-			return;
-		}
-		constr.setAccessible(true);
-		String name = pluginAnnotation.name();
-		if (plugins.containsKey(name.toLowerCase())) {
-			connection.getLogger().warn("Plugin " + name + " was already registered, did not register again");
-			return;
-		}
-		connection.getLogger().info("Registering plugin " + name);
-		plugins.put(name.toLowerCase(), plugin);
-	}
-
-	public synchronized List<String> getAvailablePlugins() {
-		// map values are all lower case, so we use plugin.getName() instead to get
-		// proper names
-		List<String> pluginNames = new LinkedList<String>();
-		for (AngeliaPlugin plugin : plugins.values()) {
-			pluginNames.add(plugin.getName());
-		}
-		return pluginNames;
 	}
 
 	/**
@@ -116,40 +70,18 @@ public class PluginManager {
 		}
 	}
 
-	/**
-	 * Finishes all instances of a plugin with the given name
-	 *
-	 * @param name Name of the plugin to stop
-	 * @return How many plugins were stopped
-	 */
-	public int stopPlugin(String name) {
-		int stopped = 0;
-		name = name.toLowerCase();
-		Iterator<AngeliaPlugin> iterator = runningPlugins.iterator();
-		while (iterator.hasNext()) {
-			AngeliaPlugin plugin = iterator.next();
-			if (plugin.getName().toLowerCase().equals(name)) {
-				plugin.stop();
-				iterator.remove();
-				stopped++;
-			}
+	public synchronized List<String> getAvailablePlugins() {
+		// map values are all lower case, so we use plugin.getName() instead to get
+		// proper names
+		List<String> pluginNames = new LinkedList<String>();
+		for (AngeliaPlugin plugin : plugins.values()) {
+			pluginNames.add(plugin.getName());
 		}
-		return stopped;
+		return pluginNames;
 	}
 
-	/**
-	 * When a new server connection is made (after reconnecting), a new plugin
-	 * manager is created along with it. This method passes the old plugin managers
-	 * plugins to the new one.
-	 *
-	 * @param replacement new plugin manager
-	 */
-	public void passPluginsOver(ServerConnection newConnection) {
-		PluginManager replacement = newConnection.getPluginManager();
-		for (AngeliaPlugin plugin : runningPlugins) {
-			replacement.runningPlugins.add(plugin);
-			plugin.setConnection(newConnection);
-		}
+	public AngeliaPlugin getPlugin(String name) {
+		return plugins.get(name.toLowerCase());
 	}
 
 	private boolean loadOptions(AngeliaPlugin plugin, Map<String, String> args) {
@@ -193,8 +125,7 @@ public class PluginManager {
 			}
 			if (!annot.configId().equals("")) {
 				yamlValue = plugin.getConfig().getConfig().retrieve(annot.configId(), parser.getClassParsed(), false);
-			}
-			else {
+			} else {
 				yamlValue = null;
 			}
 			Object valueToUse = annot.policy().parse(inputValue, yamlValue);
@@ -219,5 +150,73 @@ public class PluginManager {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * When a new server connection is made (after reconnecting), a new plugin
+	 * manager is created along with it. This method passes the old plugin managers
+	 * plugins to the new one.
+	 *
+	 * @param newConnection New server connection
+	 */
+	public void passPluginsOver(ServerConnection newConnection) {
+		PluginManager replacement = newConnection.getPluginManager();
+		for (AngeliaPlugin plugin : runningPlugins) {
+			replacement.runningPlugins.add(plugin);
+			plugin.setConnection(newConnection);
+		}
+	}
+
+	private void registerPlugin(AngeliaPlugin plugin) {
+		Class<? extends AngeliaPlugin> pluginClass = plugin.getClass();
+		AngeliaLoad pluginAnnotation = pluginClass.getAnnotation(AngeliaLoad.class);
+		if (pluginAnnotation == null) {
+			connection.getLogger()
+					.warn("Plugin " + plugin.getClass().getName() + " had no AngeliaLoad annotation, it was ignored");
+			return;
+		}
+		Constructor<?> constr = pluginClass.getConstructors()[0];
+		if (constr.getParameterCount() != 0) {
+			connection.getLogger()
+					.warn("Plugin " + plugin.getClass().getName() + " had no default constructor, it was ignored");
+			return;
+		}
+		constr.setAccessible(true);
+		String name = pluginAnnotation.name();
+		if (plugins.containsKey(name.toLowerCase())) {
+			connection.getLogger().warn("Plugin " + name + " was already registered, did not register again");
+			return;
+		}
+		connection.getLogger().info("Registering plugin " + name);
+		plugins.put(name.toLowerCase(), plugin);
+	}
+
+	public void reloadPlugins() {
+		pluginService.reloadJars();
+		for (AngeliaPlugin plugin : pluginService.getAvailablePlugins()) {
+			registerPlugin(plugin);
+		}
+		connection.getLogger().info("Loaded a total of " + plugins.size() + " plugin(s)");
+	}
+
+	/**
+	 * Finishes all instances of a plugin with the given name
+	 *
+	 * @param name Name of the plugin to stop
+	 * @return How many plugins were stopped
+	 */
+	public int stopPlugin(String name) {
+		int stopped = 0;
+		name = name.toLowerCase();
+		Iterator<AngeliaPlugin> iterator = runningPlugins.iterator();
+		while (iterator.hasNext()) {
+			AngeliaPlugin plugin = iterator.next();
+			if (plugin.getName().toLowerCase().equals(name)) {
+				plugin.stop();
+				iterator.remove();
+				stopped++;
+			}
+		}
+		return stopped;
 	}
 }

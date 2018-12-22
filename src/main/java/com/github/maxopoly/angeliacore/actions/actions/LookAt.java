@@ -1,5 +1,7 @@
 package com.github.maxopoly.angeliacore.actions.actions;
 
+import java.io.IOException;
+
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
 import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
@@ -8,52 +10,48 @@ import com.github.maxopoly.angeliacore.model.ThePlayer;
 import com.github.maxopoly.angeliacore.model.location.BlockFace;
 import com.github.maxopoly.angeliacore.model.location.DirectedLocation;
 import com.github.maxopoly.angeliacore.model.location.Location;
-import java.io.IOException;
 
+/**
+ * Has the player look at a specific location
+ *
+ */
 public class LookAt extends AbstractAction {
 
-	private Location target;
-	private int totalTicksToTake;
 	private int ticksLeft;
 	private float yawPerTick;
 	private float pitchPerTick;
 
 	/**
 	 * Instantly changes the location the player looks at
-	 *
-	 * @param offset
-	 *          The block the player should be looking at
+	 * 
+	 * @param connection Current connection
+	 * @param offset     The block the player should be looking at
 	 */
 	public LookAt(ServerConnection connection, Location offset) {
 		this(connection, offset, 1);
 	}
 
 	/**
-	 * Looks at a specific side of the given block
+	 * Looks at a specific side of the given block, in particular the exact center
+	 * of the given side of the given block, assuming its a full block
 	 *
-	 * @param connection
-	 *          ServerConnection
-	 * @param block
-	 *          Block to look at
-	 * @param face
-	 *          Relative side to look at
+	 * @param connection Current connection
+	 * @param block      Block to look at
+	 * @param face       Relative side to look at
 	 */
 	public LookAt(ServerConnection connection, Location block, BlockFace face) {
 		this(connection, new Location(block.getBlockCenter().add(face.toVector().multiply(0.5))));
 	}
 
 	/**
-	 * Turns the players head, while taking the given amount of time
+	 * Turns the players head, while taking the given amount of time in ticks
 	 *
-	 * @param offSet
-	 *          Block to look at
-	 * @param ticksToTake
-	 *          Time that should be taken to turn the head
+	 * @param connection  Current connection
+	 * @param offSet      Block to look at
+	 * @param ticksToTake Time that should be taken to turn the head in client ticks
 	 */
 	public LookAt(ServerConnection connection, Location offSet, int ticksToTake) {
 		super(connection);
-		this.target = offSet;
-		this.totalTicksToTake = ticksToTake;
 		this.ticksLeft = ticksToTake;
 		DirectedLocation loc = connection.getPlayerStatus().getHeadLocation();
 		double deltaX = loc.getX() - offSet.getX();
@@ -81,8 +79,8 @@ public class LookAt extends AbstractAction {
 			return;
 		}
 		ThePlayer status = connection.getPlayerStatus();
-		status.updateLookingDirection(status.getLocation().getYaw() + yawPerTick, status.getLocation().getPitch()
-				+ pitchPerTick);
+		status.updateLookingDirection(status.getLocation().getYaw() + yawPerTick,
+				status.getLocation().getPitch() + pitchPerTick);
 		try {
 			PlayerPositionAndLookPacket packet = new PlayerPositionAndLookPacket(status.getLocation(), true);
 			connection.sendPacket(packet);
@@ -93,13 +91,13 @@ public class LookAt extends AbstractAction {
 	}
 
 	@Override
-	public boolean isDone() {
-		return ticksLeft <= 0;
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.LOOKING_DIRECTION };
 	}
 
 	@Override
-	public ActionLock[] getActionLocks() {
-		return new ActionLock[] { ActionLock.LOOKING_DIRECTION };
+	public boolean isDone() {
+		return ticksLeft <= 0;
 	}
 
 }

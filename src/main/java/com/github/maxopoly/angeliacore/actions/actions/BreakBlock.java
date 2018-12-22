@@ -1,5 +1,7 @@
 package com.github.maxopoly.angeliacore.actions.actions;
 
+import java.io.IOException;
+
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
 import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
@@ -7,7 +9,6 @@ import com.github.maxopoly.angeliacore.connection.play.packets.out.BreakAnimatio
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerDiggingPacket;
 import com.github.maxopoly.angeliacore.model.location.BlockFace;
 import com.github.maxopoly.angeliacore.model.location.Location;
-import java.io.IOException;
 
 public class BreakBlock extends AbstractAction {
 
@@ -24,18 +25,6 @@ public class BreakBlock extends AbstractAction {
 		this.face = face;
 	}
 
-	public Location getBlockLocation() {
-		return blockLocation;
-	}
-
-	/**
-	 * 
-	 * @return Face the block is being broken from
-	 */
-	public BlockFace getFace() {
-		return face;
-	}
-
 	@Override
 	public void execute() {
 		if (breakingTicksTotal == remainingTicks) {
@@ -50,13 +39,26 @@ public class BreakBlock extends AbstractAction {
 		remainingTicks--;
 	}
 
-	private void sendDiggingPacket(int status) {
-		try {
-			PlayerDiggingPacket packet = new PlayerDiggingPacket(status, blockLocation, face);
-			connection.sendPacket(packet);
-		} catch (IOException e) {
-			connection.getLogger().error("Failed to send digging packet", e);
-		}
+	@Override
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.HOTBAR_SLOT };
+	}
+
+	public Location getBlockLocation() {
+		return blockLocation;
+	}
+
+	/**
+	 * 
+	 * @return Face the block is being broken from
+	 */
+	public BlockFace getFace() {
+		return face;
+	}
+
+	@Override
+	public boolean isDone() {
+		return remainingTicks < 0;
 	}
 
 	private void sendBreakAnimation() {
@@ -68,14 +70,13 @@ public class BreakBlock extends AbstractAction {
 		}
 	}
 
-	@Override
-	public boolean isDone() {
-		return remainingTicks < 0;
-	}
-
-	@Override
-	public ActionLock[] getActionLocks() {
-		return new ActionLock[] { ActionLock.HOTBAR_SLOT };
+	private void sendDiggingPacket(int status) {
+		try {
+			PlayerDiggingPacket packet = new PlayerDiggingPacket(status, blockLocation, face);
+			connection.sendPacket(packet);
+		} catch (IOException e) {
+			connection.getLogger().error("Failed to send digging packet", e);
+		}
 	}
 
 }

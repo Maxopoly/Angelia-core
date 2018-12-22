@@ -1,27 +1,38 @@
 package com.github.maxopoly.angeliacore.model.crafting;
 
-import com.github.maxopoly.angeliacore.model.item.Material;
-
-import com.github.maxopoly.angeliacore.model.item.ItemStack;
 import com.github.maxopoly.angeliacore.model.inventory.DummyInventory;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
+import com.github.maxopoly.angeliacore.model.item.ItemStack;
+import com.github.maxopoly.angeliacore.model.item.Material;
 
 public abstract class CraftingRecipe {
 
-	public static final CraftingRecipe3x3 STONE_PICK = new CraftingRecipe3x3(new Material[] { Material.COBBLESTONE,
-			Material.COBBLESTONE, Material.COBBLESTONE, Material.EMPTY_SLOT, Material.STICK, Material.EMPTY_SLOT,
-			Material.EMPTY_SLOT, Material.STICK, Material.EMPTY_SLOT }, new ItemStack(Material.STONE_PICKAXE));
-	public static final CraftingRecipe3x3 IRON_PICK = new CraftingRecipe3x3(new Material[] { Material.IRON_INGOT,
-			Material.IRON_INGOT, Material.IRON_INGOT, Material.EMPTY_SLOT, Material.STICK, Material.EMPTY_SLOT,
-			Material.EMPTY_SLOT, Material.STICK, Material.EMPTY_SLOT }, new ItemStack(Material.STONE_PICKAXE));
-	public static final CraftingRecipe3x3 DIAMOND_PICK = new CraftingRecipe3x3(new Material[] { Material.DIAMOND,
-			Material.DIAMOND, Material.DIAMOND, Material.EMPTY_SLOT, Material.STICK, Material.EMPTY_SLOT,
-			Material.EMPTY_SLOT, Material.STICK, Material.EMPTY_SLOT }, new ItemStack(Material.STONE_PICKAXE));
-	public static final CraftingRecipe2x2 CLAY_BLOCK = new CraftingRecipe2x2(new Material[] { Material.CLAY_BALL,
-			Material.CLAY_BALL, Material.CLAY_BALL, Material.CLAY_BALL }, new ItemStack(Material.CLAY));
+	public static final CraftingRecipe3x3 STONE_PICK = new CraftingRecipe3x3(
+			new Material[] { Material.COBBLESTONE, Material.COBBLESTONE, Material.COBBLESTONE, Material.EMPTY_SLOT,
+					Material.STICK, Material.EMPTY_SLOT, Material.EMPTY_SLOT, Material.STICK, Material.EMPTY_SLOT },
+			new ItemStack(Material.STONE_PICKAXE));
+	public static final CraftingRecipe3x3 IRON_PICK = new CraftingRecipe3x3(
+			new Material[] { Material.IRON_INGOT, Material.IRON_INGOT, Material.IRON_INGOT, Material.EMPTY_SLOT,
+					Material.STICK, Material.EMPTY_SLOT, Material.EMPTY_SLOT, Material.STICK, Material.EMPTY_SLOT },
+			new ItemStack(Material.STONE_PICKAXE));
+	public static final CraftingRecipe3x3 DIAMOND_PICK = new CraftingRecipe3x3(
+			new Material[] { Material.DIAMOND, Material.DIAMOND, Material.DIAMOND, Material.EMPTY_SLOT, Material.STICK,
+					Material.EMPTY_SLOT, Material.EMPTY_SLOT, Material.STICK, Material.EMPTY_SLOT },
+			new ItemStack(Material.STONE_PICKAXE));
+	public static final CraftingRecipe2x2 CLAY_BLOCK = new CraftingRecipe2x2(
+			new Material[] { Material.CLAY_BALL, Material.CLAY_BALL, Material.CLAY_BALL, Material.CLAY_BALL },
+			new ItemStack(Material.CLAY));
 
+	private static ItemStack[] fromMaterials(Material[] mats) {
+		ItemStack[] items = new ItemStack[mats.length];
+		for (int i = 0; i < mats.length; i++) {
+			items[i] = new ItemStack(mats[i]);
+		}
+		return items;
+	}
 	private Inventory items;
 	private Inventory combinedItems;
+
 	private ItemStack result;
 
 	public CraftingRecipe(ItemStack[] items, ItemStack result) {
@@ -39,18 +50,6 @@ public abstract class CraftingRecipe {
 
 	public CraftingRecipe(Material[] mats, ItemStack result) {
 		this(fromMaterials(mats), result);
-	}
-
-	private static ItemStack[] fromMaterials(Material[] mats) {
-		ItemStack[] items = new ItemStack[mats.length];
-		for (int i = 0; i < mats.length; i++) {
-			items[i] = new ItemStack(mats[i]);
-		}
-		return items;
-	}
-
-	public ItemStack getIngredient(int slot) {
-		return items.getSlot(slot);
 	}
 
 	public int amountAvailable(Inventory inv) {
@@ -75,12 +74,16 @@ public abstract class CraftingRecipe {
 		return runsPossible;
 	}
 
-	public int getSize() {
-		return items.getSize();
+	public ItemStack getIngredient(int slot) {
+		return items.getSlot(slot);
 	}
 
 	public ItemStack getResult() {
 		return result;
+	}
+
+	public int getSize() {
+		return items.getSize();
 	}
 
 }

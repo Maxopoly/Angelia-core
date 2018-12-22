@@ -1,27 +1,15 @@
 package com.github.maxopoly.angeliacore.actions.actions;
 
-import com.github.maxopoly.angeliacore.model.location.Location;
-
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
 import com.github.maxopoly.angeliacore.actions.SequentialActionExecution;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
+import com.github.maxopoly.angeliacore.model.location.Location;
 
 /**
  * Digs straight down. The player is assumed to already be at the location given
  *
  */
 public class DigDown extends SequentialActionExecution {
-
-	/**
-	 * @param loc
-	 *          Current player location and block location of the block above the first block to dif
-	 * @param howFar
-	 *          How deep should be dug
-	 */
-	public DigDown(ServerConnection connection, Location loc, int howFar, int blockBreakTime) {
-		// we have to do this inline while referring to a static method, because Java actually wont allow it any other way
-		super(constructActions(connection, loc, howFar, blockBreakTime));
-	}
 
 	private static AbstractAction[] constructActions(ServerConnection connection, Location loc, int howFar,
 			int blockBreakTime) {
@@ -35,5 +23,19 @@ public class DigDown extends SequentialActionExecution {
 			actions[(i * 2) + 1] = new MoveTo(connection, block.getBlockCenterXZ(), MoveTo.FALLING);
 		}
 		return actions;
+	}
+
+	/**
+	 * Digs straight down, assuming all blocks in the way have the same hardness
+	 * 
+	 * @param connection     Current connection
+	 * @param loc            Player location to start from
+	 * @param howFar         How many blocks should be dug down
+	 * @param blockBreakTime Break time in ticks spent for each block
+	 */
+	public DigDown(ServerConnection connection, Location loc, int howFar, int blockBreakTime) {
+		// we have to do this inline while referring to a static method, because Java
+		// actually wont allow it any other way
+		super(constructActions(connection, loc, howFar, blockBreakTime));
 	}
 }

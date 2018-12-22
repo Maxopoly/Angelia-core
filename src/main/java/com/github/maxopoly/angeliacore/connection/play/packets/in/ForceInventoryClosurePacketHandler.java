@@ -15,8 +15,8 @@ public class ForceInventoryClosurePacketHandler extends AbstractIncomingPacketHa
 	public void handlePacket(ReadOnlyPacket packet) {
 		try {
 			byte invId = packet.readByte();
-			connection.getEventHandler().broadcast(
-					new InventoryClosureEvent(invId, connection.getPlayerStatus().getInventory(invId)));
+			connection.getEventHandler()
+					.broadcast(new InventoryClosureEvent(invId, connection.getPlayerStatus().getInventory(invId)));
 			connection.getPlayerStatus().removeOpenInventory(invId);
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse inv closure packet", e);

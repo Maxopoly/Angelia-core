@@ -31,11 +31,6 @@ public class SequentialActionExecution extends AbstractAction {
 	}
 
 	@Override
-	public boolean isDone() {
-		return currentAction >= actions.length;
-	}
-
-	@Override
 	public ActionLock[] getActionLocks() {
 		Set<ActionLock> collActions = new HashSet<ActionLock>();
 		for (int i = currentAction; i < actions.length; i++) {
@@ -44,6 +39,11 @@ public class SequentialActionExecution extends AbstractAction {
 			}
 		}
 		return collActions.toArray(new ActionLock[0]);
+	}
+
+	@Override
+	public boolean isDone() {
+		return currentAction >= actions.length;
 	}
 
 }

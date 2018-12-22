@@ -7,8 +7,8 @@ import com.github.maxopoly.angeliacore.model.inventory.AnvilInventory;
 import com.github.maxopoly.angeliacore.model.inventory.BeaconInventory;
 import com.github.maxopoly.angeliacore.model.inventory.BrewingStandInventory;
 import com.github.maxopoly.angeliacore.model.inventory.EnchantmentTableInventory;
-import com.github.maxopoly.angeliacore.model.inventory.FurnaceInventory;
 import com.github.maxopoly.angeliacore.model.inventory.EnchantmentTableInventory.EnchantingSlot;
+import com.github.maxopoly.angeliacore.model.inventory.FurnaceInventory;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.item.Enchantment;
 import com.github.maxopoly.angeliacore.model.potion.PotionType;
@@ -56,25 +56,19 @@ public class WindowPropertyPacketHandler extends AbstractIncomingPacketHandler {
 			connection.getLogger().error("Failed to parse window property packet", e);
 		}
 	}
-	
-	private void updateBrewingStand(BrewingStandInventory inv, short property, short value) {
-		if (property < 0 || property > 1) {
-			throw new IllegalArgumentException("Property " + property + " is not known for brewing stands");
+
+	private void updateAnvil(AnvilInventory inv, short property, short value) {
+		if (property != 0) {
+			throw new IllegalArgumentException("Property " + property + " is not known for anvils");
 		}
-		switch(property) {
-		case 0:
-			inv.setBrewingTime(value);
-			break;
-		case 1:
-			inv.setFuelTime(value);
-		}
+		inv.setRepairCost(value);
 	}
-	
+
 	private void updateBeacon(BeaconInventory inv, short property, short value) {
 		if (property < 0 || property > 2) {
 			throw new IllegalArgumentException("Property " + property + " is not known for beacons");
 		}
-		switch(property) {
+		switch (property) {
 		case 0:
 			inv.setPowerLevel(value);
 			break;
@@ -86,30 +80,17 @@ public class WindowPropertyPacketHandler extends AbstractIncomingPacketHandler {
 		}
 	}
 
-	private void updateFurnace(FurnaceInventory inv, short property, short value) {
-		if (property < 0 || property > 3) {
-			throw new IllegalArgumentException("Property " + property + " is not known for furnaces");
+	private void updateBrewingStand(BrewingStandInventory inv, short property, short value) {
+		if (property < 0 || property > 1) {
+			throw new IllegalArgumentException("Property " + property + " is not known for brewing stands");
 		}
-		switch(property) {
+		switch (property) {
 		case 0:
-			inv.setFuelTicksLeft(value);
+			inv.setBrewingTime(value);
 			break;
 		case 1:
-			inv.setMaximumFuelBurnTime(value);
-			break;
-		case 2:
-			inv.setSmeltingProgress(value);
-			break;
-		case 3:
-			inv.setMaximumSmeltingProgress(value);
+			inv.setFuelTime(value);
 		}
-	}
-
-	private void updateAnvil(AnvilInventory inv, short property, short value) {
-		if (property != 0) {
-			throw new IllegalArgumentException("Property " + property + " is not known for anvils");
-		}
-		inv.setRepairCost(value);
 	}
 
 	private void updateEnchantmentTable(EnchantmentTableInventory inv, short property, short value) {
@@ -131,6 +112,25 @@ public class WindowPropertyPacketHandler extends AbstractIncomingPacketHandler {
 		}
 		Enchantment enchant = Enchantment.fromID(value);
 		inv.setPreviewEnchant(slot, enchant);
+	}
+
+	private void updateFurnace(FurnaceInventory inv, short property, short value) {
+		if (property < 0 || property > 3) {
+			throw new IllegalArgumentException("Property " + property + " is not known for furnaces");
+		}
+		switch (property) {
+		case 0:
+			inv.setFuelTicksLeft(value);
+			break;
+		case 1:
+			inv.setMaximumFuelBurnTime(value);
+			break;
+		case 2:
+			inv.setSmeltingProgress(value);
+			break;
+		case 3:
+			inv.setMaximumSmeltingProgress(value);
+		}
 	}
 
 }

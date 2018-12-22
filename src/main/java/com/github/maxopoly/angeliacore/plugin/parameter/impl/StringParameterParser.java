@@ -5,12 +5,12 @@ import com.github.maxopoly.angeliacore.plugin.parameter.ParameterParser;
 public class StringParameterParser implements ParameterParser<String> {
 
 	@Override
-	public String parse(String value) {
-		return value;
+	public Class<String> getClassParsed() {
+		return String.class;
 	}
 
 	@Override
-	public Class<String> getClassParsed() {
-		return String.class;
+	public String parse(String value) {
+		return value;
 	}
 }

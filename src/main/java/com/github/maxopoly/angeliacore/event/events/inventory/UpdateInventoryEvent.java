@@ -16,15 +16,15 @@ public class UpdateInventoryEvent implements AngeliaEvent {
 		this.newContent = newContent;
 	}
 
-	public byte getInventoryID() {
-		return invId;
+	public ItemStack[] getContent() {
+		return newContent;
 	}
 
 	public Inventory getInventory() {
 		return inv;
 	}
 
-	public ItemStack[] getContent() {
-		return newContent;
+	public byte getInventoryID() {
+		return invId;
 	}
 }

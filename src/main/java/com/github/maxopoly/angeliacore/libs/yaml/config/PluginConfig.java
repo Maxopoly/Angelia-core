@@ -11,7 +11,7 @@ public class PluginConfig extends YAMLFileConfig {
 	public PluginConfig(Logger logger, File file) {
 		super(logger, file);
 	}
-	
+
 	public ConfigSection getConfig() {
 		return config;
 	}

@@ -5,14 +5,14 @@ import com.github.maxopoly.angeliacore.model.entity.Entity;
 
 public class EntityUnloadEvent implements AngeliaEvent {
 
-    private Entity entity;
+	private Entity entity;
 
-    public EntityUnloadEvent(Entity entity) {
-        this.entity = entity;
-    }
+	public EntityUnloadEvent(Entity entity) {
+		this.entity = entity;
+	}
 
-    public Entity getEntity() {
-        return entity;
-    }
+	public Entity getEntity() {
+		return entity;
+	}
 
 }

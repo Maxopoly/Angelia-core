@@ -10,12 +10,12 @@ import java.lang.annotation.Target;
 public @interface ParameterLoad {
 
 	/**
-	 * Is the parameter required? If set to true, an exception will be thrown if no
-	 * option is given for it during plugin startup
+	 * The path to use for this option when loading it from the plugins yaml config
+	 * or an empty string if no path was specified
 	 * 
-	 * @return Whether this option is required
+	 * @return Full YAML config path for this option
 	 */
-	boolean isRequired() default false;
+	String configId() default "";
 
 	/**
 	 * The identifier used for this option when parsing it from command line. If
@@ -27,18 +27,18 @@ public @interface ParameterLoad {
 	String id() default "";
 
 	/**
-	 * The path to use for this option when loading it from the plugins yaml config
-	 * or an empty string if no path was specified
+	 * Is the parameter required? If set to true, an exception will be thrown if no
+	 * option is given for it during plugin startup
 	 * 
-	 * @return
+	 * @return Whether this option is required
 	 */
-	String configId() default "";
+	boolean isRequired() default false;
 
 	/**
 	 * Priorization order based on which is decided whether to use the direct input
 	 * or yaml value
 	 * 
-	 * @return
+	 * @return LoadPolicy used to decide which value to use
 	 */
 	LoadPolicy policy() default LoadPolicy.PRIORIZE_INPUT;
 

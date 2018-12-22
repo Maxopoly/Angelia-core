@@ -6,58 +6,58 @@ import com.github.maxopoly.angeliacore.model.block.RenderModule;
 
 public abstract class BlockState {
 
-    protected int id;
-    protected byte metaData;
-    protected float hardness;
-    protected String texturePackIdentifier;
-    protected String niceName;
-    protected RenderModule render;
+	protected int id;
+	protected byte metaData;
+	protected float hardness;
+	protected String texturePackIdentifier;
+	protected String niceName;
+	protected RenderModule render;
 
-    public BlockState(int id, byte metaData, float hardness, String texturePackIdentifier, String niceName) {
-        this.id = id;
-        this.metaData = metaData;
-        this.hardness = hardness;
-        this.texturePackIdentifier = texturePackIdentifier;
-        this.niceName = niceName;
-    }
+	public BlockState(int id, byte metaData, float hardness, String texturePackIdentifier, String niceName) {
+		this.id = id;
+		this.metaData = metaData;
+		this.hardness = hardness;
+		this.texturePackIdentifier = texturePackIdentifier;
+		this.niceName = niceName;
+	}
 
-    public int getID() {
-        return id;
-    }
+	public abstract BlockState getActualState(byte data);
 
-    public byte getMetaData() {
-        return metaData;
-    }
+	public double getHardness() {
+		return hardness;
+	}
 
-    public double getHardness() {
-        return hardness;
-    }
+	public int getID() {
+		return id;
+	}
 
-    public String getTexturePackIdentifier() {
-        return texturePackIdentifier;
-    }
-    
-    public void setRenderModule(RenderModule renderModule) {
-    	this.render = renderModule;
-    }
-    
-    public RenderModule getRenderModule() {
-    	return render;
-    }
+	public byte getMetaData() {
+		return metaData;
+	}
 
-    public abstract boolean isFullBlock();
+	public abstract int getMetaData(List<Enum> enums);
 
-    public abstract boolean isLiquid();
+	public RenderModule getRenderModule() {
+		return render;
+	}
 
-    public abstract boolean isOpaque();
-    
-    public abstract BlockState getActualState(byte data);
-    
-    public abstract int getMetaData(List<Enum> enums);
+	public String getTexturePackIdentifier() {
+		return texturePackIdentifier;
+	}
 
-    @Override
-    public String toString() {
-        return niceName != null ? niceName : id + ":" + metaData;
-    }
+	public abstract boolean isFullBlock();
+
+	public abstract boolean isLiquid();
+
+	public abstract boolean isOpaque();
+
+	public void setRenderModule(RenderModule renderModule) {
+		this.render = renderModule;
+	}
+
+	@Override
+	public String toString() {
+		return niceName != null ? niceName : id + ":" + metaData;
+	}
 
 }

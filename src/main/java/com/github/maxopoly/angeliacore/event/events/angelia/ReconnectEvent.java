@@ -19,20 +19,20 @@ public class ReconnectEvent implements AngeliaEvent {
 	}
 
 	/**
+	 * @return New connection to use. At the time of this event this connection is
+	 *         already fully setup
+	 */
+	public ServerConnection getNewConnection() {
+		return newConnection;
+	}
+
+	/**
 	 * @return Previous connection used. This will always be a connection that was
 	 *         fully established before, not one that failed during the reconnecting
 	 *         processs
 	 */
 	public ServerConnection getOldConnection() {
 		return oldConnection;
-	}
-
-	/**
-	 * @return New connection to use. At the time of this event this connection is
-	 *         already fully setup
-	 */
-	public ServerConnection getNewConnection() {
-		return newConnection;
 	}
 
 }

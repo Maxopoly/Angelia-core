@@ -1,11 +1,11 @@
 package com.github.maxopoly.angeliacore.actions.actions.inventory;
 
-import com.github.maxopoly.angeliacore.actions.AbstractAction;
+import java.io.IOException;
+
 import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.actions.SingleExecutionAction;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.HeldItemChangePacket;
-import java.io.IOException;
 
 public class ChangeSelectedItem extends SingleExecutionAction {
 

@@ -36,6 +36,23 @@ public class YAMLFileConfig {
 	}
 
 	/**
+	 * Checks whether a default config path was specified, not if the file behind it
+	 * actually exists
+	 * 
+	 * @return True if a non-null default config path was specified, false otherwise
+	 */
+	public boolean hasDefaultConfig() {
+		return defaultConfigPath != null;
+	}
+
+	/**
+	 * @return Whether there are changes that have to be written back to the file
+	 */
+	public boolean isDirty() {
+		return isDirty;
+	}
+
+	/**
 	 * Reloads the ConfigSection from the flat file
 	 */
 	public void reloadConfig() {
@@ -80,26 +97,6 @@ public class YAMLFileConfig {
 		writeFile(getClass().getResourceAsStream(defaultConfigPath), configFile.toPath());
 	}
 
-	private boolean writeFile(InputStream source, Path dest) {
-		try {
-			Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-			return true;
-		} catch (IOException ex) {
-			logger.warn("Failed to save default config, most likely we don't have write perms or the disk is full", ex);
-			return false;
-		}
-	}
-
-	/**
-	 * Checks whether a default config path was specified, not if the file behind it
-	 * actually exists
-	 * 
-	 * @return True if a non-null default config path was specified, false otherwise
-	 */
-	public boolean hasDefaultConfig() {
-		return defaultConfigPath != null;
-	}
-
 	/**
 	 * Sets whether there are changes to the in memory ConfigSection that have to be
 	 * written back
@@ -110,11 +107,14 @@ public class YAMLFileConfig {
 		this.isDirty = dirty;
 	}
 
-	/**
-	 * @return Whether there are changes that have to be written back to the file
-	 */
-	public boolean isDirty() {
-		return isDirty;
+	private boolean writeFile(InputStream source, Path dest) {
+		try {
+			Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+			return true;
+		} catch (IOException ex) {
+			logger.warn("Failed to save default config, most likely we don't have write perms or the disk is full", ex);
+			return false;
+		}
 	}
 
 }

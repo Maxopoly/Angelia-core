@@ -20,13 +20,6 @@ public class OtherPlayerPingUpdateEvent implements AngeliaEvent {
 	}
 
 	/**
-	 * @return Player whose ping is updated
-	 */
-	public OnlinePlayer getPlayer() {
-		return player;
-	}
-
-	/**
 	 * @return Updated ping of the player
 	 */
 	public int getNewPing() {
@@ -38,6 +31,13 @@ public class OtherPlayerPingUpdateEvent implements AngeliaEvent {
 	 */
 	public int getOldPing() {
 		return player.getPing();
+	}
+
+	/**
+	 * @return Player whose ping is updated
+	 */
+	public OnlinePlayer getPlayer() {
+		return player;
 	}
 
 }

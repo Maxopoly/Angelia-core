@@ -21,7 +21,8 @@ public class LookAtAndPlaceBlock extends AbstractAction {
 		super(connection);
 		this.block = block.toBlockLocation();
 		this.face = face;
-		// we dont want to do the location based calculations when creating this instance (and queueing it), but instead
+		// we dont want to do the location based calculations when creating this
+		// instance (and queueing it), but instead
 		// when it is executed
 	}
 
@@ -32,6 +33,11 @@ public class LookAtAndPlaceBlock extends AbstractAction {
 			actions.execute();
 		}
 		actions.execute();
+	}
+
+	@Override
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.LOOKING_DIRECTION, ActionLock.HOTBAR_SLOT };
 	}
 
 	@Override
@@ -50,13 +56,8 @@ public class LookAtAndPlaceBlock extends AbstractAction {
 		} else {
 			side = face;
 		}
-		this.actions = new SequentialActionExecution(new LookAt(connection, block, side), new PlaceBlock(connection, block,
-				side));
-	}
-
-	@Override
-	public ActionLock[] getActionLocks() {
-		return new ActionLock[] { ActionLock.LOOKING_DIRECTION, ActionLock.HOTBAR_SLOT };
+		this.actions = new SequentialActionExecution(new LookAt(connection, block, side),
+				new PlaceBlock(connection, block, side));
 	}
 
 }

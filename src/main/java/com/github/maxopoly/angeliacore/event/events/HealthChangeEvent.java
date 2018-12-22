@@ -10,11 +10,11 @@ public class HealthChangeEvent implements AngeliaEvent {
 		this.newValue = newValue;
 	}
 
-	public float getOldValue() {
-		return oldValue;
-	}
-
 	public float getNewValue() {
 		return newValue;
+	}
+
+	public float getOldValue() {
+		return oldValue;
 	}
 }

@@ -5,7 +5,7 @@ import com.github.maxopoly.angeliacore.model.entity.Entity;
 import com.github.maxopoly.angeliacore.model.location.DirectedLocation;
 
 public class EntityTeleportEvent implements AngeliaEvent {
-	
+
 	private Entity entity;
 	private DirectedLocation oldLocation;
 	private DirectedLocation newLocation;
@@ -20,11 +20,11 @@ public class EntityTeleportEvent implements AngeliaEvent {
 		return entity;
 	}
 
-	public DirectedLocation getOldLocation() {
-		return oldLocation;
-	}
-
 	public DirectedLocation getNewLocation() {
 		return newLocation;
+	}
+
+	public DirectedLocation getOldLocation() {
+		return oldLocation;
 	}
 }

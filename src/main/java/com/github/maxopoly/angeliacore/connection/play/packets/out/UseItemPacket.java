@@ -1,8 +1,9 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.out;
 
+import java.io.IOException;
+
 import com.github.maxopoly.angeliacore.libs.packetEncoding.WriteOnlyPacket;
 import com.github.maxopoly.angeliacore.model.item.Hand;
-import java.io.IOException;
 
 public class UseItemPacket extends WriteOnlyPacket {
 

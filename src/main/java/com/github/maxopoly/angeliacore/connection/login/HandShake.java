@@ -1,11 +1,12 @@
 package com.github.maxopoly.angeliacore.connection.login;
 
+import java.io.IOException;
+
+import org.json.JSONObject;
+
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.WriteOnlyPacket;
-
-import java.io.IOException;
-import org.json.JSONObject;
 
 public class HandShake {
 
@@ -13,6 +14,28 @@ public class HandShake {
 
 	public HandShake(ServerConnection connection) {
 		this.connection = connection;
+	}
+
+	private WriteOnlyPacket createHandshakeMessage(String host, int port, boolean beginLogin, int protocolVersion)
+			throws IOException {
+		WriteOnlyPacket handshakePacket = new WriteOnlyPacket(0x00);
+		handshakePacket.writeVarInt(protocolVersion);
+		handshakePacket.writeString(host);
+		handshakePacket.writeShort((short) port);
+		int status = beginLogin ? 2 : 1;
+		handshakePacket.writeVarInt(status);
+		return handshakePacket;
+	}
+
+	public int requestProtocolVersion() throws IOException {
+		String json = send(false, -1);
+		JSONObject jsonObject = new JSONObject(json);
+		JSONObject versionObject = jsonObject.getJSONObject("version");
+		int protocolNumber = versionObject.getInt("protocol");
+		String versionName = versionObject.getString("name");
+		connection.getLogger()
+				.info(connection.getAdress() + " is on version " + versionName + " with protocol " + protocolNumber);
+		return protocolNumber;
 	}
 
 	public String send(boolean requestConnection, int protocolVersion) throws IOException {
@@ -55,28 +78,6 @@ public class HandShake {
 			throw new IOException("Failed to handshake with server " + " - " + e.getClass());
 		}
 		return json;
-	}
-
-	public int requestProtocolVersion() throws IOException {
-		String json = send(false, -1);
-		JSONObject jsonObject = new JSONObject(json);
-		JSONObject versionObject = jsonObject.getJSONObject("version");
-		int protocolNumber = versionObject.getInt("protocol");
-		String versionName = versionObject.getString("name");
-		connection.getLogger().info(
-				connection.getAdress() + " is on version " + versionName + " with protocol " + protocolNumber);
-		return protocolNumber;
-	}
-
-	private WriteOnlyPacket createHandshakeMessage(String host, int port, boolean beginLogin, int protocolVersion)
-			throws IOException {
-		WriteOnlyPacket handshakePacket = new WriteOnlyPacket(0x00);
-		handshakePacket.writeVarInt(protocolVersion);
-		handshakePacket.writeString(host);
-		handshakePacket.writeShort((short) port);
-		int status = beginLogin ? 2 : 1;
-		handshakePacket.writeVarInt(status);
-		return handshakePacket;
 	}
 
 	public void sendLoginStartMessage(String playerName) throws IOException {

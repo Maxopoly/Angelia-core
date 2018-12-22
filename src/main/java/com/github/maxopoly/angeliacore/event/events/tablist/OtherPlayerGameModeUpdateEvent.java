@@ -21,13 +21,6 @@ public class OtherPlayerGameModeUpdateEvent implements AngeliaEvent {
 	}
 
 	/**
-	 * @return Player whose game mode changed
-	 */
-	public OnlinePlayer getPlayer() {
-		return player;
-	}
-
-	/**
 	 * @return Gamemode to which the player changed
 	 */
 	public GameMode getNewGameMode() {
@@ -39,6 +32,13 @@ public class OtherPlayerGameModeUpdateEvent implements AngeliaEvent {
 	 */
 	public GameMode getOldGameMode() {
 		return player.getGameMode();
+	}
+
+	/**
+	 * @return Player whose game mode changed
+	 */
+	public OnlinePlayer getPlayer() {
+		return player;
 	}
 
 }

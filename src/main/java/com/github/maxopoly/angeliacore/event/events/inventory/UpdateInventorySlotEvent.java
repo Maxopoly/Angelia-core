@@ -18,16 +18,12 @@ public class UpdateInventorySlotEvent implements AngeliaEvent {
 		this.newContent = newContent;
 	}
 
-	public int getSlot() {
-		return slot;
+	public Inventory getInventory() {
+		return inv;
 	}
 
 	public byte getInventoryID() {
 		return invId;
-	}
-
-	public Inventory getInventory() {
-		return inv;
 	}
 
 	public ItemStack getNewSlotContent() {
@@ -36,6 +32,10 @@ public class UpdateInventorySlotEvent implements AngeliaEvent {
 
 	public ItemStack getOldSlotContent() {
 		return inv.getSlot(slot);
+	}
+
+	public int getSlot() {
+		return slot;
 	}
 
 }

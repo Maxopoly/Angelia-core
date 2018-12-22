@@ -1,5 +1,8 @@
 package com.github.maxopoly.angeliacore.model;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.events.XPChangeEvent;
 import com.github.maxopoly.angeliacore.model.entity.LivingEntity;
@@ -8,8 +11,6 @@ import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
 import com.github.maxopoly.angeliacore.model.location.DirectedLocation;
 import com.github.maxopoly.angeliacore.model.location.Vector;
 import com.github.maxopoly.angeliacore.model.location.Velocity;
-import java.util.Map;
-import java.util.TreeMap;
 
 public class ThePlayer extends LivingEntity {
 
@@ -37,44 +38,8 @@ public class ThePlayer extends LivingEntity {
 		this.connection = connection;
 	}
 
-	public void updateXP(float progress, int level, int totalXP) {
-		connection.getEventHandler().broadcast(new XPChangeEvent(this.xpProgress, this.level, this.totalEXP, progress, level, totalXP));
-		this.level = level;
-		this.xpProgress = progress;
-		this.totalEXP = totalXP;
-	}
-	
-	public void updateHunger(int hunger, float saturation) {
-		this.hunger = hunger;
-		this.saturation = saturation;
-	}
-
-	/**
-	 * @return How close the player is to leveling up in a range from 0.0 to 1.0
-	 */
-	public float getXPProgress() {
-		return xpProgress;
-	}
-
-	/**
-	 * @return Current player level
-	 */
-	public int getLevel() {
-		return level;
-	}
-
-	/**
-	 * @return Total amount of XP units the player has
-	 */
-	public int getTotalXP() {
-		return totalEXP;
-	}
-
-	/**
-	 * @return Player hunger
-	 */
-	public int getHunger() {
-		return hunger;
+	public void addInventory(Inventory inv, byte id) {
+		openInventories.put(id, inv);
 	}
 
 	public DirectedLocation getHeadLocation() {
@@ -82,21 +47,10 @@ public class ThePlayer extends LivingEntity {
 	}
 
 	/**
-	 * @return Whether the location was initialized yet
+	 * @return Player hunger
 	 */
-	public boolean isInitialized() {
-		return initialized;
-	}
-	
-	public void setInitialized() {
-		initialized = true;
-	}
-
-	/**
-	 * @return Players inventory
-	 */
-	public PlayerInventory getPlayerInventory() {
-		return (PlayerInventory) openInventories.get((byte) 0);
+	public int getHunger() {
+		return hunger;
 	}
 
 	public Inventory getInventory(byte id) {
@@ -109,29 +63,18 @@ public class ThePlayer extends LivingEntity {
 		return openInventories.get(id);
 	}
 
-	public void addInventory(Inventory inv, byte id) {
-		openInventories.put(id, inv);
+	/**
+	 * @return Current player level
+	 */
+	public int getLevel() {
+		return level;
 	}
 
 	/**
-	 * @return Slot the player has selected
+	 * @return Players inventory
 	 */
-	public int getSelectedHotbarSlot() {
-		return selectedHotbarSlot;
-	}
-
-	public void setSelectedHotbarSlot(int slot) {
-		if (slot < 0 || slot > 8) {
-			throw new IllegalArgumentException("Slot must be in [0-8]");
-		}
-		this.selectedHotbarSlot = slot;
-	}
-
-	public void removeOpenInventory(byte id) {
-		// always keep player inventory
-		if (id != 0) {
-			openInventories.remove(id);
-		}
+	public PlayerInventory getPlayerInventory() {
+		return (PlayerInventory) openInventories.get((byte) 0);
 	}
 
 	/**
@@ -141,7 +84,66 @@ public class ThePlayer extends LivingEntity {
 		return saturation;
 	}
 
+	/**
+	 * @return Slot the player has selected
+	 */
+	public int getSelectedHotbarSlot() {
+		return selectedHotbarSlot;
+	}
+
+	/**
+	 * @return Total amount of XP units the player has
+	 */
+	public int getTotalXP() {
+		return totalEXP;
+	}
+
+	/**
+	 * @return How close the player is to leveling up in a range from 0.0 to 1.0
+	 */
+	public float getXPProgress() {
+		return xpProgress;
+	}
+
+	/**
+	 * @return Whether the location was initialized yet
+	 */
+	public boolean isInitialized() {
+		return initialized;
+	}
+
+	public void removeOpenInventory(byte id) {
+		// always keep player inventory
+		if (id != 0) {
+			openInventories.remove(id);
+		}
+	}
+
+	public void setInitialized() {
+		initialized = true;
+	}
+
 	public void setPlayerEntityID(int id) {
 		this.id = id;
+	}
+
+	public void setSelectedHotbarSlot(int slot) {
+		if (slot < 0 || slot > 8) {
+			throw new IllegalArgumentException("Slot must be in [0-8]");
+		}
+		this.selectedHotbarSlot = slot;
+	}
+
+	public void updateHunger(int hunger, float saturation) {
+		this.hunger = hunger;
+		this.saturation = saturation;
+	}
+
+	public void updateXP(float progress, int level, int totalXP) {
+		connection.getEventHandler()
+				.broadcast(new XPChangeEvent(this.xpProgress, this.level, this.totalEXP, progress, level, totalXP));
+		this.level = level;
+		this.xpProgress = progress;
+		this.totalEXP = totalXP;
 	}
 }

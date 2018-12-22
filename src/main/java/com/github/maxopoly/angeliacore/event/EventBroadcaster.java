@@ -1,6 +1,5 @@
 package com.github.maxopoly.angeliacore.event;
 
-import com.github.maxopoly.angeliacore.event.events.AngeliaEvent;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -9,16 +8,59 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import org.apache.logging.log4j.Logger;
+
+import com.github.maxopoly.angeliacore.event.events.AngeliaEvent;
 
 public class EventBroadcaster {
 
+	private class MethodListenerTuple {
+		private Method method;
+		private AngeliaListener listener;
+		private boolean autoTransfer;
+
+		private MethodListenerTuple(Method m, AngeliaListener listener, boolean autoTransfer) {
+			this.method = m;
+			this.listener = listener;
+			this.autoTransfer = autoTransfer;
+		}
+	}
 	private Map<Class<? extends AngeliaEvent>, List<MethodListenerTuple>> listenerMapping;
+
 	private Logger logger;
 
 	public EventBroadcaster(Logger logger) {
 		this.listenerMapping = new HashMap<Class<? extends AngeliaEvent>, List<MethodListenerTuple>>();
 		this.logger = logger;
+	}
+
+	public synchronized void broadcast(AngeliaEvent e) {
+		List<MethodListenerTuple> listeners = listenerMapping.get(e.getClass());
+		if (listeners == null) {
+			return;
+		}
+		for (MethodListenerTuple tuple : listeners) {
+			try {
+				tuple.method.invoke(tuple.listener, e);
+			} catch (Exception ex) {
+				// catching just any kind of exception isnt nice behavior, but this is where
+				// code outside of the core will run
+				// and we dont want the exceptions of that code to mess with the core
+				logger.error("Executing listener in class " + tuple.listener.getClass() + " threw exception ", ex);
+			}
+		}
+	}
+
+	private void internalRegister(Class<? extends AngeliaEvent> eventClass, Method method, boolean autoTransfer,
+			AngeliaListener listener) {
+		List<MethodListenerTuple> existingListeners = listenerMapping.get(eventClass);
+		if (existingListeners == null) {
+			existingListeners = new LinkedList<EventBroadcaster.MethodListenerTuple>();
+			listenerMapping.put(eventClass, existingListeners);
+		}
+		method.setAccessible(true);
+		existingListeners.add(new MethodListenerTuple(method, listener, autoTransfer));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -59,30 +101,13 @@ public class EventBroadcaster {
 		}
 	}
 
-	private void internalRegister(Class<? extends AngeliaEvent> eventClass, Method method, boolean autoTransfer,
-			AngeliaListener listener) {
-		List<MethodListenerTuple> existingListeners = listenerMapping.get(eventClass);
-		if (existingListeners == null) {
-			existingListeners = new LinkedList<EventBroadcaster.MethodListenerTuple>();
-			listenerMapping.put(eventClass, existingListeners);
-		}
-		method.setAccessible(true);
-		existingListeners.add(new MethodListenerTuple(method, listener, autoTransfer));
-	}
-
-	public synchronized void broadcast(AngeliaEvent e) {
-		List<MethodListenerTuple> listeners = listenerMapping.get(e.getClass());
-		if (listeners == null) {
-			return;
-		}
-		for (MethodListenerTuple tuple : listeners) {
-			try {
-				tuple.method.invoke(tuple.listener, e);
-			} catch (Exception ex) {
-				// catching just any kind of exception isnt nice behavior, but this is where
-				// code outside of the core will run
-				// and we dont want the exceptions of that code to mess with the core
-				logger.error("Executing listener in class " + tuple.listener.getClass() + " threw exception ", ex);
+	public synchronized void transferListeners(EventBroadcaster newInstance) {
+		for (Entry<Class<? extends AngeliaEvent>, List<MethodListenerTuple>> entry : listenerMapping.entrySet()) {
+			List<MethodListenerTuple> currList = entry.getValue();
+			for (MethodListenerTuple curr : currList) {
+				if (curr.autoTransfer) {
+					newInstance.internalRegister(entry.getKey(), curr.method, true, curr.listener);
+				}
 			}
 		}
 	}
@@ -97,29 +122,6 @@ public class EventBroadcaster {
 					i--;
 				}
 			}
-		}
-	}
-
-	public synchronized void transferListeners(EventBroadcaster newInstance) {
-		for (Entry<Class<? extends AngeliaEvent>, List<MethodListenerTuple>> entry : listenerMapping.entrySet()) {
-			List<MethodListenerTuple> currList = entry.getValue();
-			for (MethodListenerTuple curr : currList) {
-				if (curr.autoTransfer) {
-					newInstance.internalRegister(entry.getKey(), curr.method, true, curr.listener);
-				}
-			}
-		}
-	}
-
-	private class MethodListenerTuple {
-		private Method method;
-		private AngeliaListener listener;
-		private boolean autoTransfer;
-
-		private MethodListenerTuple(Method m, AngeliaListener listener, boolean autoTransfer) {
-			this.method = m;
-			this.listener = listener;
-			this.autoTransfer = autoTransfer;
 		}
 	}
 }

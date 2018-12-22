@@ -7,9 +7,14 @@ public class HopperInventory extends Inventory {
 	public HopperInventory(byte windowID) {
 		super(41, windowID);
 	}
-	
+
 	public DummyInventory getHopperStorage() {
 		return new DummyInventory(Arrays.copyOfRange(slots, 0, 5));
+	}
+
+	@Override
+	protected int getPlayerStorageStartingSlot() {
+		return 5;
 	}
 
 	public short translateHopperSlotToTotal(int slot) {
@@ -17,11 +22,6 @@ public class HopperInventory extends Inventory {
 			throw new IllegalArgumentException("Tried to access slot with index " + slot + ", but hopper size is 4");
 		}
 		return (short) slot;
-	}
-
-	@Override
-	protected int getPlayerStorageStartingSlot() {
-		return 5;
 	}
 
 }

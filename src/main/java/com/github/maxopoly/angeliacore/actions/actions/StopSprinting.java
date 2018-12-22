@@ -17,20 +17,21 @@ public class StopSprinting extends AbstractAction {
 	@Override
 	public void execute() {
 		try {
-			connection.sendPacket(new EntityActionPacket(connection.getPlayerStatus().getID(), Action.STOP_SPRINTING, 0));
+			connection
+					.sendPacket(new EntityActionPacket(connection.getPlayerStatus().getID(), Action.STOP_SPRINTING, 0));
 		} catch (IOException e) {
 			connection.getLogger().error("Failed to send stop sprint packet ", e);
 		}
 	}
 
 	@Override
-	public boolean isDone() {
-		return true;
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.MOVEMENT };
 	}
 
 	@Override
-	public ActionLock[] getActionLocks() {
-		return new ActionLock[] {ActionLock.MOVEMENT};
+	public boolean isDone() {
+		return true;
 	}
 
 }

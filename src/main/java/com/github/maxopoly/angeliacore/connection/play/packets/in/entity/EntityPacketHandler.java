@@ -6,15 +6,15 @@ import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 
 public class EntityPacketHandler extends AbstractIncomingPacketHandler {
 
-    public EntityPacketHandler(ServerConnection connection) {
-        super(connection, 0x25);
-    }
+	public EntityPacketHandler(ServerConnection connection) {
+		super(connection, 0x25);
+	}
 
-    @Override
-    public void handlePacket(ReadOnlyPacket packet) {
-        int entityId = packet.readVarInt();
-        //this one is weird
-        //TODO investigate
-    }
+	@Override
+	public void handlePacket(ReadOnlyPacket packet) {
+		int entityId = packet.readVarInt();
+		// this one is weird
+		// TODO investigate
+	}
 
 }

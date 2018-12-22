@@ -1,5 +1,9 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
+
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.EventBroadcaster;
 import com.github.maxopoly.angeliacore.event.events.tablist.OtherPlayerDisplayNameChangeEvent;
@@ -13,10 +17,6 @@ import com.github.maxopoly.angeliacore.model.player.GameMode;
 import com.github.maxopoly.angeliacore.model.player.OnlinePlayer;
 import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;
 import com.github.maxopoly.angeliacore.model.player.PlayerProperty;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
 
 public class PlayerListItemPacketHandler extends AbstractIncomingPacketHandler {
 

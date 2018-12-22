@@ -8,13 +8,13 @@ import com.github.maxopoly.angeliacore.model.player.OnlinePlayer;
  *
  */
 public class OtherPlayerJoinEvent implements AngeliaEvent {
-	
+
 	private OnlinePlayer player;
-	
+
 	public OtherPlayerJoinEvent(OnlinePlayer player) {
 		this.player = player;
 	}
-	
+
 	/**
 	 * @return Player who joined
 	 */

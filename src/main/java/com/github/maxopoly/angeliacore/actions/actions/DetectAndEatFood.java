@@ -1,5 +1,7 @@
 package com.github.maxopoly.angeliacore.actions.actions;
 
+import java.io.IOException;
+
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
 import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
@@ -9,7 +11,6 @@ import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
 import com.github.maxopoly.angeliacore.model.item.Hand;
 import com.github.maxopoly.angeliacore.model.item.ItemStack;
-import java.io.IOException;
 
 public class DetectAndEatFood extends AbstractAction {
 
@@ -74,11 +75,6 @@ public class DetectAndEatFood extends AbstractAction {
 		}
 	}
 
-	@Override
-	public boolean isDone() {
-		return done;
-	}
-
 	public boolean foundFood() {
 		return foundFood;
 	}
@@ -87,6 +83,11 @@ public class DetectAndEatFood extends AbstractAction {
 	public ActionLock[] getActionLocks() {
 		// movement is slower when eating, so let's stop moving when eating
 		return new ActionLock[] { ActionLock.HOTBAR_SLOT, ActionLock.MOVEMENT };
+	}
+
+	@Override
+	public boolean isDone() {
+		return done;
 	}
 
 }

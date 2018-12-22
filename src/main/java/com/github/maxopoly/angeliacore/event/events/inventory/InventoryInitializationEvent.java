@@ -13,11 +13,11 @@ public class InventoryInitializationEvent implements AngeliaEvent {
 		this.inv = inv;
 	}
 
-	public byte getInventoryID() {
-		return invId;
-	}
-
 	public Inventory getInventory() {
 		return inv;
+	}
+
+	public byte getInventoryID() {
+		return invId;
 	}
 }

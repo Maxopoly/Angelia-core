@@ -8,6 +8,5 @@ public class WalkTo extends MoveTo {
 	public WalkTo(ServerConnection connection, Location desto) {
 		super(connection, desto, MoveTo.WALKING_SPEED);
 	}
-	
-	
+
 }

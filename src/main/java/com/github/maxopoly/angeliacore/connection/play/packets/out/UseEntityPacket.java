@@ -13,7 +13,8 @@ public class UseEntityPacket extends WriteOnlyPacket {
 	}
 
 	public UseEntityPacket(int entityID, byte type, float targetX, float targetY, float targetZ) throws IOException {
-		// why the fuck is this using floats for coords instead of doubles like everything else? wtf mojang
+		// why the fuck is this using floats for coords instead of doubles like
+		// everything else? wtf mojang
 		super(0x0A);
 		writeVarInt(entityID);
 		writeByte(type);

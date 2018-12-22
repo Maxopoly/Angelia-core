@@ -13,8 +13,6 @@ import com.github.maxopoly.angeliacore.event.events.angelia.ReconnectEvent;
 public class ActiveConnectionManager {
 
 	private static ActiveConnectionManager instance;
-	private Map<String, ServerConnection> activeConnections = new ConcurrentHashMap<String, ServerConnection>();
-
 	public static ActiveConnectionManager getInstance() {
 		if (instance == null) {
 			instance = new ActiveConnectionManager();
@@ -22,7 +20,13 @@ public class ActiveConnectionManager {
 		return instance;
 	}
 
+	private Map<String, ServerConnection> activeConnections = new ConcurrentHashMap<String, ServerConnection>();
+
 	private ActiveConnectionManager() {
+	}
+
+	public ServerConnection getConnection(String playerName) {
+		return activeConnections.get(playerName);
 	}
 
 	public void initConnection(ServerConnection newConnection, ServerConnection oldConnection) {
@@ -57,13 +61,48 @@ public class ActiveConnectionManager {
 		newConnection.getEventHandler().broadcast(new ReconnectEvent(oldConnection, newConnection));
 	}
 
+	public void reportDisconnect(ServerConnection conn, DisconnectReason reason) {
+		synchronized (activeConnections) {
+			if (!activeConnections.values().contains(conn)) {
+				// disconnect may be reported in multiple layers, we only want the first one to
+				// count
+				return;
+			}
+			for (Entry<String, ServerConnection> entry : activeConnections.entrySet()) {
+				if (entry.getValue() == conn) {
+					activeConnections.remove(entry.getKey());
+					break;
+				}
+			}
+		}
+		switch (reason) {
+		case Critial_Exception:
+			conn.getLogger().info("Exiting, because continuing is no longer possible");
+			System.exit(1);
+			break;
+		case Intentional_Disconnect:
+			// whoever called this is expected to tell the user why we are exiting
+			System.exit(0);
+			break;
+		case Unknown_Connection_Error:
+			conn.getLogger().info("Server connection was closed for unknown reasons!");
+			break;
+		case Server_Disconnected_Intentionally:
+			conn.getLogger().info("Server disconnected us!");
+			break;
+		case Server_Timed_Out:
+			conn.getLogger().info("Server connection timed out!");
+			break;
+		}
+		scheduleConnectionReattempt(conn);
+	}
+
 	private void scheduleConnectionReattempt(final ServerConnection failed) {
 		if (!failed.getConfig().useAutoReconnect()) {
 			failed.getLogger().info("Autoreconnecting is disabled, connection will remain closed");
 			System.exit(0);
 			return;
-		}
-		else {
+		} else {
 			failed.getLogger().info("Autoreconnecting in " + failed.getConfig().getAuthReconnectDelay() + " ms");
 		}
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -77,45 +116,5 @@ public class ActiveConnectionManager {
 
 			}
 		}, failed.getConfig().getAuthReconnectDelay(), TimeUnit.MILLISECONDS);
-	}
-
-	public ServerConnection getConnection(String playerName) {
-		return activeConnections.get(playerName);
-	}
-
-	public void reportDisconnect(ServerConnection conn, DisconnectReason reason) {
-		synchronized (activeConnections) {
-			if (!activeConnections.values().contains(conn)) {
-				// disconnect may be reported in multiple layers, we only want the first one to count
-				return;
-			}
-			for (Entry<String, ServerConnection> entry : activeConnections.entrySet()) {
-				if (entry.getValue() == conn) {
-					activeConnections.remove(entry.getKey());
-					break;
-				}
-			}
-		}
-		switch (reason) {
-			case Critial_Exception:
-				conn.getLogger().info("Exiting, because continuing is no longer possible");
-				System.exit(1);
-				break;
-			case Intentional_Disconnect:
-				// whoever called this is expected to tell the user why we are exiting
-				System.exit(0);
-				break;
-			case Unknown_Connection_Error:
-				conn.getLogger().info(
-						"Server connection was closed for unknown reasons!");
-				break;
-			case Server_Disconnected_Intentionally:
-				conn.getLogger().info("Server disconnected us!");
-				break;
-			case Server_Timed_Out:
-				conn.getLogger().info("Server connection timed out!");
-				break;
-		}
-		scheduleConnectionReattempt(conn);
 	}
 }

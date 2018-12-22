@@ -10,20 +10,20 @@ public class OtherPlayerManager {
 
 	private final Map<UUID, OnlinePlayer> players = new HashMap<>();
 
+	public void addPlayer(OnlinePlayer player) {
+		players.put(player.getUUID(), player);
+	}
+
+	public List<OnlinePlayer> getOnlinePlayers() {
+		return new LinkedList<OnlinePlayer>(players.values());
+	}
+
 	public OnlinePlayer getPlayer(UUID uuid) {
 		return players.get(uuid);
 	}
 
 	public void removePlayer(UUID uuid) {
 		players.remove(uuid);
-	}
-
-	public void addPlayer(OnlinePlayer player) {
-		players.put(player.getUUID(), player);
-	}
-	
-	public List<OnlinePlayer> getOnlinePlayers() {
-		return new LinkedList<OnlinePlayer>(players.values());
 	}
 
 }

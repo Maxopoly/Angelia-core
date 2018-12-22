@@ -6,6 +6,11 @@ import com.github.maxopoly.angeliacore.plugin.parameter.InvalidParameterValueExc
 public class VectorParameterParser extends AbstractObjectParameterParser<Vector> {
 
 	@Override
+	public Class<Vector> getClassParsed() {
+		return Vector.class;
+	}
+
+	@Override
 	public Vector parseObject(String value) {
 		String[] args = value.split(" ");
 		if (args.length != 3) {
@@ -20,10 +25,5 @@ public class VectorParameterParser extends AbstractObjectParameterParser<Vector>
 			throw new InvalidParameterValueException();
 		}
 		return new Vector(parsed[0], parsed[1], parsed[2]);
-	}
-
-	@Override
-	public Class<Vector> getClassParsed() {
-		return Vector.class;
 	}
 }

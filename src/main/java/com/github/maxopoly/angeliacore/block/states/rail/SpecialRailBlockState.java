@@ -10,12 +10,12 @@ public class SpecialRailBlockState extends GeneralRailBlockState {
 			throw new IllegalArgumentException("Can not instanciate special rail with meta " + metaData);
 		}
 	}
-	
-	public SpecialRailStateEnum getRailState() {
-		return SpecialRailStateEnum.values() [metaData & 0x8];
-	}
-	
+
 	public PowerableStateEnum getPowerState() {
-		return metaData > 7 ? PowerableStateEnum.POWERED: PowerableStateEnum.NOT_POWERED;
+		return metaData > 7 ? PowerableStateEnum.POWERED : PowerableStateEnum.NOT_POWERED;
+	}
+
+	public SpecialRailStateEnum getRailState() {
+		return SpecialRailStateEnum.values()[metaData & 0x8];
 	}
 }

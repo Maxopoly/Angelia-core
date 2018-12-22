@@ -1,5 +1,19 @@
 package com.github.maxopoly.angeliacore.connection;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketException;
+import java.util.Arrays;
+import java.util.Timer;
+import java.util.UUID;
+
+import org.apache.logging.log4j.Logger;
+
 import com.github.maxopoly.angeliacore.actions.ActionQueue;
 import com.github.maxopoly.angeliacore.connection.compression.CompressionManager;
 import com.github.maxopoly.angeliacore.connection.compression.MalformedCompressedDataException;
@@ -23,24 +37,13 @@ import com.github.maxopoly.angeliacore.model.block.ChunkHolder;
 import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;
 import com.github.maxopoly.angeliacore.plugin.PluginManager;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketException;
-import java.util.Arrays;
-import java.util.Timer;
-import java.util.UUID;
-
-import org.apache.logging.log4j.Logger;
-
 /**
  * Represents a connection to a server. Attributes may contain invalid/null
  * values before the connect() method was called and should only be accessed
- * afterwards (except for constructor fields)
+ * afterwards (except for constructor fields). After connecting this is your
+ * gateway to everything associated with the current connection.
+ * ServerConnection objects will be discarded upon reconnecting and should not
+ * be cached past that
  *
  */
 public class ServerConnection {
@@ -113,21 +116,41 @@ public class ServerConnection {
 	}
 
 	/**
-	 * Dumps the current connection and starts over with a new socket
+	 * Called during the connection setup process to setup packet (de-)compression
+	 * 
+	 * @param maximumUncompressedSize Compression threshhold as specified by the
+	 *                                server
 	 */
-	private void reestablishConnection() throws IOException {
-		this.socket = new Socket();
-		InetSocketAddress host = new InetSocketAddress(serverAdress, port);
+	public void activateCompression(int maximumUncompressedSize) {
+		logger.info("Enabling compression with " + maximumUncompressedSize
+				+ " as compression threshhold for connection to " + serverAdress);
+		this.compressionEnabled = true;
+		this.maximumUncompressedPacketSize = maximumUncompressedSize;
+	}
+
+	/**
+	 * Closes this connection irrevertably
+	 * 
+	 * @param reason Reason based on which is decided whether to attempt
+	 *               reconnecting or not
+	 */
+	public void close(DisconnectReason reason) {
 		try {
-			socket.connect(host, 3000);
-			input = new DataInputStream(socket.getInputStream());
-			output = new DataOutputStream(socket.getOutputStream());
-		} catch (ConnectException e) {
-			throw new IOException("Failed to connect to " + serverAdress + ":" + port);
+			logger.info("Closing socket with " + serverAdress);
+			if (!socket.isClosed()) {
+				socket.close();
+			}
+			if (tickTimer != null) {
+				tickTimer.cancel();
+				tickTimer.purge();
+			}
+			eventHandler.broadcast(
+					new ServerDisconnectEvent(reason, config.useAutoReconnect(), config.getAuthReconnectDelay()));
+			closed = true;
 		} catch (IOException e) {
-			logger.error("Exception occured", e);
-			throw new IOException("Failed to connect to " + serverAdress + ":" + port);
+			// its ok, probably
 		}
+		ActiveConnectionManager.getInstance().reportDisconnect(this, reason);
 	}
 
 	/**
@@ -210,50 +233,96 @@ public class ServerConnection {
 	}
 
 	/**
-	 * Sends a packet to the server. This method also handles both compression and
-	 * encryption
-	 *
-	 * @param packet Packet to send
-	 * @throws IOException
+	 * @return True if there is packet data to process, false if not
+	 * @throws IOException If connection broke
 	 */
-	public void sendPacket(WriteOnlyPacket packet) throws IOException {
-		synchronized (output) {
-			byte[] data;
-			int packetSize = packet.getSize();
-			if (compressionEnabled) {
-				if (packetSize > maximumUncompressedPacketSize) {
-					WriteOnlyPacket compressedPacket = new WriteOnlyPacket();
-					byte[] compressedData = CompressionManager.compressZLib(packet.toByteArray());
-					// write length of uncompressed data
-					compressedPacket.writeVarInt(packet.getSize());
-					// write compressed data
-					compressedPacket.writeBytes(compressedData);
-					// standard append length of total packet at the front to finish compression
-					data = compressedPacket.toByteArrayIncludingLength();
-				} else {
-					// no compression in which case we write 0 as uncompressed size and directly
-					// copy the data
-					WriteOnlyPacket fakeCompressedPacket = new WriteOnlyPacket();
-					fakeCompressedPacket.writeByte((byte) 0);
-					fakeCompressedPacket.writeBytes(packet.toByteArray());
-					data = fakeCompressedPacket.toByteArrayIncludingLength();
-				}
-			} else {
-				data = packet.toByteArrayIncludingLength();
-			}
-			if (encryptionEnabled) {
-				data = syncEncryptionHandler.encrypt(data);
-			}
-			try {
-				output.write(data);
-			} catch (SocketException e) {
-				close(DisconnectReason.Unknown_Connection_Error);
-			}
+	public boolean dataAvailable() throws IOException {
+		synchronized (input) {
+			return input.available() != 0;
 		}
 	}
 
-	public boolean isLocalHost() {
-		return localHost;
+	/**
+	 * @return Connections action queue
+	 */
+	public ActionQueue getActionQueue() {
+		return actionQueue;
+	}
+
+	/**
+	 * @return Address (Domain or IP) this connection is connected to
+	 */
+	public String getAdress() {
+		return serverAdress;
+	}
+
+	/**
+	 * @return Mojang side authentication of the player
+	 */
+	AuthenticationHandler getAuthHandler() {
+		return authHandler;
+	}
+
+	/**
+	 * @return Manager which holds chunk data and is gate way for all block data
+	 *         access
+	 */
+	public ChunkHolder getChunkHolder() {
+		return chunkHolder;
+	}
+
+	/**
+	 * @return Clientside only configuration manager
+	 */
+	public GlobalConfig getConfig() {
+		return config;
+	}
+
+	/**
+	 * Folder in which data relevant to this connection including its plugins etc.
+	 * is persisted
+	 * 
+	 * @return General Angelia data folder
+	 */
+	public File getDataFolder() {
+		return dataFolder;
+	}
+
+	public EntityManager getEntityManager() {
+		return entityManager;
+	}
+
+	/**
+	 *
+	 * @return EventHandler for registering listeners and calling events
+	 */
+	public EventBroadcaster getEventHandler() {
+		return eventHandler;
+	}
+
+	/**
+	 * @return Handler for incoming packets while connection is in play state
+	 */
+	public Heartbeat getIncomingPlayPacketHandler() {
+		return playPacketHandler;
+	}
+
+	/**
+	 * @return Manager for item transactions
+	 */
+	public ItemTransactionManager getItemTransActionManager() {
+		return transActionManager;
+	}
+
+	/**
+	 * @return Logging instance used by this connection
+	 */
+	public Logger getLogger() {
+		return logger;
+	}
+
+	public OtherPlayerManager getOtherPlayerManager() {
+		return otherPlayerManager;
 	}
 
 	/**
@@ -261,7 +330,11 @@ public class ServerConnection {
 	 * is available if none is available.
 	 *
 	 * @return Packet read
-	 * @throws MalformedCompressedDataException
+	 * @throws MalformedCompressedDataException Only thrown if the server sent
+	 *                                          broken data
+	 * @throws IOException                      If anything went wrong, usually this
+	 *                                          is caused by general connection
+	 *                                          problems
 	 */
 	public ReadOnlyPacket getPacket() throws IOException, MalformedCompressedDataException {
 		synchronized (input) {
@@ -320,46 +393,11 @@ public class ServerConnection {
 		}
 	}
 
-	public boolean dataAvailable() throws IOException {
-		synchronized (input) {
-			return input.available() != 0;
-		}
-	}
-
 	/**
-	 * Closes this connection irrevertably
+	 * @return The name of the player connected
 	 */
-	public void close(DisconnectReason reason) {
-		try {
-			logger.info("Closing socket with " + serverAdress);
-			if (!socket.isClosed()) {
-				socket.close();
-			}
-			if (tickTimer != null) {
-				tickTimer.cancel();
-				tickTimer.purge();
-			}
-			eventHandler.broadcast(
-					new ServerDisconnectEvent(reason, config.useAutoReconnect(), config.getAuthReconnectDelay()));
-			closed = true;
-		} catch (IOException e) {
-			// its ok, probably
-		}
-		ActiveConnectionManager.getInstance().reportDisconnect(this, reason);
-	}
-
-	public void activateCompression(int maximumUncompressedSize) {
-		logger.info("Enabling compression with " + maximumUncompressedSize
-				+ " as compression threshhold for connection to " + serverAdress);
-		this.compressionEnabled = true;
-		this.maximumUncompressedPacketSize = maximumUncompressedSize;
-	}
-
-	/**
-	 * @return Adress (Domain or IP) this connection is connected to
-	 */
-	public String getAdress() {
-		return serverAdress;
+	public String getPlayerName() {
+		return authHandler.getPlayerName();
 	}
 
 	/**
@@ -371,38 +409,13 @@ public class ServerConnection {
 	}
 
 	/**
-	 * @return Handler for incoming packets while connection is in play state
+	 * @return The UUID of the player connected
 	 */
-	public Heartbeat getIncomingPlayPacketHandler() {
-		return playPacketHandler;
-	}
-
-	/**
-	 * @return Logging instance used by this connection
-	 */
-	public Logger getLogger() {
-		return logger;
-	}
-
-	/**
-	 * @return Manager for item transactions
-	 */
-	public ItemTransactionManager getItemTransActionManager() {
-		return transActionManager;
-	}
-
-	/**
-	 * @return Port used, 25565 is default
-	 */
-	public int getPort() {
-		return port;
-	}
-
-	/**
-	 * @return Whether this connection was closed
-	 */
-	public boolean isClosed() {
-		return closed;
+	public UUID getPlayerUUID() {
+		String withoutDash = authHandler.getPlayerUUID();
+		return UUID.fromString(
+				withoutDash.substring(0, 8) + "-" + withoutDash.substring(8, 12) + "-" + withoutDash.substring(12, 16)
+						+ "-" + withoutDash.substring(16, 24) + "-" + withoutDash.substring(24, 32));
 	}
 
 	/**
@@ -413,34 +426,10 @@ public class ServerConnection {
 	}
 
 	/**
-	 * @return Connections action queue
+	 * @return Port used, 25565 is default
 	 */
-	public ActionQueue getActionQueue() {
-		return actionQueue;
-	}
-
-	/**
-	 * @return Manager which holds chunk data and is gate way for all block data
-	 *         access
-	 */
-	public ChunkHolder getChunkHolder() {
-		return chunkHolder;
-	}
-
-	public EntityManager getEntityManager() {
-		return entityManager;
-	}
-
-	/**
-	 *
-	 * @return EventHandler for registering listeners and calling events
-	 */
-	public EventBroadcaster getEventHandler() {
-		return eventHandler;
-	}
-
-	public OtherPlayerManager getOtherPlayerManager() {
-		return otherPlayerManager;
+	public int getPort() {
+		return port;
 	}
 
 	/**
@@ -451,41 +440,75 @@ public class ServerConnection {
 	}
 
 	/**
-	 * @return Mojang side authentication of the player
+	 * @return Whether this connection was closed
 	 */
-	AuthenticationHandler getAuthHandler() {
-		return authHandler;
+	public boolean isClosed() {
+		return closed;
+	}
+
+	public boolean isLocalHost() {
+		return localHost;
 	}
 
 	/**
-	 * @return Clientside only configuration manager
+	 * Dumps the current connection and starts over with a new socket
 	 */
-	public GlobalConfig getConfig() {
-		return config;
+	private void reestablishConnection() throws IOException {
+		this.socket = new Socket();
+		InetSocketAddress host = new InetSocketAddress(serverAdress, port);
+		try {
+			socket.connect(host, 3000);
+			input = new DataInputStream(socket.getInputStream());
+			output = new DataOutputStream(socket.getOutputStream());
+		} catch (ConnectException e) {
+			throw new IOException("Failed to connect to " + serverAdress + ":" + port);
+		} catch (IOException e) {
+			logger.error("Exception occured", e);
+			throw new IOException("Failed to connect to " + serverAdress + ":" + port);
+		}
 	}
 
 	/**
-	 * @return The name of the player connected
+	 * Sends a packet to the server. This method also handles both compression and
+	 * encryption
+	 *
+	 * @param packet Packet to send
+	 * @throws IOException If anything went wrong, usually this is caused by general
+	 *                     connection problems
 	 */
-	public String getPlayerName() {
-		return authHandler.getPlayerName();
-	}
-
-	/**
-	 * @return The UUID of the player connected
-	 */
-	public UUID getPlayerUUID() {
-		String withoutDash = authHandler.getPlayerUUID();
-		return UUID.fromString(
-				withoutDash.substring(0, 8) + "-" + withoutDash.substring(8, 12) + "-" + withoutDash.substring(12, 16)
-						+ "-" + withoutDash.substring(16, 24) + "-" + withoutDash.substring(24, 32));
-	}
-	
-	/**
-	 * Folder in which data relevant to this connection including its plugins etc. is persisted
-	 * @return
-	 */
-	public File getDataFolder() {
-		return dataFolder;
+	public void sendPacket(WriteOnlyPacket packet) throws IOException {
+		synchronized (output) {
+			byte[] data;
+			int packetSize = packet.getSize();
+			if (compressionEnabled) {
+				if (packetSize > maximumUncompressedPacketSize) {
+					WriteOnlyPacket compressedPacket = new WriteOnlyPacket();
+					byte[] compressedData = CompressionManager.compressZLib(packet.toByteArray());
+					// write length of uncompressed data
+					compressedPacket.writeVarInt(packet.getSize());
+					// write compressed data
+					compressedPacket.writeBytes(compressedData);
+					// standard append length of total packet at the front to finish compression
+					data = compressedPacket.toByteArrayIncludingLength();
+				} else {
+					// no compression in which case we write 0 as uncompressed size and directly
+					// copy the data
+					WriteOnlyPacket fakeCompressedPacket = new WriteOnlyPacket();
+					fakeCompressedPacket.writeByte((byte) 0);
+					fakeCompressedPacket.writeBytes(packet.toByteArray());
+					data = fakeCompressedPacket.toByteArrayIncludingLength();
+				}
+			} else {
+				data = packet.toByteArrayIncludingLength();
+			}
+			if (encryptionEnabled) {
+				data = syncEncryptionHandler.encrypt(data);
+			}
+			try {
+				output.write(data);
+			} catch (SocketException e) {
+				close(DisconnectReason.Unknown_Connection_Error);
+			}
+		}
 	}
 }

@@ -11,8 +11,25 @@ public class BrewingStandInventory extends Inventory {
 		super(41, windowID);
 	}
 
+	/**
+	 * @return How far the brewing process is done in the range [0,400] (for vanilla
+	 *         servers)
+	 */
+	public short getBrewingTime() {
+		return brewingTime;
+	}
+
 	public ItemStack getFuelSlot() {
 		return slots[4];
+	}
+
+	/**
+	 * @return How far we are into fuel consumption in the range [0,20] (for vanilla
+	 */
+	public short getFuelTime() {
+		// TODO fuel and brewing time may be swapped around, current docu is copied from
+		// the protocol wiki
+		return fuelTime;
 	}
 
 	public ItemStack getIngredientSlot() {
@@ -27,13 +44,13 @@ public class BrewingStandInventory extends Inventory {
 		return slots[1];
 	}
 
-	public ItemStack getRightResultSlot() {
-		return slots[2];
-	}
-
 	@Override
 	protected int getPlayerStorageStartingSlot() {
 		return 5;
+	}
+
+	public ItemStack getRightResultSlot() {
+		return slots[2];
 	}
 
 	public void setBrewingTime(short brewTime) {
@@ -42,22 +59,6 @@ public class BrewingStandInventory extends Inventory {
 
 	public void setFuelTime(short fuelTime) {
 		this.fuelTime = fuelTime;
-	}
-
-	/**
-	 * @return How far the brewing process is done in the range [0,400] (for vanilla
-	 *         servers)
-	 */
-	public short getBrewingTime() {
-		return brewingTime;
-	}
-
-	/**
-	 * @return How far we are into fuel consumption in the range [0,20] (for vanilla
-	 */
-	public short getFuelTime() {
-		//TODO fuel and brewing time may be swapped around, current docu is copied from the protocol wiki
-		return fuelTime;
 	}
 
 }

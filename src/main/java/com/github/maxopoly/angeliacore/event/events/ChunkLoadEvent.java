@@ -8,14 +8,14 @@ import com.github.maxopoly.angeliacore.model.block.Chunk;
  */
 public class ChunkLoadEvent implements AngeliaEvent {
 
-    private Chunk chunk;
+	private Chunk chunk;
 
-    public ChunkLoadEvent(Chunk chunk) {
-        this.chunk = chunk;
-    }
+	public ChunkLoadEvent(Chunk chunk) {
+		this.chunk = chunk;
+	}
 
-    public Chunk getChunk() {
-        return chunk;
-    }
+	public Chunk getChunk() {
+		return chunk;
+	}
 
 }

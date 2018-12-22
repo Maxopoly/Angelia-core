@@ -1,13 +1,12 @@
 package com.github.maxopoly.angeliacore.actions.actions.inventory;
 
-import com.github.maxopoly.angeliacore.model.item.Material;
-
-import com.github.maxopoly.angeliacore.model.item.ItemStack;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.model.crafting.CraftingRecipe;
 import com.github.maxopoly.angeliacore.model.crafting.CraftingRecipe2x2;
 import com.github.maxopoly.angeliacore.model.inventory.DummyInventory;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
+import com.github.maxopoly.angeliacore.model.item.ItemStack;
+import com.github.maxopoly.angeliacore.model.item.Material;
 
 public class Craft2x2 extends InventoryAction {
 
@@ -77,7 +76,8 @@ public class Craft2x2 extends InventoryAction {
 				takeResult.execute();
 				return;
 			} else {
-				// more slots left to go, so we just repeat execution, dont need to waste a tick on an empty slot
+				// more slots left to go, so we just repeat execution, dont need to waste a tick
+				// on an empty slot
 				execute();
 				return;
 			}
@@ -87,7 +87,8 @@ public class Craft2x2 extends InventoryAction {
 			new OpenPlayerInventory(connection).execute();
 			movementsLeftForCurrent = amount;
 			System.out.println("Setting up for maximum");
-			// search for a storage slot which has the item we want and start moving from there in the crafting slot
+			// search for a storage slot which has the item we want and start moving from
+			// there in the crafting slot
 			resetMoveAction(inv);
 			moveAction.execute();
 			return;
@@ -116,12 +117,9 @@ public class Craft2x2 extends InventoryAction {
 		resetMoveAction(inv);
 	}
 
-	private void setupResultTake() {
-		PlayerInventory inv = connection.getPlayerStatus().getPlayerInventory();
-		inv.updateSlot(inv.getCraftingResultID(), recipe.getResult());
-		// move result to an empty slot
-		this.takeResult = new MoveItem(connection, windowID, inv.getCraftingResultID(), inv.translateStorageSlotToTotal(inv
-				.getPlayerStorage().findSlotByType(new ItemStack(Material.EMPTY_SLOT))));
+	@Override
+	public boolean isDone() {
+		return done;
 	}
 
 	private void resetMoveAction(PlayerInventory inv) {
@@ -129,7 +127,8 @@ public class Craft2x2 extends InventoryAction {
 		DummyInventory storage = inv.getPlayerStorage();
 		int slot = storage.findSlot(is);
 		if (slot == -1) {
-			// this shouldnt really happen as we checked beforehand that enough items are around, but oh well
+			// this shouldnt really happen as we checked beforehand that enough items are
+			// around, but oh well
 			connection.getLogger().warn("Crafting action ran out of materials half way through?");
 			done = true;
 			successfull = false;
@@ -137,12 +136,16 @@ public class Craft2x2 extends InventoryAction {
 		}
 		ItemStack foundStack = storage.getSlot(slot);
 		this.moveAction = new MoveItemAmount(connection, windowID, inv.translateStorageSlotToTotal(slot),
-				inv.translateCraftingSlotToTotal(slotBeingHandled), Math.min(foundStack.getAmount(), movementsLeftForCurrent));
+				inv.translateCraftingSlotToTotal(slotBeingHandled),
+				Math.min(foundStack.getAmount(), movementsLeftForCurrent));
 	}
 
-	@Override
-	public boolean isDone() {
-		return done;
+	private void setupResultTake() {
+		PlayerInventory inv = connection.getPlayerStatus().getPlayerInventory();
+		inv.updateSlot(inv.getCraftingResultID(), recipe.getResult());
+		// move result to an empty slot
+		this.takeResult = new MoveItem(connection, windowID, inv.getCraftingResultID(), inv.translateStorageSlotToTotal(
+				inv.getPlayerStorage().findSlotByType(new ItemStack(Material.EMPTY_SLOT))));
 	}
 
 }

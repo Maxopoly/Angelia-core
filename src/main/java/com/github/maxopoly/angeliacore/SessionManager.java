@@ -1,6 +1,5 @@
 package com.github.maxopoly.angeliacore;
 
-import com.github.maxopoly.angeliacore.connection.login.AuthenticationHandler;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,9 +7,12 @@ import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import com.github.maxopoly.angeliacore.connection.login.AuthenticationHandler;
 
 public class SessionManager {
 
@@ -30,15 +32,6 @@ public class SessionManager {
 		}
 	}
 
-	public AuthenticationHandler getAccountByEmail(String email) {
-		for (AuthenticationHandler auth : getAvailableAccounts()) {
-			if (auth.getEmail().equalsIgnoreCase(email)) {
-				return auth;
-			}
-		}
-		return null;
-	}
-
 	public synchronized AuthenticationHandler authNewAccount(String userName, String password) {
 		AuthenticationHandler authHandler;
 		try {
@@ -48,6 +41,31 @@ public class SessionManager {
 			return null;
 		}
 		return authHandler;
+	}
+
+	public synchronized void deleteAuth(AuthenticationHandler auth) {
+		logger.info("Deleting access tokens for " + auth.getPlayerName() + " from save file");
+		JSONObject json = loadAuthJson(saveFile);
+		if (json == null) {
+			return;
+		}
+		json.put("clientToken", clientToken);
+		JSONObject authSection = json.optJSONObject("authenticationDatabase");
+		if (authSection == null) {
+			return;
+		}
+		String identifierString = legacyFormat ? auth.getPlayerUUID() : auth.getUserID();
+		authSection.remove(identifierString);
+		saveJSON(saveFile, json);
+	}
+
+	public AuthenticationHandler getAccountByEmail(String email) {
+		for (AuthenticationHandler auth : getAvailableAccounts()) {
+			if (auth.getEmail().equalsIgnoreCase(email)) {
+				return auth;
+			}
+		}
+		return null;
 	}
 
 	public List<AuthenticationHandler> getAvailableAccounts() {
@@ -126,20 +144,30 @@ public class SessionManager {
 		return auths;
 	}
 
-	public synchronized void deleteAuth(AuthenticationHandler auth) {
-		logger.info("Deleting access tokens for " + auth.getPlayerName() + " from save file");
-		JSONObject json = loadAuthJson(saveFile);
-		if (json == null) {
+	private void saveJSON(File file, JSONObject json) {
+		File parent = file.getParentFile();
+		if (!parent.isDirectory()) {
+			logger.info("Path to token save file did not exst, creating it: " + parent.getAbsolutePath());
+			if (!file.getParentFile().mkdirs()) {
+				logger.error(
+						"Failed to create folder for auth token save file. This likely means that you messed up file permissions");
+				return;
+			}
+		}
+		try {
+			file.createNewFile();
+		} catch (IOException e1) {
+			logger.error(
+					"Failed to recreate auth token save file. This likely means that you messed up file permissions",
+					e1);
 			return;
 		}
-		json.put("clientToken", clientToken);
-		JSONObject authSection = json.optJSONObject("authenticationDatabase");
-		if (authSection == null) {
+		try (FileWriter writer = new FileWriter(file)) {
+			writer.write(json.toString());
+		} catch (IOException e) {
+			logger.error("Failed to write auth tokens to save file", e);
 			return;
 		}
-		String identifierString = legacyFormat ? auth.getPlayerUUID() : auth.getUserID();
-		authSection.remove(identifierString);
-		saveJSON(saveFile, json);
 	}
 
 	public synchronized void updateAuth(AuthenticationHandler auth) {
@@ -179,31 +207,5 @@ public class SessionManager {
 		authObj.put("username", auth.getEmail());
 		authObj.put("refresh", auth.getLastTokenRefresh());
 		saveJSON(saveFile, json);
-	}
-
-	private void saveJSON(File file, JSONObject json) {
-		File parent = file.getParentFile();
-		if (!parent.isDirectory()) {
-			logger.info("Path to token save file did not exst, creating it: " + parent.getAbsolutePath());
-			if (!file.getParentFile().mkdirs()) {
-				logger.error(
-						"Failed to create folder for auth token save file. This likely means that you messed up file permissions");
-				return;
-			}
-		}
-		try {
-			file.createNewFile();
-		} catch (IOException e1) {
-			logger.error(
-					"Failed to recreate auth token save file. This likely means that you messed up file permissions",
-					e1);
-			return;
-		}
-		try (FileWriter writer = new FileWriter(file)) {
-			writer.write(json.toString());
-		} catch (IOException e) {
-			logger.error("Failed to write auth tokens to save file", e);
-			return;
-		}
 	}
 }

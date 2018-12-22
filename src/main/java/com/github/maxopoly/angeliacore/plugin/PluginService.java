@@ -10,45 +10,28 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
+
 import org.apache.logging.log4j.Logger;
 
 public class PluginService {
 
 	private static PluginService instance;
-	private ServiceLoader<AngeliaPlugin> loader;
-	private URLClassLoader classLoader;
 	private static final String pluginFolder = "plugins";
-	private Logger logger;
-
-	private PluginService(Logger logger) {
-		this.logger = logger;
-		classLoader = addPluginFolderToClassPath();
-		reloadJars();
-	}
-
 	public static synchronized PluginService getInstance(Logger logger) {
 		if (instance == null) {
 			instance = new PluginService(logger);
 		}
 		return instance;
 	}
+	private ServiceLoader<AngeliaPlugin> loader;
+	private URLClassLoader classLoader;
 
-	public synchronized void reloadJars() {
-		this.loader = ServiceLoader.load(AngeliaPlugin.class, classLoader);
-	}
+	private Logger logger;
 
-	public synchronized List<AngeliaPlugin> getAvailablePlugins() {
-		List<AngeliaPlugin> plugins = new LinkedList<AngeliaPlugin>();
-		Iterator<AngeliaPlugin> iter = loader.iterator();
-		while (iter.hasNext()) {
-			try {
-				plugins.add(iter.next());
-			} catch (ServiceConfigurationError e) {
-				logger.warn("Failed to load a plugin, here's some debug info for its dev: ", e);
-				continue;
-			}
-		}
-		return plugins;
+	private PluginService(Logger logger) {
+		this.logger = logger;
+		classLoader = addPluginFolderToClassPath();
+		reloadJars();
 	}
 
 	private URLClassLoader addPluginFolderToClassPath() {
@@ -72,5 +55,23 @@ public class PluginService {
 		}
 		return URLClassLoader.newInstance(urlsList.toArray(new URL[] {}),
 				Thread.currentThread().getContextClassLoader());
+	}
+
+	public synchronized List<AngeliaPlugin> getAvailablePlugins() {
+		List<AngeliaPlugin> plugins = new LinkedList<AngeliaPlugin>();
+		Iterator<AngeliaPlugin> iter = loader.iterator();
+		while (iter.hasNext()) {
+			try {
+				plugins.add(iter.next());
+			} catch (ServiceConfigurationError e) {
+				logger.warn("Failed to load a plugin, here's some debug info for its dev: ", e);
+				continue;
+			}
+		}
+		return plugins;
+	}
+
+	public synchronized void reloadJars() {
+		this.loader = ServiceLoader.load(AngeliaPlugin.class, classLoader);
 	}
 }

@@ -1,12 +1,12 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
+import java.io.IOException;
+
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.ItemTransactionManager.State;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.ApologizeTransactionPacket;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
-
-import java.io.IOException;
 
 public class TransActionConfirmationPacketHandler extends AbstractIncomingPacketHandler {
 

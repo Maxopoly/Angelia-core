@@ -26,6 +26,24 @@ public class ParameterParsingFactory {
 		loadParser();
 	}
 
+	@SuppressWarnings("unchecked")
+	private <T> Class<T> convertPrimitive(Class<T> primType) {
+		return (Class<T>) wrapperClasses.get(primType);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> ParameterParser<T> getParser(Class<T> classType) {
+		if (classType.isPrimitive()) {
+			classType = convertPrimitive(classType);
+		}
+		ParameterParser<?> parser = parserMap.get(classType);
+		if (parser == null) {
+			// need to do this explicitly, otherwise cast will throw exception
+			return null;
+		}
+		return (ParameterParser<T>) parser;
+	}
+
 	private void loadParser() {
 		parserMap = new HashMap<Class<?>, ParameterParser<?>>();
 		readyParser(new BlockFaceParameterParser());
@@ -55,24 +73,6 @@ public class ParameterParsingFactory {
 
 	private void readyParser(ParameterParser<?> parParser) {
 		this.parserMap.put(parParser.getClassParsed(), parParser);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private <T> Class<T> convertPrimitive(Class<T> primType) {
-		return (Class<T>) wrapperClasses.get(primType);
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T> ParameterParser<T> getParser(Class<T> classType) {
-		if (classType.isPrimitive()) {
-			classType = convertPrimitive(classType);
-		}
-		ParameterParser<?> parser = parserMap.get(classType);
-		if (parser == null) {
-			//need to do this explicitly, otherwise cast will throw exception
-			return null;
-		}
-		return (ParameterParser<T>) parser;
 	}
 
 }

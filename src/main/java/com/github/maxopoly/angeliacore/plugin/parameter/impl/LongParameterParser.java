@@ -6,16 +6,16 @@ import com.github.maxopoly.angeliacore.plugin.parameter.ParameterParser;
 public class LongParameterParser implements ParameterParser<Long> {
 
 	@Override
+	public Class<Long> getClassParsed() {
+		return Long.class;
+	}
+
+	@Override
 	public Long parse(String value) {
 		try {
 			return Long.parseLong(value);
 		} catch (NumberFormatException e) {
 			throw new InvalidParameterValueException();
 		}
-	}
-
-	@Override
-	public Class<Long> getClassParsed() {
-		return Long.class;
 	}
 }

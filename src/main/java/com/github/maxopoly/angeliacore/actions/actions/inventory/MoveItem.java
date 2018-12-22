@@ -1,10 +1,9 @@
 package com.github.maxopoly.angeliacore.actions.actions.inventory;
 
-import com.github.maxopoly.angeliacore.model.item.Material;
-
-import com.github.maxopoly.angeliacore.model.item.ItemStack;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
+import com.github.maxopoly.angeliacore.model.item.ItemStack;
+import com.github.maxopoly.angeliacore.model.item.Material;
 
 public class MoveItem extends InventoryAction {
 
@@ -44,8 +43,8 @@ public class MoveItem extends InventoryAction {
 				successfull = false;
 				return;
 			}
-			this.layDown = new ClickInventory(connection, windowID, (short) targetSlot, (byte) 0, 0, new ItemStack(
-					Material.EMPTY_SLOT));
+			this.layDown = new ClickInventory(connection, windowID, (short) targetSlot, (byte) 0, 0,
+					new ItemStack(Material.EMPTY_SLOT));
 			this.pickUp.execute();
 		}
 		if (!pickUp.isDone()) {
@@ -67,8 +66,8 @@ public class MoveItem extends InventoryAction {
 		if (!layDown.wasSuccessfull()) {
 			if (revert == null) {
 				// couldnt put it back down, lets put the item back where we got it from
-				revert = new ClickInventory(connection, windowID, (short) originSlot, (byte) 0, 0, new ItemStack(
-						Material.EMPTY_SLOT));
+				revert = new ClickInventory(connection, windowID, (short) originSlot, (byte) 0, 0,
+						new ItemStack(Material.EMPTY_SLOT));
 			}
 			if (revert.isDone()) {
 				if (!revert.wasSuccessfull()) {

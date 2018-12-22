@@ -1,6 +1,5 @@
 package com.github.maxopoly.angeliacore.event.events;
 
-
 public class HungerChangeEvent implements AngeliaEvent {
 
 	private int oldValue;
@@ -11,11 +10,11 @@ public class HungerChangeEvent implements AngeliaEvent {
 		this.newValue = newValue;
 	}
 
-	public int getOldValue() {
-		return oldValue;
-	}
-
 	public int getNewValue() {
 		return newValue;
+	}
+
+	public int getOldValue() {
+		return oldValue;
 	}
 }

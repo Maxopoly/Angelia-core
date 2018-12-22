@@ -6,17 +6,16 @@ import com.github.maxopoly.angeliacore.plugin.parameter.InvalidParameterValueExc
 public class MovementDirectionParameterParser extends AbstractObjectParameterParser<MovementDirection> {
 
 	@Override
-	public MovementDirection parseObject(String value) {
-		try {
-			return MovementDirection.valueOf(value.toUpperCase());
-		}
-		catch (IllegalArgumentException e) {
-			throw new InvalidParameterValueException();
-		}
+	public Class<MovementDirection> getClassParsed() {
+		return MovementDirection.class;
 	}
 
 	@Override
-	public Class<MovementDirection> getClassParsed() {
-		return MovementDirection.class;
+	public MovementDirection parseObject(String value) {
+		try {
+			return MovementDirection.valueOf(value.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			throw new InvalidParameterValueException();
+		}
 	}
 }

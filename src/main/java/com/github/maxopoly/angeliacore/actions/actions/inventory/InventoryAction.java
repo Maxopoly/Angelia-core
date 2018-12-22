@@ -13,16 +13,16 @@ public abstract class InventoryAction extends AbstractAction {
 		this.successfull = false;
 	}
 
+	@Override
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.INVENTORY, ActionLock.HOTBAR_SLOT };
+	}
+
 	/**
 	 * @return Whether the item transaction completly worked
 	 */
 	public boolean wasSuccessfull() {
 		return successfull;
-	}
-
-	@Override
-	public ActionLock[] getActionLocks() {
-		return new ActionLock[] { ActionLock.INVENTORY, ActionLock.HOTBAR_SLOT };
 	}
 
 }

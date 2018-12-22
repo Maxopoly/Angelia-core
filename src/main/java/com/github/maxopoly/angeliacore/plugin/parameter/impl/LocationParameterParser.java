@@ -6,6 +6,11 @@ import com.github.maxopoly.angeliacore.plugin.parameter.InvalidParameterValueExc
 public class LocationParameterParser extends AbstractObjectParameterParser<Location> {
 
 	@Override
+	public Class<Location> getClassParsed() {
+		return Location.class;
+	}
+
+	@Override
 	public Location parseObject(String value) {
 		String[] args = value.split(" ");
 		if (args.length != 3) {
@@ -20,10 +25,5 @@ public class LocationParameterParser extends AbstractObjectParameterParser<Locat
 			throw new InvalidParameterValueException();
 		}
 		return new Location(parsed[0], parsed[1], parsed[2]);
-	}
-
-	@Override
-	public Class<Location> getClassParsed() {
-		return Location.class;
 	}
 }

@@ -1,5 +1,7 @@
 package com.github.maxopoly.angeliacore.actions.actions.inventory;
 
+import java.io.IOException;
+
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
 import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
@@ -7,12 +9,13 @@ import com.github.maxopoly.angeliacore.connection.play.ItemTransactionManager;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.ClickWindowPacket;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.item.ItemStack;
-import java.io.IOException;
 
 /**
- * Executes a single inventory click. The click can either be accepted or denied by the server and this action will only
- * finish once a status confirmation has been received by the server. Note that this only sends the packets for the
- * action, but does not update the client side model, which has to be done by whatever is using this class
+ * Executes a single inventory click. The click can either be accepted or denied
+ * by the server and this action will only finish once a status confirmation has
+ * been received by the server. Note that this only sends the packets for the
+ * action, but does not update the client side model, which has to be done by
+ * whatever is using this class
  *
  */
 public class ClickInventory extends AbstractAction {
@@ -55,7 +58,8 @@ public class ClickInventory extends AbstractAction {
 			}
 			try {
 				this.clickID = transManager.getActionTicket();
-				ClickWindowPacket pickUpPacket = new ClickWindowPacket(windowID, slot, button, clickID, mode, clickedSlot);
+				ClickWindowPacket pickUpPacket = new ClickWindowPacket(windowID, slot, button, clickID, mode,
+						clickedSlot);
 				connection.sendPacket(pickUpPacket);
 				packetSent = true;
 			} catch (IOException e) {
@@ -65,29 +69,24 @@ public class ClickInventory extends AbstractAction {
 			// click packet was sent and we are awaiting confirmation
 			ItemTransactionManager.State state = transManager.getState(clickID);
 			switch (state) {
-				case PENDING:
-					// keep waiting
-					return;
-				case DENIED:
-					success = false;
-					done = true;
-					break;
-				case ACCEPTED:
-					success = true;
-					done = true;
-					break;
+			case PENDING:
+				// keep waiting
+				return;
+			case DENIED:
+				success = false;
+				done = true;
+				break;
+			case ACCEPTED:
+				success = true;
+				done = true;
+				break;
 			}
 		}
 	}
 
-	/**
-	 * An item transaction may be denied by the server. This method can be used afterwards to determine whether everything
-	 * worked. Note that this will always return false while the transaction is unfinished.
-	 * 
-	 * @return True only if the transaction was successfull, false otherwise
-	 */
-	public boolean wasSuccessfull() {
-		return success;
+	@Override
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.INVENTORY, ActionLock.HOTBAR_SLOT };
 	}
 
 	@Override
@@ -95,9 +94,15 @@ public class ClickInventory extends AbstractAction {
 		return done;
 	}
 
-	@Override
-	public ActionLock[] getActionLocks() {
-		return new ActionLock[] { ActionLock.INVENTORY, ActionLock.HOTBAR_SLOT };
+	/**
+	 * An item transaction may be denied by the server. This method can be used
+	 * afterwards to determine whether everything worked. Note that this will always
+	 * return false while the transaction is unfinished.
+	 * 
+	 * @return True only if the transaction was successfull, false otherwise
+	 */
+	public boolean wasSuccessfull() {
+		return success;
 	}
 
 }

@@ -15,12 +15,32 @@ public class NBTIntArray extends NBTElement {
 		this.value = value;
 	}
 
-	public int[] getValue() {
-		return value;
+	@Override
+	public NBTElement clone() {
+		return new NBTIntArray(name, Arrays.copyOf(value, value.length));
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof NBTIntArray && Arrays.equals(((NBTIntArray) o).value, value);
+	}
+
+	@Override
+	public byte getID() {
+		return ID;
 	}
 
 	public int getLength() {
 		return value.length;
+	}
+
+	@Override
+	public String getTypeName() {
+		return "int array";
+	}
+
+	public int[] getValue() {
+		return value;
 	}
 
 	@Override
@@ -34,34 +54,14 @@ public class NBTIntArray extends NBTElement {
 	}
 
 	@Override
-	public byte getID() {
-		return ID;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		return o instanceof NBTIntArray && Arrays.equals(((NBTIntArray) o).value, value);
-	}
-
-	@Override
-	public NBTElement clone() {
-		return new NBTIntArray(name, Arrays.copyOf(value, value.length));
-	}
-
-	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i < value.length; i++) {
+		for (int i = 0; i < value.length; i++) {
 			sb.append(" ");
-			sb.append(value [i]);
+			sb.append(value[i]);
 		}
 		sb.append(" ");
 
 		return String.format("[%s]", sb.toString());
-	}
-
-	@Override
-	public String getTypeName() {
-		return "int array";
 	}
 }

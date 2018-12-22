@@ -1,13 +1,13 @@
 package com.github.maxopoly.angeliacore.actions;
 
-import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.event.events.angelia.ActionQueueEmptiedEvent;
-import com.github.maxopoly.angeliacore.event.events.angelia.AngeliaTickEvent;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
+
+import com.github.maxopoly.angeliacore.connection.ServerConnection;
+import com.github.maxopoly.angeliacore.event.events.angelia.ActionQueueEmptiedEvent;
+import com.github.maxopoly.angeliacore.event.events.angelia.AngeliaTickEvent;
 
 public class ActionQueue {
 
@@ -17,6 +17,10 @@ public class ActionQueue {
 	public ActionQueue(ServerConnection connection) {
 		this.actions = new LinkedList<>();
 		this.connection = connection;
+	}
+
+	public synchronized void clear() {
+		actions.clear();
 	}
 
 	public synchronized void queue(AbstractAction action) {
@@ -54,9 +58,5 @@ public class ActionQueue {
 				allDone = true;
 			}
 		}
-	}
-
-	public synchronized void clear() {
-		actions.clear();
 	}
 }

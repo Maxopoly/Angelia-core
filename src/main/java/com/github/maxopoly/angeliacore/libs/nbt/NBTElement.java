@@ -8,9 +8,21 @@ public abstract class NBTElement {
 		this.name = name;
 	}
 
+	@Override
+	public abstract NBTElement clone();
+
+	@Override
+	public abstract boolean equals(Object o);
+
+	public abstract byte getID();
+
 	public String getName() {
 		return name;
 	}
+
+	public abstract String getTypeName();
+
+	public abstract byte[] serializeContent();
 
 	protected byte[] serializingPrefix() {
 		if (name == null) {
@@ -28,18 +40,6 @@ public abstract class NBTElement {
 		}
 		return res;
 	}
-
-	public abstract byte[] serializeContent();
-
-	public abstract byte getID();
-
-	public abstract String getTypeName();
-
-	@Override
-	public abstract NBTElement clone();
-
-	@Override
-	public abstract boolean equals(Object o);
 
 	@Override
 	public abstract String toString();

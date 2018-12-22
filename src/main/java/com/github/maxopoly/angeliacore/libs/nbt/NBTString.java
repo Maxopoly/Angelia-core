@@ -14,6 +14,26 @@ public class NBTString extends NBTElement {
 		this.value = value;
 	}
 
+	@Override
+	public NBTElement clone() {
+		return new NBTString(name, value);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof NBTString && ((NBTString) o).value.equals(value);
+	}
+
+	@Override
+	public byte getID() {
+		return ID;
+	}
+
+	@Override
+	public String getTypeName() {
+		return "string";
+	}
+
 	public String getValue() {
 		return value;
 	}
@@ -30,28 +50,7 @@ public class NBTString extends NBTElement {
 	}
 
 	@Override
-	public byte getID() {
-		return ID;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		return o instanceof NBTString && ((NBTString) o).value.equals(value);
-	}
-
-	@Override
-	public NBTElement clone() {
-		return new NBTString(name, value);
-	}
-
-
-	@Override
 	public String toString() {
 		return value;
-	}
-
-	@Override
-	public String getTypeName() {
-		return "string";
 	}
 }

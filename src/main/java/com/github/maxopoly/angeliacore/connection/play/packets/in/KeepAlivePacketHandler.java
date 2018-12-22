@@ -1,11 +1,11 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
+import java.io.IOException;
+
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.KeepAlivePacket;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
-
-import java.io.IOException;
 
 public class KeepAlivePacketHandler extends AbstractIncomingPacketHandler {
 
@@ -15,7 +15,8 @@ public class KeepAlivePacketHandler extends AbstractIncomingPacketHandler {
 
 	@Override
 	public void handlePacket(ReadOnlyPacket packet) {
-		// keep alive are basically just a random long sent by the server. The server expects us to send the same int
+		// keep alive are basically just a random long sent by the server. The server
+		// expects us to send the same int
 		// back
 		long number;
 		try {

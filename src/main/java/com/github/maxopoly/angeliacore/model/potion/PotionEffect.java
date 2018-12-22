@@ -12,18 +12,9 @@ public class PotionEffect {
 		this.duration = duration;
 	}
 
-	/**
-	 * @return Type of the effect
-	 */
-	public PotionType getType() {
-		return type;
-	}
-
-	/**
-	 * @return Level of the effect
-	 */
-	public int getStrength() {
-		return strength;
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof PotionEffect && ((PotionEffect) o).type == type;
 	}
 
 	/**
@@ -33,12 +24,22 @@ public class PotionEffect {
 		return duration;
 	}
 
-	// the following makes managing of potion effects a lot easier, because we usually only want one instance of a
+	/**
+	 * @return Level of the effect
+	 */
+	public int getStrength() {
+		return strength;
+	}
+
+	// the following makes managing of potion effects a lot easier, because we
+	// usually only want one instance of a
 	// specific type
 
-	@Override
-	public boolean equals(Object o) {
-		return o instanceof PotionEffect && ((PotionEffect) o).type == type;
+	/**
+	 * @return Type of the effect
+	 */
+	public PotionType getType() {
+		return type;
 	}
 
 	@Override

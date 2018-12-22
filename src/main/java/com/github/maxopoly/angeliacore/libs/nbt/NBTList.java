@@ -23,8 +23,48 @@ public class NBTList<E extends NBTElement> extends NBTElement implements Iterabl
 		elements.add(element);
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public NBTElement clone() {
+		NBTList<E> list = new NBTList<E>(name, elementID);
+		for (E e : elements) {
+			list.add((E) e.clone());
+		}
+		return list;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof NBTList)) {
+			return false;
+		}
+		NBTList<E> other;
+		try {
+			other = (NBTList<E>) o;
+		} catch (ClassCastException e) {
+			// if anyone actually knows how to check whether generics are equal let me know,
+			// because I dont
+			return false;
+		}
+		if (getLength() != other.getLength()) {
+			return false;
+		}
+		for (int i = 0; i < getLength(); i++) {
+			if (!other.getElement(i).equals(getElement(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public E getElement(int index) {
 		return elements.get(index);
+	}
+
+	@Override
+	public byte getID() {
+		return ID;
 	}
 
 	public int getLength() {
@@ -32,8 +72,8 @@ public class NBTList<E extends NBTElement> extends NBTElement implements Iterabl
 	}
 
 	@Override
-	public Iterator<E> iterator() {
-		return elements.iterator();
+	public String getTypeName() {
+		return "list of " + (elements.size() > 0 ? elements.get(0).getName() : "empty");
 	}
 
 	public Object getValue() {
@@ -41,8 +81,14 @@ public class NBTList<E extends NBTElement> extends NBTElement implements Iterabl
 	}
 
 	@Override
+	public Iterator<E> iterator() {
+		return elements.iterator();
+	}
+
+	@Override
 	public byte[] serializeContent() {
-		// to avoid copying everything around often we first collect results in a list and only concatenate them once
+		// to avoid copying everything around often we first collect results in a list
+		// and only concatenate them once
 		List<byte[]> tempEle = new LinkedList<byte[]>();
 		int length = 0;
 		for (NBTElement element : elements) {
@@ -68,58 +114,14 @@ public class NBTList<E extends NBTElement> extends NBTElement implements Iterabl
 	}
 
 	@Override
-	public byte getID() {
-		return ID;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean equals(Object o) {
-		if (!(o instanceof NBTList)) {
-			return false;
-		}
-		NBTList<E> other;
-		try {
-			other = (NBTList<E>) o;
-		} catch (ClassCastException e) {
-			// if anyone actually knows how to check whether generics are equal let me know, because I dont
-			return false;
-		}
-		if (getLength() != other.getLength()) {
-			return false;
-		}
-		for (int i = 0; i < getLength(); i++) {
-			if (!other.getElement(i).equals(getElement(i))) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public NBTElement clone() {
-		NBTList<E> list = new NBTList<E>(name, elementID);
-		for (E e : elements) {
-			list.add((E) e.clone());
-		}
-		return list;
-	}
-
-	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i < elements.size(); i++) {
+		for (int i = 0; i < elements.size(); i++) {
 			sb.append(" ");
 			sb.append(elements.get(i).toString());
 		}
 		sb.append(" ");
 
 		return String.format("{%s}", sb.toString());
-	}
-
-	@Override
-	public String getTypeName() {
-		return "list of " + (elements.size() > 0 ? elements.get(0).getName() : "empty");
 	}
 }

@@ -3,7 +3,7 @@ package com.github.maxopoly.angeliacore.actions;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 
 public abstract class SingleExecutionAction extends AbstractAction {
-	
+
 	private boolean hasRun;
 
 	public SingleExecutionAction(ServerConnection connection) {
@@ -16,7 +16,7 @@ public abstract class SingleExecutionAction extends AbstractAction {
 		executeAction();
 		hasRun = true;
 	}
-	
+
 	public abstract void executeAction();
 
 	@Override

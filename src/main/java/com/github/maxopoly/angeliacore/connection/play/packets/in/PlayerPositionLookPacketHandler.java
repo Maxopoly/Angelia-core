@@ -1,5 +1,7 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
+import java.io.IOException;
+
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionAndLookPacket;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.TeleportConfirmPacket;
@@ -7,7 +9,6 @@ import com.github.maxopoly.angeliacore.event.events.TeleportByServerEvent;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.model.location.DirectedLocation;
-import java.io.IOException;
 
 public class PlayerPositionLookPacketHandler extends AbstractIncomingPacketHandler {
 
@@ -33,17 +34,14 @@ public class PlayerPositionLookPacketHandler extends AbstractIncomingPacketHandl
 			boolean yawRelative = (flags & 0x08) != 0;
 			boolean pitchRelative = (flags & 0x10) != 0;
 			// Apply data
-            DirectedLocation oldLocation = connection.getPlayerStatus().getLocation();
-            DirectedLocation newLocation = new DirectedLocation(
-                (xRelative) ? oldLocation.getX() + x : x,
-                (yRelative) ? oldLocation.getY() + y : y,
-                (zRelative) ? oldLocation.getZ() + z : z,
-                (yawRelative) ? oldLocation.getYaw() + yaw : yaw,
-                (pitchRelative) ? oldLocation.getPitch() + pitch : pitch
-            );
-            connection.getEventHandler().broadcast(new TeleportByServerEvent(oldLocation, newLocation));
-            connection.getPlayerStatus().updateLocation(newLocation);
-            connection.getPlayerStatus().updateLookingDirection(newLocation.getPitch(), newLocation.getYaw());
+			DirectedLocation oldLocation = connection.getPlayerStatus().getLocation();
+			DirectedLocation newLocation = new DirectedLocation((xRelative) ? oldLocation.getX() + x : x,
+					(yRelative) ? oldLocation.getY() + y : y, (zRelative) ? oldLocation.getZ() + z : z,
+					(yawRelative) ? oldLocation.getYaw() + yaw : yaw,
+					(pitchRelative) ? oldLocation.getPitch() + pitch : pitch);
+			connection.getEventHandler().broadcast(new TeleportByServerEvent(oldLocation, newLocation));
+			connection.getPlayerStatus().updateLocation(newLocation);
+			connection.getPlayerStatus().updateLookingDirection(newLocation.getPitch(), newLocation.getYaw());
 			connection.sendPacket(new TeleportConfirmPacket(teleID));
 			connection.sendPacket(new PlayerPositionAndLookPacket(x, y, z, yaw, pitch, true));
 			connection.getPlayerStatus().setInitialized();

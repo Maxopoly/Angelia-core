@@ -9,7 +9,8 @@ import com.github.maxopoly.angeliacore.libs.yaml.config.GlobalConfig;
 /**
  * Holds all chunks, which contain all block data. For performance reasons
  * holding block data can be disabled via the global config. If any methods are
- * called while no block data is held, a BlockModelNotHeldException will be thrown
+ * called while no block data is held, a BlockModelNotHeldException will be
+ * thrown
  *
  */
 public class ChunkHolder {
@@ -24,8 +25,48 @@ public class ChunkHolder {
 		}
 	}
 
+	private long encodeCoords(int x, int z) {
+		return (((long) x) << 32) | z;
+	}
+
+	private void ensureActive() {
+		if (!active) {
+			throw new BlockModelNotHeldException(
+					"Block model holding is disabled, change block.holdModel to enable it");
+		}
+	}
+
+	public Chunk getChunk(int x, int z) {
+		ensureActive();
+		return loadedChunks.get(encodeCoords(x, z));
+	}
+
+	public Collection<Chunk> getLoadedChunks() {
+		ensureActive();
+		return loadedChunks.values();
+	}
+
+	/**
+	 * @return Whether a representation of block data is being held or not
+	 */
+	public boolean isHoldingModel() {
+		return active;
+	}
+
+	public void putChunk(Chunk chunk) {
+		ensureActive();
+		loadedChunks.put(encodeCoords(chunk.getX(), chunk.getZ()), chunk);
+	}
+
+	public void removeChunk(int x, int z) {
+		ensureActive();
+		loadedChunks.remove(encodeCoords(x, z));
+	}
+
 	/**
 	 * Do not call this directly, set the value in the config instead
+	 * 
+	 * @param state State to switch to
 	 */
 	public void setActivationState(boolean state) {
 		if (state == active) {
@@ -39,44 +80,6 @@ public class ChunkHolder {
 			// deactivate, GC will handle this for us
 			loadedChunks = null;
 			System.gc();
-		}
-	}
-
-	/**
-	 * @return Whether a representation of block data is being held or not
-	 */
-	public boolean isHoldingModel() {
-		return active;
-	}
-
-	public Chunk getChunk(int x, int z) {
-		ensureActive();
-		return loadedChunks.get(encodeCoords(x, z));
-	}
-
-	public void removeChunk(int x, int z) {
-		ensureActive();
-		loadedChunks.remove(encodeCoords(x, z));
-	}
-
-	public void putChunk(Chunk chunk) {
-		ensureActive();
-		loadedChunks.put(encodeCoords(chunk.getX(), chunk.getZ()), chunk);
-	}
-
-	private long encodeCoords(int x, int z) {
-		return (((long) x) << 32) | z;
-	}
-
-	public Collection<Chunk> getLoadedChunks() {
-		ensureActive();
-		return loadedChunks.values();
-	}
-
-	private void ensureActive() {
-		if (!active) {
-			throw new BlockModelNotHeldException(
-					"Block model holding is disabled, change block.holdModel to enable it");
 		}
 	}
 

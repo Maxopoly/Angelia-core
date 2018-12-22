@@ -1,9 +1,31 @@
 package com.github.maxopoly.angeliacore.connection.play;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.TimerTask;
+import java.util.TreeMap;
+
 import com.github.maxopoly.angeliacore.connection.DisconnectReason;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.compression.MalformedCompressedDataException;
-import com.github.maxopoly.angeliacore.connection.play.packets.in.*;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.AbstractIncomingPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.BlockBreakAnimationPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.ChatMessagePacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.ChunkDataPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.DestroyEntitiesPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.DisconnectPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.ForceInventoryClosurePacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.HealthChangeHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.JoinGamePacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.KeepAlivePacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.OpenInventoryPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.PlayerListItemPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.PlayerPositionLookPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.SetSlotPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.SpawnPlayerPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.TransActionConfirmationPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.WindowItemsPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.XPChangeHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityEffectPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityLookAndRelativeMovePacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityLookPacketHandler;
@@ -12,11 +34,6 @@ import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityR
 import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityTeleportPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionPacket;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.TimerTask;
-import java.util.TreeMap;
 
 public class Heartbeat extends TimerTask {
 
@@ -34,6 +51,48 @@ public class Heartbeat extends TimerTask {
 		this.handlerMap = new TreeMap<>();
 		registerAllHandler();
 		this.tickCounter = 0;
+	}
+
+	/**
+	 * Counter that starts at 0 when the connection is established and is
+	 * incremented every tick
+	 * 
+	 * @return Tick counter
+	 */
+	public long getTickCounter() {
+		return tickCounter;
+	}
+
+	/**
+	 * Checks whether an explicit handler exists for the given packet id
+	 *
+	 * @param packetID ID to check for
+	 * @return True if a handler was registered for the given ID, false otherwise
+	 */
+	public boolean hasHandler(int packetID) {
+		return handlerMap.get(packetID) != null;
+	}
+
+	/**
+	 * Handles an incoming packet by forwarding it to the right handler based on
+	 * it's id, if one exists
+	 *
+	 * @param packet Packet to handle
+	 */
+	private void processPacket(ReadOnlyPacket packet) {
+		int packetID = packet.getPacketID();
+		AbstractIncomingPacketHandler properHandler = handlerMap.get(packetID);
+		if (properHandler != null) {
+			try {
+				properHandler.handlePacket(packet);
+			} catch (Exception e) {
+				// not nice to catch Exception, but we dont want to crash the entire application
+				// if an exception occurs here and there are just way too many that possibly
+				// could occur
+				connection.getLogger().warn("Exception occured handling packet", e);
+			}
+		}
+		// we just skip the packet if we dont have a proper handler
 	}
 
 	/**
@@ -66,58 +125,19 @@ public class Heartbeat extends TimerTask {
 	}
 
 	/**
-	 * Handles an incoming packet by forwarding it to the right handler based on it's id, if one exists
-	 *
-	 * @param packet
-	 *          Packet to handle
-	 */
-	private void processPacket(ReadOnlyPacket packet) {
-		int packetID = packet.getPacketID();
-		AbstractIncomingPacketHandler properHandler = handlerMap.get(packetID);
-		if (properHandler != null) {
-			try {
-				properHandler.handlePacket(packet);
-			}
-			catch (Exception e) {
-				//not nice to catch Exception, but we dont want to crash the entire application 
-				//if an exception occurs here and there are just way too many that possibly could occur
-				connection.getLogger().warn("Exception occured handling packet", e);
-			}
-		}
-		// we just skip the packet if we dont have a proper handler
-	}
-
-	/**
 	 * Registers a new packet handler for a specific packet id
 	 *
-	 * @param handler
-	 *          Handler to register
+	 * @param handler Handler to register
 	 */
 	private void registerPacketHandler(AbstractIncomingPacketHandler handler) {
-		// handler should only be registered in the method for registering all handlers, not during runtime
+		// handler should only be registered in the method for registering all handlers,
+		// not during runtime
 		handlerMap.put(handler.getIDHandled(), handler);
 	}
 
 	/**
-	 * Checks whether an explicit handler exists for the given packet id
-	 *
-	 * @param packetID
-	 *          ID to check for
-	 * @return True if a handler was registered for the given ID, false otherwise
-	 */
-	public boolean hasHandler(int packetID) {
-		return handlerMap.get(packetID) != null;
-	}
-
-	/**
-	 * Updates the timestamp of the last contact with the server to the current time
-	 */
-	public void updateKeepAlive() {
-		lastKeepAlive = System.currentTimeMillis();
-	}
-
-	/**
-	 * Handles both incoming packets, keep alive of the connection and progressing pending actions in the ActionQueue
+	 * Handles both incoming packets, keep alive of the connection and progressing
+	 * pending actions in the ActionQueue
 	 */
 	@Override
 	public void run() {
@@ -130,10 +150,10 @@ public class Heartbeat extends TimerTask {
 			}
 			long now = System.currentTimeMillis();
 			if (now - lastPositionPacket > POSITION_UPDATE_INTERVALL) {
-				//send every second where player is and if he is midair
+				// send every second where player is and if he is midair
 				try {
-					connection.sendPacket(new PlayerPositionPacket(connection.getPlayerStatus().getLocation(), connection
-							.getPlayerStatus().isOnGround()));
+					connection.sendPacket(new PlayerPositionPacket(connection.getPlayerStatus().getLocation(),
+							connection.getPlayerStatus().isOnGround()));
 					lastPositionPacket = now;
 				} catch (IOException e1) {
 					connection.getLogger().error("Failed to send player state/position packet", e1);
@@ -159,13 +179,12 @@ public class Heartbeat extends TimerTask {
 			++tickCounter;
 		}
 	}
-	
+
 	/**
-	 * Counter that starts at 0 when the connection is established and is incremented every tick
-	 * @return Tick counter
+	 * Updates the timestamp of the last contact with the server to the current time
 	 */
-	public long getTickCounter() {
-		return tickCounter;
+	public void updateKeepAlive() {
+		lastKeepAlive = System.currentTimeMillis();
 	}
 
 }

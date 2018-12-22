@@ -13,14 +13,21 @@ public class XPChangeEvent implements AngeliaEvent {
 	private final int newLevel;
 	private final int newTotalXP;
 
-	public XPChangeEvent(float oldProgress, int oldLevel, int oldTotalXP,
-			float newProgress, int newLevel, int newTotalXP) {
+	public XPChangeEvent(float oldProgress, int oldLevel, int oldTotalXP, float newProgress, int newLevel,
+			int newTotalXP) {
 		this.oldProgress = oldProgress;
 		this.oldLevel = oldLevel;
 		this.oldTotalXP = oldTotalXP;
 		this.newProgress = newProgress;
 		this.newLevel = newLevel;
 		this.newTotalXP = newTotalXP;
+	}
+
+	/**
+	 * @return The players experience level, before the update causing this event
+	 */
+	public int getPreviousLevel() {
+		return oldLevel;
 	}
 
 	/**
@@ -32,42 +39,11 @@ public class XPChangeEvent implements AngeliaEvent {
 	}
 
 	/**
-	 * @return Progress to the next level in the range[0,1), after the update
-	 *         causing this event
-	 */
-	public float getUpdatedLevelProgress() {
-		return newProgress;
-	}
-
-	/**
-	 * @return The players experience level, before the update causing this
+	 * @return The players total experience points, before the update causing this
 	 *         event
-	 */
-	public int getPreviousLevel() {
-		return oldLevel;
-	}
-
-	/**
-	 * @return The players experience level, after the update causing this event
-	 */
-	public int getUpdatedLevel() {
-		return newLevel;
-	}
-
-	/**
-	 * @return The players total experience points, before the update causing
-	 *         this event
 	 */
 	public int getPreviousTotalXP() {
 		return oldTotalXP;
-	}
-
-	/**
-	 * @return The players total experience points, after the update causing
-	 *         this event
-	 */
-	public int getUpdatedTotalXP() {
-		return newTotalXP;
 	}
 
 	/**
@@ -78,6 +54,29 @@ public class XPChangeEvent implements AngeliaEvent {
 	 */
 	public int getTotalXPGained() {
 		return newTotalXP - oldTotalXP;
+	}
+
+	/**
+	 * @return The players experience level, after the update causing this event
+	 */
+	public int getUpdatedLevel() {
+		return newLevel;
+	}
+
+	/**
+	 * @return Progress to the next level in the range[0,1), after the update
+	 *         causing this event
+	 */
+	public float getUpdatedLevelProgress() {
+		return newProgress;
+	}
+
+	/**
+	 * @return The players total experience points, after the update causing this
+	 *         event
+	 */
+	public int getUpdatedTotalXP() {
+		return newTotalXP;
 	}
 
 	/**

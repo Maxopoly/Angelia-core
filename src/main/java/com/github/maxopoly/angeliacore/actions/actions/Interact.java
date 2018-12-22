@@ -1,11 +1,12 @@
 package com.github.maxopoly.angeliacore.actions.actions;
 
+import java.io.IOException;
+
 import com.github.maxopoly.angeliacore.actions.AbstractAction;
 import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.UseItemPacket;
 import com.github.maxopoly.angeliacore.model.item.Hand;
-import java.io.IOException;
 
 /**
  * Basically presses right click
@@ -31,13 +32,13 @@ public class Interact extends AbstractAction {
 	}
 
 	@Override
-	public boolean isDone() {
-		return true;
+	public ActionLock[] getActionLocks() {
+		return new ActionLock[] { ActionLock.HOTBAR_SLOT };
 	}
 
 	@Override
-	public ActionLock[] getActionLocks() {
-		return new ActionLock[] { ActionLock.HOTBAR_SLOT };
+	public boolean isDone() {
+		return true;
 	}
 
 }

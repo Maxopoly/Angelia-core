@@ -13,8 +13,8 @@ public class FurnaceInventory extends Inventory {
 		super(39, windowID);
 	}
 
-	public void setFuelTicksLeft(short fuelTicksLeft) {
-		this.fuelLeft = fuelTicksLeft;
+	public ItemStack getFuelSlot() {
+		return slots[1];
 	}
 
 	/**
@@ -26,8 +26,8 @@ public class FurnaceInventory extends Inventory {
 		return fuelLeft;
 	}
 
-	public void setMaximumFuelBurnTime(short maximumFuelBurnTime) {
-		this.maximumFuelBurnTime = maximumFuelBurnTime;
+	public ItemStack getIngredientSlot() {
+		return slots[0];
 	}
 
 	/**
@@ -37,12 +37,21 @@ public class FurnaceInventory extends Inventory {
 		return maximumFuelBurnTime;
 	}
 
-	public void setSmeltingProgress(short progress) {
-		this.smeltingProgress = progress;
+	/**
+	 * @return Total amount of server side ticks needed to complete one smelting
+	 *         process. Always 200 in vanilla servers
+	 */
+	public short getMaximumSmeltingProgress() {
+		return maximumProgress;
 	}
 
-	public void setMaximumSmeltingProgress(short maxProgress) {
-		this.maximumProgress = maxProgress;
+	@Override
+	protected int getPlayerStorageStartingSlot() {
+		return 3;
+	}
+
+	public ItemStack getResultSlot() {
+		return slots[2];
 	}
 
 	/**
@@ -54,29 +63,20 @@ public class FurnaceInventory extends Inventory {
 		return smeltingProgress;
 	}
 
-	/**
-	 * @return Total amount of server side ticks needed to complete one smelting process. Always
-	 *         200 in vanilla servers
-	 */
-	public short getMaximumSmeltingProgress() {
-		return maximumProgress;
+	public void setFuelTicksLeft(short fuelTicksLeft) {
+		this.fuelLeft = fuelTicksLeft;
 	}
 
-	public ItemStack getFuelSlot() {
-		return slots[1];
+	public void setMaximumFuelBurnTime(short maximumFuelBurnTime) {
+		this.maximumFuelBurnTime = maximumFuelBurnTime;
 	}
 
-	public ItemStack getIngredientSlot() {
-		return slots[0];
+	public void setMaximumSmeltingProgress(short maxProgress) {
+		this.maximumProgress = maxProgress;
 	}
 
-	public ItemStack getResultSlot() {
-		return slots[2];
-	}
-
-	@Override
-	protected int getPlayerStorageStartingSlot() {
-		return 3;
+	public void setSmeltingProgress(short progress) {
+		this.smeltingProgress = progress;
 	}
 
 }

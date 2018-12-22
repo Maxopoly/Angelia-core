@@ -1,10 +1,5 @@
 package com.github.maxopoly.angeliacore.connection.login;
 
-import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.connection.encryption.PKCSEncrypter;
-import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
-import com.github.maxopoly.angeliacore.libs.packetEncoding.WriteOnlyPacket;
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.Key;
@@ -14,19 +9,56 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.X509EncodedKeySpec;
 
+import com.github.maxopoly.angeliacore.connection.ServerConnection;
+import com.github.maxopoly.angeliacore.connection.encryption.PKCSEncrypter;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.WriteOnlyPacket;
+
 public class EncryptionHandler {
 
-	private ServerConnection connection;
+	private static byte[] digestOperation(String algorithm, byte[]... data) {
+		try {
+			MessageDigest messagedigest = MessageDigest.getInstance(algorithm);
 
+			for (byte[] abyte : data) {
+				messagedigest.update(abyte);
+			}
+
+			return messagedigest.digest();
+		} catch (NoSuchAlgorithmException nosuchalgorithmexception) {
+			nosuchalgorithmexception.printStackTrace();
+			return null;
+		}
+	}
+
+	private ServerConnection connection;
 	private Key serverPubKey;
 	private byte[] encodedPubKey;
 	private byte[] serverVerifyToken;
+
 	private String serverID;
 
 	private byte[] sharedSecret;
 
 	public EncryptionHandler(ServerConnection connection) {
 		this.connection = connection;
+	}
+
+	public String generateKeyHash() throws IOException {
+		try {
+			String mc = new BigInteger(digestOperation("SHA-1",
+					new byte[][] { serverID.getBytes("ISO_8859_1"), sharedSecret, encodedPubKey })).toString(16);
+			return mc;
+		} catch (Exception e) {
+			connection.getLogger().error("Exception occured", e);
+			throw new IOException("Failed to gen encryption hash");
+		}
+	}
+
+	public void genSecretKey() {
+		SecureRandom rng = new SecureRandom();
+		sharedSecret = new byte[16];
+		rng.nextBytes(sharedSecret); // gen random secret
 	}
 
 	public byte[] getSharedSecret() {
@@ -42,8 +74,8 @@ public class EncryptionHandler {
 				return false;
 			}
 			if (packetID != 0x01) {
-				connection.getLogger().error("Expected encryption request packet, "
-						+ "but received packed with id " + packetID);
+				connection.getLogger()
+						.error("Expected encryption request packet, " + "but received packed with id " + packetID);
 				return false;
 			}
 			serverID = packet.readString();
@@ -57,12 +89,6 @@ public class EncryptionHandler {
 			connection.getLogger().error("Failed to parse encryption request - ", e);
 			return false;
 		}
-	}
-
-	public void genSecretKey() {
-		SecureRandom rng = new SecureRandom();
-		sharedSecret = new byte[16];
-		rng.nextBytes(sharedSecret); // gen random secret
 	}
 
 	public void sendEncryptionResponse() throws IOException {
@@ -79,32 +105,6 @@ public class EncryptionHandler {
 		} catch (Exception e) {
 			connection.getLogger().error("Exception occured", e);
 			throw new IOException("Failed to send encryption response - " + e.getClass());
-		}
-	}
-
-	public String generateKeyHash() throws IOException {
-		try {
-			String mc = new BigInteger(digestOperation("SHA-1", new byte[][] { serverID.getBytes("ISO_8859_1"), sharedSecret,
-					encodedPubKey })).toString(16);
-			return mc;
-		} catch (Exception e) {
-			connection.getLogger().error("Exception occured", e);
-			throw new IOException("Failed to gen encryption hash");
-		}
-	}
-
-	private static byte[] digestOperation(String algorithm, byte[]... data) {
-		try {
-			MessageDigest messagedigest = MessageDigest.getInstance(algorithm);
-
-			for (byte[] abyte : data) {
-				messagedigest.update(abyte);
-			}
-
-			return messagedigest.digest();
-		} catch (NoSuchAlgorithmException nosuchalgorithmexception) {
-			nosuchalgorithmexception.printStackTrace();
-			return null;
 		}
 	}
 
