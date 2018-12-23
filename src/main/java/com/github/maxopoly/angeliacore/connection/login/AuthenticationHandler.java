@@ -35,11 +35,7 @@ public class AuthenticationHandler {
 
 	private static String constructRefreshJSON(String oldToken, String playerUUID, String playerName,
 			String clientToken) {
-		JSONObject json1 = new JSONObject();
-		json1.put("id", playerUUID);
-		json1.put("name", playerName);
 		JSONObject json = new JSONObject();
-		json.put("selectedProfile", json1);
 		json.put("accessToken", oldToken);
 		json.put("clientToken", clientToken);
 		return json.toString();
