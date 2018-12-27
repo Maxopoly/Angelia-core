@@ -109,6 +109,8 @@ public class YAMLFileConfig {
 
 	private boolean writeFile(InputStream source, Path dest) {
 		try {
+			dest.getParent().toFile().mkdirs();
+			dest.toFile().createNewFile();
 			Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
 			return true;
 		} catch (IOException ex) {

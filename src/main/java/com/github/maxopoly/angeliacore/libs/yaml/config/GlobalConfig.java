@@ -15,6 +15,7 @@ public class GlobalConfig extends YAMLFileConfig {
 		super(logger, new File(dataFolder, "globalConfig.yml"), "/globalDefaultConfig.yml");
 		this.connection = connection;
 		if (!configFile.exists()) {
+			logger.info("Global config file did not exist, creating it");
 			saveDefaultConfig();
 		}
 		reloadConfig();
@@ -29,7 +30,7 @@ public class GlobalConfig extends YAMLFileConfig {
 	}
 
 	public boolean holdBlockModel() {
-		return config.getBoolean("block.holdModel");
+		return config.getBoolean("block.holdModel", false);
 	}
 
 	public void setHoldBlockModel(boolean state) {

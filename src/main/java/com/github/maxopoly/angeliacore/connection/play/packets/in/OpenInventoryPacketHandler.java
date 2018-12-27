@@ -4,8 +4,8 @@ import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.events.inventory.OpenInventoryEvent;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
+import com.github.maxopoly.angeliacore.model.chat.ChatComponentParser;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
-import com.github.maxopoly.angeliacore.util.ChatParser;
 
 public class OpenInventoryPacketHandler extends AbstractIncomingPacketHandler {
 
@@ -18,7 +18,7 @@ public class OpenInventoryPacketHandler extends AbstractIncomingPacketHandler {
 		try {
 			byte windowID = packet.readByte();
 			String windowType = packet.readString();
-			String name = ChatParser.getRawText(packet.readString());
+			String name = ChatComponentParser.getRawText(packet.readString());
 			byte numberOfSlots = packet.readByte();
 			Inventory inv = Inventory.constructInventory(windowType, name, numberOfSlots, windowID);
 			if (inv != null) {

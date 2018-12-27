@@ -4,7 +4,7 @@ import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.events.ChatMessageReceivedEvent;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
-import com.github.maxopoly.angeliacore.util.ChatParser;
+import com.github.maxopoly.angeliacore.model.chat.ChatComponentParser;
 
 public class ChatMessagePacketHandler extends AbstractIncomingPacketHandler {
 
@@ -16,7 +16,8 @@ public class ChatMessagePacketHandler extends AbstractIncomingPacketHandler {
 	public void handlePacket(ReadOnlyPacket packet) {
 		try {
 			String jsonChat = packet.readString();
-			ChatMessageReceivedEvent event = new ChatMessageReceivedEvent(jsonChat, ChatParser.getRawText(jsonChat));
+			ChatMessageReceivedEvent event = new ChatMessageReceivedEvent(jsonChat,
+					ChatComponentParser.getRawText(jsonChat), connection.getLogger());
 			connection.getEventHandler().broadcast(event);
 			byte position = packet.readByte();
 		} catch (EndOfPacketException e) {
