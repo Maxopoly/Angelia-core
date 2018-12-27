@@ -49,8 +49,8 @@ import com.github.maxopoly.angeliacore.plugin.PluginManager;
 public class ServerConnection {
 
 	private String serverAdress;
-	private AuthenticationHandler authHandler;
-	private AES_CFB8_Encrypter syncEncryptionHandler;
+	public AuthenticationHandler authHandler;
+	public AES_CFB8_Encrypter syncEncryptionHandler;
 	private Logger logger;
 	private int port;
 	private Socket socket;
@@ -68,7 +68,7 @@ public class ServerConnection {
 	private boolean localHost;
 	private File dataFolder;
 
-	private boolean encryptionEnabled;
+	public boolean encryptionEnabled;
 	private boolean compressionEnabled;
 	private int maximumUncompressedPacketSize;
 	private int protocolVersion;
@@ -195,26 +195,12 @@ public class ServerConnection {
 		// begin login
 		logger.info("Beginning login to " + serverAdress);
 		shake.sendLoginStartMessage(authHandler.getPlayerName());
-		// figure out encryption secret
-		logger.info("Parsing encryption request from " + serverAdress);
-		EncryptionHandler asyncEncHandler = new EncryptionHandler(this);
-		if (!asyncEncHandler.parseEncryptionRequest()) {
-			logger.info("Failed to handle encryption request, could not setup connection");
-			close(DisconnectReason.Unknown_Connection_Error);
-			return;
-		}
-		asyncEncHandler.genSecretKey();
-		logger.info("Authenticating connection attempt to " + serverAdress + " against Yggdrassil session server");
-		authHandler.authAgainstSessionServer(asyncEncHandler.generateKeyHash(), logger);
-		logger.info("Sending encryption reply to " + serverAdress);
-		asyncEncHandler.sendEncryptionResponse();
-		// everything from here on is encrypted
-		logger.info("Enabling sync encryption with " + serverAdress);
-		encryptionEnabled = true;
-		syncEncryptionHandler = new AES_CFB8_Encrypter(asyncEncHandler.getSharedSecret(),
-				asyncEncHandler.getSharedSecret());
+		
+		// Encryption or game join		
 		GameJoinHandler joinHandler = new GameJoinHandler(this);
-		joinHandler.parseLoginSuccess();
+		
+		// Login success
+		joinHandler.parseGameJoin(logger, serverAdress);
 		// if we reach this point, we successfully logged in and the connection state
 		// switches to PLAY, so from now on
 		// everything is handled by our standard packet handler
