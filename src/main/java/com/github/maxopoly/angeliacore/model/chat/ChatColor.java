@@ -14,6 +14,13 @@ public enum ChatColor {
 
 	private static Map<String, ChatColor> mapping = new HashMap<>();
 
+	static {
+		/** called after enum initialization **/
+		for (ChatColor color : ChatColor.values()) {
+			mapping.put(color.name.toLowerCase(), color);
+		}
+	}
+
 	private int color;
 	private String name;
 	private String commonName;
@@ -26,7 +33,6 @@ public enum ChatColor {
 		this.commonName = commonName;
 		this.color = color;
 		this.name = name;
-		insert();
 	}
 
 	/**
@@ -50,10 +56,12 @@ public enum ChatColor {
 		return name;
 	}
 
-	private void insert() {
-		mapping.put(name.toLowerCase(), this);
-	}
-
+	/**
+	 * Retrieves a color based on its internal identifier
+	 * 
+	 * @param identifier Identifier of the color
+	 * @return ChatColor retrieved or null if no such color was found
+	 */
 	public static ChatColor getColor(String identifier) {
 		return mapping.get(identifier.toLowerCase());
 	}
