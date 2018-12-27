@@ -24,6 +24,8 @@ com.github.maxopoly.angeliacore.libs.yaml
 com.github.maxopoly.angeliacore.libs.yaml.config
 com.github.maxopoly.angeliacore.model
 com.github.maxopoly.angeliacore.model.block
+com.github.maxopoly.angeliacore.model.chat
+com.github.maxopoly.angeliacore.model.chat.hover
 com.github.maxopoly.angeliacore.model.crafting
 com.github.maxopoly.angeliacore.model.entity
 com.github.maxopoly.angeliacore.model.inventory
