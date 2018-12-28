@@ -76,14 +76,14 @@ public class GameJoinHandler {
 				}
 				asyncEncHandler.genSecretKey();
 				logger.info("Authenticating connection attempt to " + serverAddress + " against Yggdrassil session server");
-				connection.authHandler.authAgainstSessionServer(asyncEncHandler.generateKeyHash(), logger);
+				connection.getAuthHandler().authAgainstSessionServer(asyncEncHandler.generateKeyHash(), logger);
 				logger.info("Sending encryption reply to " + serverAddress);
 				asyncEncHandler.sendEncryptionResponse();
 				// everything from here on is encrypted
 				logger.info("Enabling sync encryption with " + serverAddress);
-				connection.encryptionEnabled = true;
-				connection.syncEncryptionHandler = new AES_CFB8_Encrypter(asyncEncHandler.getSharedSecret(),
-						asyncEncHandler.getSharedSecret());
+				connection.setEncryptionEnabled(true);
+				connection.setSyncEncryptionHandler(new AES_CFB8_Encrypter(asyncEncHandler.getSharedSecret(),
+						asyncEncHandler.getSharedSecret()));
 			} else if (gameJoinPacket.getPacketID() == 0) {
 				handleDisconnectPacket(gameJoinPacket);
 				return;

@@ -49,8 +49,8 @@ import com.github.maxopoly.angeliacore.plugin.PluginManager;
 public class ServerConnection {
 
 	private String serverAdress;
-	public AuthenticationHandler authHandler;
-	public AES_CFB8_Encrypter syncEncryptionHandler;
+	private AuthenticationHandler authHandler;
+	private AES_CFB8_Encrypter syncEncryptionHandler;
 	private Logger logger;
 	private int port;
 	private Socket socket;
@@ -68,7 +68,7 @@ public class ServerConnection {
 	private boolean localHost;
 	private File dataFolder;
 
-	public boolean encryptionEnabled;
+	private boolean encryptionEnabled;
 	private boolean compressionEnabled;
 	private int maximumUncompressedPacketSize;
 	private int protocolVersion;
@@ -91,7 +91,7 @@ public class ServerConnection {
 		this.port = port;
 		this.logger = logger;
 		this.closed = false;
-		this.encryptionEnabled = false;
+		this.setEncryptionEnabled(false);
 		this.compressionEnabled = false;
 		this.authHandler = auth;
 		this.tickDelay = 50;
@@ -245,10 +245,10 @@ public class ServerConnection {
 	/**
 	 * @return Mojang side authentication of the player
 	 */
-	AuthenticationHandler getAuthHandler() {
+	public AuthenticationHandler getAuthHandler() {
 		return authHandler;
 	}
-
+	
 	/**
 	 * @return Manager which holds chunk data and is gate way for all block data
 	 *         access
@@ -328,8 +328,8 @@ public class ServerConnection {
 			int j = 0;
 			while (true) {
 				byte b = input.readByte();
-				if (encryptionEnabled) {
-					b = syncEncryptionHandler.decrypt(new byte[] { b })[0];
+				if (isEncryptionEnabled()) {
+					b = getSyncEncryptionHandler().decrypt(new byte[] { b })[0];
 				}
 				packetLength |= (b & 0x7F) << j++ * 7;
 				if (j > 5) {
@@ -342,8 +342,8 @@ public class ServerConnection {
 			// packetLength is parsed here
 			byte[] dataArray = new byte[packetLength];
 			input.readFully(dataArray);
-			if (encryptionEnabled) {
-				dataArray = syncEncryptionHandler.decrypt(dataArray);
+			if (isEncryptionEnabled()) {
+				dataArray = getSyncEncryptionHandler().decrypt(dataArray);
 			}
 			if (!compressionEnabled) {
 				return new ReadOnlyPacket(dataArray);
@@ -424,6 +424,28 @@ public class ServerConnection {
 	public double getTicksPerSecond() {
 		return 1000 / (double) tickDelay;
 	}
+	
+	/**
+	 * @return Whether this connection has encryption enabled
+	 */
+	public boolean isEncryptionEnabled() {
+		return encryptionEnabled;
+	}
+	
+	/**
+	 * @param encryptionEnabled True if encryption should be enabled
+	 */
+	public void setEncryptionEnabled(boolean encryptionEnabled) {
+		this.encryptionEnabled = encryptionEnabled;
+	}
+	
+	public AES_CFB8_Encrypter getSyncEncryptionHandler() {
+		return syncEncryptionHandler;
+	}
+	
+	public void setSyncEncryptionHandler(AES_CFB8_Encrypter syncEncryptionHandler) {
+		this.syncEncryptionHandler = syncEncryptionHandler;
+	}
 
 	/**
 	 * @return Whether this connection was closed
@@ -487,8 +509,8 @@ public class ServerConnection {
 			} else {
 				data = packet.toByteArrayIncludingLength();
 			}
-			if (encryptionEnabled) {
-				data = syncEncryptionHandler.encrypt(data);
+			if (isEncryptionEnabled()) {
+				data = getSyncEncryptionHandler().encrypt(data);
 			}
 			try {
 				output.write(data);
