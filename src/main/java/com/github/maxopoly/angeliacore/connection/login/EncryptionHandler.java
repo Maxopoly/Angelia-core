@@ -7,10 +7,12 @@ import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.encryption.PKCSEncrypter;
+import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.WriteOnlyPacket;
 
@@ -65,9 +67,8 @@ public class EncryptionHandler {
 		return sharedSecret;
 	}
 
-	public boolean parseEncryptionRequest() throws IOException {
+	public boolean parseEncryptionRequest(ReadOnlyPacket packet) throws IOException {
 		try {
-			ReadOnlyPacket packet = connection.getPacket();
 			byte packetID = packet.getPacketID();
 			if (packetID == 0x00) {
 				new GameJoinHandler(connection).handleDisconnectPacket(packet);
@@ -85,6 +86,16 @@ public class EncryptionHandler {
 			serverPubKey = kf.generatePublic(X509publicKey);
 			serverVerifyToken = packet.readByteArray();
 			return true;
+		} catch (Exception e) {
+			connection.getLogger().error("Failed to parse encryption request - ", e);
+			return false;
+		}
+	}
+	
+	public boolean parseEncryptionRequest() throws IOException {
+		try {
+			ReadOnlyPacket packet = connection.getPacket();
+			return parseEncryptionRequest(packet);
 		} catch (Exception e) {
 			connection.getLogger().error("Failed to parse encryption request - ", e);
 			return false;

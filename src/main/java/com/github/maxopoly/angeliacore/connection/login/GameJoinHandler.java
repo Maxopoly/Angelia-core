@@ -1,9 +1,15 @@
 package com.github.maxopoly.angeliacore.connection.login;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
+import org.apache.logging.log4j.Logger;
+
+import com.github.maxopoly.angeliacore.connection.DisconnectReason;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.compression.MalformedCompressedDataException;
+import com.github.maxopoly.angeliacore.connection.encryption.AES_CFB8_Encrypter;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 
@@ -46,24 +52,43 @@ public class GameJoinHandler {
 				.info("Received login success package for player " + userName + " with UUID " + playerUUID);
 	}
 
-	public void parseLoginSuccess() throws IOException {
+	public void parseGameJoin(Logger logger, String serverAddress) throws IOException, Auth403Exception {
 		while (true) {
-			ReadOnlyPacket loginPacket;
+			ReadOnlyPacket gameJoinPacket;
 			try {
-				loginPacket = connection.getPacket();
+				gameJoinPacket = connection.getPacket();
 			} catch (MalformedCompressedDataException e) {
 				throw new IOException("Compression of login success packet was invalid");
 			}
-			if (loginPacket.getPacketID() == 3) {
-				handleCompressionPacket(loginPacket);
-			} else if (loginPacket.getPacketID() == 2) {
-				handleLoginSuccess(loginPacket);
+			if (gameJoinPacket.getPacketID() == 3) {
+				handleCompressionPacket(gameJoinPacket);
+			} else if (gameJoinPacket.getPacketID() == 2) {
+				handleLoginSuccess(gameJoinPacket);
 				return;
-			} else if (loginPacket.getPacketID() == 0) {
-				handleDisconnectPacket(loginPacket);
+			} else if(gameJoinPacket.getPacketID() == 1) {
+				// figure out encryption secret
+				logger.info("Parsing encryption request from " + serverAddress);
+				EncryptionHandler asyncEncHandler = new EncryptionHandler(connection);
+				if (!asyncEncHandler.parseEncryptionRequest(gameJoinPacket)) {
+					logger.info("Failed to handle encryption request, could not setup connection");
+					connection.close(DisconnectReason.Unknown_Connection_Error);
+					return;
+				}
+				asyncEncHandler.genSecretKey();
+				logger.info("Authenticating connection attempt to " + serverAddress + " against Yggdrassil session server");
+				connection.getAuthHandler().authAgainstSessionServer(asyncEncHandler.generateKeyHash(), logger);
+				logger.info("Sending encryption reply to " + serverAddress);
+				asyncEncHandler.sendEncryptionResponse();
+				// everything from here on is encrypted
+				logger.info("Enabling sync encryption with " + serverAddress);
+				connection.setEncryptionEnabled(true);
+				connection.setSyncEncryptionHandler(new AES_CFB8_Encrypter(asyncEncHandler.getSharedSecret(),
+						asyncEncHandler.getSharedSecret()));
+			} else if (gameJoinPacket.getPacketID() == 0) {
+				handleDisconnectPacket(gameJoinPacket);
 				return;
 			} else
-				throw new IOException("Received invalid packet with id " + loginPacket.getPacketID()
+				throw new IOException("Received invalid packet with id " + gameJoinPacket.getPacketID()
 						+ " while waiting for login success");
 		}
 	}

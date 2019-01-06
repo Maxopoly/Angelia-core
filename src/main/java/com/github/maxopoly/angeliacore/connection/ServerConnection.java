@@ -91,7 +91,7 @@ public class ServerConnection {
 		this.port = port;
 		this.logger = logger;
 		this.closed = false;
-		this.encryptionEnabled = false;
+		this.setEncryptionEnabled(false);
 		this.compressionEnabled = false;
 		this.authHandler = auth;
 		this.tickDelay = 50;
@@ -195,26 +195,12 @@ public class ServerConnection {
 		// begin login
 		logger.info("Beginning login to " + serverAdress);
 		shake.sendLoginStartMessage(authHandler.getPlayerName());
-		// figure out encryption secret
-		logger.info("Parsing encryption request from " + serverAdress);
-		EncryptionHandler asyncEncHandler = new EncryptionHandler(this);
-		if (!asyncEncHandler.parseEncryptionRequest()) {
-			logger.info("Failed to handle encryption request, could not setup connection");
-			close(DisconnectReason.Unknown_Connection_Error);
-			return;
-		}
-		asyncEncHandler.genSecretKey();
-		logger.info("Authenticating connection attempt to " + serverAdress + " against Yggdrassil session server");
-		authHandler.authAgainstSessionServer(asyncEncHandler.generateKeyHash(), logger);
-		logger.info("Sending encryption reply to " + serverAdress);
-		asyncEncHandler.sendEncryptionResponse();
-		// everything from here on is encrypted
-		logger.info("Enabling sync encryption with " + serverAdress);
-		encryptionEnabled = true;
-		syncEncryptionHandler = new AES_CFB8_Encrypter(asyncEncHandler.getSharedSecret(),
-				asyncEncHandler.getSharedSecret());
+		
+		// Encryption or game join		
 		GameJoinHandler joinHandler = new GameJoinHandler(this);
-		joinHandler.parseLoginSuccess();
+		
+		// Login success
+		joinHandler.parseGameJoin(logger, serverAdress);
 		// if we reach this point, we successfully logged in and the connection state
 		// switches to PLAY, so from now on
 		// everything is handled by our standard packet handler
@@ -259,10 +245,10 @@ public class ServerConnection {
 	/**
 	 * @return Mojang side authentication of the player
 	 */
-	AuthenticationHandler getAuthHandler() {
+	public AuthenticationHandler getAuthHandler() {
 		return authHandler;
 	}
-
+	
 	/**
 	 * @return Manager which holds chunk data and is gate way for all block data
 	 *         access
@@ -342,8 +328,8 @@ public class ServerConnection {
 			int j = 0;
 			while (true) {
 				byte b = input.readByte();
-				if (encryptionEnabled) {
-					b = syncEncryptionHandler.decrypt(new byte[] { b })[0];
+				if (isEncryptionEnabled()) {
+					b = getSyncEncryptionHandler().decrypt(new byte[] { b })[0];
 				}
 				packetLength |= (b & 0x7F) << j++ * 7;
 				if (j > 5) {
@@ -356,8 +342,8 @@ public class ServerConnection {
 			// packetLength is parsed here
 			byte[] dataArray = new byte[packetLength];
 			input.readFully(dataArray);
-			if (encryptionEnabled) {
-				dataArray = syncEncryptionHandler.decrypt(dataArray);
+			if (isEncryptionEnabled()) {
+				dataArray = getSyncEncryptionHandler().decrypt(dataArray);
 			}
 			if (!compressionEnabled) {
 				return new ReadOnlyPacket(dataArray);
@@ -438,6 +424,28 @@ public class ServerConnection {
 	public double getTicksPerSecond() {
 		return 1000 / (double) tickDelay;
 	}
+	
+	/**
+	 * @return Whether this connection has encryption enabled
+	 */
+	public boolean isEncryptionEnabled() {
+		return encryptionEnabled;
+	}
+	
+	/**
+	 * @param encryptionEnabled True if encryption should be enabled
+	 */
+	public void setEncryptionEnabled(boolean encryptionEnabled) {
+		this.encryptionEnabled = encryptionEnabled;
+	}
+	
+	public AES_CFB8_Encrypter getSyncEncryptionHandler() {
+		return syncEncryptionHandler;
+	}
+	
+	public void setSyncEncryptionHandler(AES_CFB8_Encrypter syncEncryptionHandler) {
+		this.syncEncryptionHandler = syncEncryptionHandler;
+	}
 
 	/**
 	 * @return Whether this connection was closed
@@ -501,8 +509,8 @@ public class ServerConnection {
 			} else {
 				data = packet.toByteArrayIncludingLength();
 			}
-			if (encryptionEnabled) {
-				data = syncEncryptionHandler.encrypt(data);
+			if (isEncryptionEnabled()) {
+				data = getSyncEncryptionHandler().encrypt(data);
 			}
 			try {
 				output.write(data);
