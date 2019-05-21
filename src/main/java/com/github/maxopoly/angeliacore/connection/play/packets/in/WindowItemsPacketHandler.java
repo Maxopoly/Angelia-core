@@ -27,10 +27,10 @@ public class WindowItemsPacketHandler extends AbstractIncomingPacketHandler {
 			if (inv != null) {
 				boolean wasInitialized = inv.isInitialized();
 				connection.getEventHandler().broadcast(new UpdateInventoryEvent(inv, windowID, items));
+				inv.setSlots(items);
 				if (!wasInitialized) {
 					connection.getEventHandler().broadcast(new InventoryInitializationEvent(inv, windowID));
 				}
-				inv.setSlots(items);
 			}
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse window items packet", e);
