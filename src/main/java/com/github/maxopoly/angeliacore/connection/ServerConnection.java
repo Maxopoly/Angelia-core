@@ -77,7 +77,6 @@ public class ServerConnection {
 	private DataInputStream input;
 	private DataOutputStream output;
 	private boolean closed;
-
 	/**
 	 * Standard Constructor
 	 *
@@ -135,6 +134,7 @@ public class ServerConnection {
 	 *               reconnecting or not
 	 */
 	public void close(DisconnectReason reason) {
+		ServerDisconnectEvent event = new ServerDisconnectEvent(reason, config.useAutoReconnect(), config.getAuthReconnectDelay());
 		try {
 			logger.info("Closing socket with " + serverAdress);
 			if (!socket.isClosed()) {
@@ -145,12 +145,12 @@ public class ServerConnection {
 				tickTimer.purge();
 			}
 			eventHandler.broadcast(
-					new ServerDisconnectEvent(reason, config.useAutoReconnect(), config.getAuthReconnectDelay()));
+					event);
 			closed = true;
 		} catch (IOException e) {
 			// its ok, probably
 		}
-		ActiveConnectionManager.getInstance().reportDisconnect(this, reason);
+		ActiveConnectionManager.getInstance().reportDisconnect(this, event);
 	}
 
 	/**

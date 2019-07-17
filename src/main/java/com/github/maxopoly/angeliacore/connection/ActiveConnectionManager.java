@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.github.maxopoly.angeliacore.connection.login.Auth403Exception;
 import com.github.maxopoly.angeliacore.event.events.angelia.ReconnectEvent;
+import com.github.maxopoly.angeliacore.event.events.angelia.ServerDisconnectEvent;
+import com.github.maxopoly.angeliacore.libs.yaml.config.GlobalConfig;
 
 public class ActiveConnectionManager {
 
@@ -31,6 +33,10 @@ public class ActiveConnectionManager {
 	}
 
 	public void initConnection(ServerConnection newConnection, ServerConnection oldConnection) {
+		initConnection(newConnection, oldConnection, newConnection.getConfig().getAuthReconnectDelay());
+	}
+
+	public void initConnection(ServerConnection newConnection, ServerConnection oldConnection, long reconnectDelay) {
 		try {
 			newConnection.connect();
 		} catch (Auth403Exception e) {
@@ -39,9 +45,9 @@ public class ActiveConnectionManager {
 		} catch (Exception e) {
 			newConnection.getLogger().error("Could not connect to server", e);
 			if (oldConnection == null) {
-				scheduleConnectionReattempt(newConnection);
+				scheduleConnectionReattempt(newConnection, reconnectDelay * 2);
 			} else {
-				scheduleConnectionReattempt(oldConnection);
+				scheduleConnectionReattempt(oldConnection, reconnectDelay * 2);
 			}
 			return;
 		}
@@ -62,7 +68,8 @@ public class ActiveConnectionManager {
 		newConnection.getEventHandler().broadcast(new ReconnectEvent(oldConnection, newConnection));
 	}
 
-	public void reportDisconnect(ServerConnection conn, DisconnectReason reason) {
+	public void reportDisconnect(ServerConnection conn, ServerDisconnectEvent event) {
+		DisconnectReason reason = event.getReason();
 		synchronized (activeConnections) {
 			if (!activeConnections.values().contains(conn)) {
 				// disconnect may be reported in multiple layers, we only want the first one to
@@ -95,16 +102,16 @@ public class ActiveConnectionManager {
 			conn.getLogger().info("Server connection timed out!");
 			break;
 		}
-		scheduleConnectionReattempt(conn);
+		scheduleConnectionReattempt(conn, event.getReconnectDelay());
 	}
 
-	private void scheduleConnectionReattempt(final ServerConnection failed) {
+	private void scheduleConnectionReattempt(final ServerConnection failed, long reconnectDelay) {
 		if (!failed.getConfig().useAutoReconnect()) {
 			failed.getLogger().info("Autoreconnecting is disabled, connection will remain closed");
 			System.exit(0);
 			return;
 		} else {
-			failed.getLogger().info("Autoreconnecting in " + failed.getConfig().getAuthReconnectDelay() + " ms");
+			failed.getLogger().info("Autoreconnecting in " + reconnectDelay + " ms");
 		}
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 		scheduler.schedule(new Runnable() {
@@ -113,10 +120,10 @@ public class ActiveConnectionManager {
 			public void run() {
 				ServerConnection conn = new ServerConnection(failed.getAdress(), failed.getPort(), failed.getLogger(),
 						failed.getAuthHandler());
-				initConnection(conn, failed);
+				initConnection(conn, failed, reconnectDelay);
 
 			}
-		}, failed.getConfig().getAuthReconnectDelay(), TimeUnit.MILLISECONDS);
+		}, reconnectDelay, TimeUnit.MILLISECONDS);
 	}
 
 	/**
