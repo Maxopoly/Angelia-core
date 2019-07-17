@@ -4,6 +4,6 @@
 .project
 /logs/
 dependency-reduced-pom.xml
-/target/
-
 /bin/
+/\.idea/
+*.iml
