@@ -45,7 +45,7 @@ public class PlayerPhysicsManager {
 		Vector acceleration = new Vector();
 		AABB offSetAABB = player.getBoundingBox().move(player.getLocation().add(0, - DELTA, 0));
 		Location playerLoc = player.getLocation();
-		Location below = playerLoc.relativeBlock(0, -1, 0);
+		Location below = playerLoc.add(0, -1, 0);
 		double y = playerLoc.getY();
 		boolean onGround = false;
 		

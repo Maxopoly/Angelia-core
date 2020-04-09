@@ -18,10 +18,6 @@ public class Location extends Vector {
 		this(v.getX(), v.getY(), v.getZ());
 	}
 
-	public Location add(Vector vec) {
-		return new Location(super.add(vec));
-	}
-
 	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof Location)) {
@@ -108,12 +104,12 @@ public class Location extends Vector {
 	 * @param z Number to add to z coord
 	 * @return Modified location
 	 */
-	public Location relativeBlock(double x, double y, double z) {
+	public Location add(double x, double y, double z) {
 		return new Location(this.x + x, this.y + y, this.z + z);
 	}
 
-	public Location relativeBlock(Vector v) {
-		return relativeBlock(v.getX(), v.getY(), v.getZ());
+	public Location add(Vector v) {
+		return new Location(super.add(v));
 	}
 
 	/**
