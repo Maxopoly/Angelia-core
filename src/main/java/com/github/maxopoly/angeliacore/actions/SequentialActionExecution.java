@@ -32,7 +32,7 @@ public class SequentialActionExecution extends AbstractAction {
 
 	@Override
 	public ActionLock[] getActionLocks() {
-		Set<ActionLock> collActions = new HashSet<ActionLock>();
+		Set<ActionLock> collActions = new HashSet<>();
 		for (int i = currentAction; i < actions.length; i++) {
 			for (ActionLock lock : actions[i].getActionLocks()) {
 				collActions.add(lock);

@@ -1,5 +1,6 @@
 package com.github.maxopoly.angeliacore.gamelogic.physics;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
@@ -7,6 +8,7 @@ import com.github.maxopoly.angeliacore.model.ThePlayer;
 import com.github.maxopoly.angeliacore.model.block.ChunkHolder;
 import com.github.maxopoly.angeliacore.model.block.states.BlockState;
 import com.github.maxopoly.angeliacore.model.entity.AABB;
+import com.github.maxopoly.angeliacore.model.location.BlockFace;
 import com.github.maxopoly.angeliacore.model.location.Location;
 import com.github.maxopoly.angeliacore.model.location.Vector;
 import com.github.maxopoly.angeliacore.model.location.Velocity;
@@ -23,18 +25,19 @@ public class PlayerPhysicsManager {
 	private static final double TERMINAL_VELOCITY = -20;
 	private static final double WALKING_SPEED = 4.317;
 	private static final double SPRINTING_MULTIPLIER = 1.3;
+	private static final double PLAYER_RADIUS = 0.32;
+	private static final double PLAYER_HEIGHT = 1.74;
 	
 	private ThePlayer player;
-	private int ticksPerSecond;
 	private double tickInverse;
 	private ChunkHolder chunkHolder;
 	private List<Vector> queuedMovement;
 	
 	public PlayerPhysicsManager(ThePlayer player, int ticksPerSecond, ChunkHolder chunkHolder) {
 		this.player = player;
-		this.ticksPerSecond = ticksPerSecond;
 		this.chunkHolder = chunkHolder;
 		this.tickInverse = 1.0 / ticksPerSecond;
+		this.queuedMovement = new LinkedList<>();
 	}
 	
 	public Location getNext() {
@@ -83,6 +86,14 @@ public class PlayerPhysicsManager {
 		//convert from m/s² to meter/tick, so divide by the inverse of ticks per second
 		Vector offSet = velocity.multiply(tickInverse);
 		
+		Vector sideWards = offSet.normalize().cross(new Vector(0,1,0)).normalize();
+		Location sidePointOneLow = playerLoc.add(sideWards.multiply(PLAYER_RADIUS));
+		Location sidePointTwoLow = playerLoc.add(sideWards.multiply(- PLAYER_RADIUS));
+		
+		Location upperBoundPlayer = playerLoc.add(0,PLAYER_HEIGHT ,0);
+		Location sidePointOneLow = playerLoc.add(sideWards.multiply(PLAYER_RADIUS));
+		Location sidePointTwoLow = playerLoc.add(sideWards.multiply(- PLAYER_RADIUS));
+		
 		//TODO collision checks
 		
 		
@@ -98,7 +109,7 @@ public class PlayerPhysicsManager {
 		
 		//TODO set location
 		//TODO set on ground state
-		
+		BlockFace f;
 		return null;
 	}
 
