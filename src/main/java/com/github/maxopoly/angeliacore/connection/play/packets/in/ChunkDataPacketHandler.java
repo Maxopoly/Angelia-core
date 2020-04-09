@@ -1,6 +1,5 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
-import com.github.maxopoly.angeliacore.block.states.BlockState;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.events.ChunkLoadEvent;
 import com.github.maxopoly.angeliacore.libs.nbt.NBTCompound;
@@ -10,6 +9,7 @@ import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.model.block.BlockStateFactory;
 import com.github.maxopoly.angeliacore.model.block.Chunk;
 import com.github.maxopoly.angeliacore.model.block.ChunkSection;
+import com.github.maxopoly.angeliacore.model.block.states.BlockState;
 
 public class ChunkDataPacketHandler extends AbstractIncomingPacketHandler {
 

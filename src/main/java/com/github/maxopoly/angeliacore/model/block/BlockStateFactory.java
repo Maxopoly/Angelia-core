@@ -3,14 +3,14 @@ package com.github.maxopoly.angeliacore.model.block;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.github.maxopoly.angeliacore.block.states.ActivatableFacingBlock;
-import com.github.maxopoly.angeliacore.block.states.AirBlockState;
-import com.github.maxopoly.angeliacore.block.states.BlockState;
-import com.github.maxopoly.angeliacore.block.states.FancySpecialBlockState;
-import com.github.maxopoly.angeliacore.block.states.SolidStaticBlockState;
-import com.github.maxopoly.angeliacore.block.states.VariableBlockState;
-import com.github.maxopoly.angeliacore.block.states.rail.NormalRailBlockState;
-import com.github.maxopoly.angeliacore.block.states.rail.SpecialRailBlockState;
+import com.github.maxopoly.angeliacore.model.block.states.ActivatableFacingBlock;
+import com.github.maxopoly.angeliacore.model.block.states.AirBlockState;
+import com.github.maxopoly.angeliacore.model.block.states.BlockState;
+import com.github.maxopoly.angeliacore.model.block.states.FancySpecialBlockState;
+import com.github.maxopoly.angeliacore.model.block.states.SolidStaticBlockState;
+import com.github.maxopoly.angeliacore.model.block.states.VariableBlockState;
+import com.github.maxopoly.angeliacore.model.block.states.rail.NormalRailBlockState;
+import com.github.maxopoly.angeliacore.model.block.states.rail.SpecialRailBlockState;
 
 public class BlockStateFactory {
 

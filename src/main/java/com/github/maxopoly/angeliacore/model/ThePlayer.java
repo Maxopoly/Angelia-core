@@ -5,6 +5,7 @@ import java.util.TreeMap;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.events.XPChangeEvent;
+import com.github.maxopoly.angeliacore.model.entity.AABB;
 import com.github.maxopoly.angeliacore.model.entity.LivingEntity;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
@@ -25,17 +26,22 @@ public class ThePlayer extends LivingEntity {
 	private int totalEXP;
 	private float xpProgress;
 	private int level;
+	
+	private AABB boundingBox;
 
 	private int hunger;
 	private float saturation;
+	private boolean isSprinting;
+	private boolean isSneaking;
 
 	private ServerConnection connection;
 
 	public ThePlayer(ServerConnection connection) {
 		super(0, connection.getPlayerUUID(), new DirectedLocation(), new Velocity());
-		this.openInventories = new TreeMap<Byte, Inventory>();
+		this.openInventories = new TreeMap<>();
 		this.openInventories.put((byte) 0, new PlayerInventory());
 		this.connection = connection;
+		this.boundingBox = new AABB(-0.3, 0.3, 0,0.8, -0.3,0.3);
 	}
 
 	public void addInventory(Inventory inv, byte id) {
@@ -145,5 +151,26 @@ public class ThePlayer extends LivingEntity {
 		this.level = level;
 		this.xpProgress = progress;
 		this.totalEXP = totalXP;
+	}
+	
+	public void setSprinting(boolean sprinting) {
+		this.isSprinting = sprinting;
+	}
+	
+	public boolean isSprinting() {
+		return isSprinting;
+	}
+	
+	public boolean isSneaking() {
+		return isSneaking;
+	}
+	
+	public void setSneaking(boolean sneaking) {
+		this.isSneaking = sneaking;
+	}
+
+	@Override
+	public AABB getBoundingBox() {
+		return boundingBox;
 	}
 }

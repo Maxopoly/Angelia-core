@@ -24,6 +24,8 @@ public abstract class Entity {
 	}
 
 	public abstract Location getLocation();
+	
+	public abstract AABB getBoundingBox();
 
 	public Velocity getVelocity() {
 		return velocity;

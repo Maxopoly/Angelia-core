@@ -27,6 +27,7 @@ public class ToggleSneaking extends AbstractAction {
 			connection.getLogger().error("Failed to send sneaking toggle packet.", error);
 			return;
 		}
+		connection.getPlayerStatus().setSneaking(sneaking);
 	}
 
 	@Override

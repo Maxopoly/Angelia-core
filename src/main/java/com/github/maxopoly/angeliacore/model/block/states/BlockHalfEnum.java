@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.block.states;
+package com.github.maxopoly.angeliacore.model.block.states;
 
 public enum BlockHalfEnum {
 

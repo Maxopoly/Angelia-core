@@ -14,7 +14,7 @@ import com.github.maxopoly.angeliacore.model.location.Location;
 import com.github.maxopoly.angeliacore.model.location.Velocity;
 import com.github.maxopoly.angeliacore.model.potion.PotionEffect;
 
-public class LivingEntity extends Entity {
+public abstract class LivingEntity extends Entity {
 
 	private UUID uuid;
 	protected DirectedLocation location;
@@ -26,7 +26,7 @@ public class LivingEntity extends Entity {
 		super(id, velocity);
 		this.uuid = uuid;
 		this.location = location;
-		this.potionEffects = new HashMap<PotionEffect, Long>();
+		this.potionEffects = new HashMap<>();
 	}
 
 	public void addPotionEffect(PotionEffect effect) {
@@ -43,7 +43,7 @@ public class LivingEntity extends Entity {
 			while (iter.hasNext()) {
 				Entry<PotionEffect, Long> entry = iter.next();
 				long start = entry.getValue();
-				long runningTime = entry.getKey().getDuration() * 1000;
+				long runningTime = entry.getKey().getDuration() * 1000L;
 				long current = System.currentTimeMillis();
 				if ((current - start) > runningTime) {
 					iter.remove();
@@ -55,7 +55,7 @@ public class LivingEntity extends Entity {
 	public List<PotionEffect> getActivePotionEffects() {
 		filterTimedOutEffects();
 		synchronized (potionEffects) {
-			return new LinkedList<PotionEffect>(potionEffects.keySet());
+			return new LinkedList<>(potionEffects.keySet());
 		}
 	}
 

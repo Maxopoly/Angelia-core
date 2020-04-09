@@ -1,8 +1,9 @@
-package com.github.maxopoly.angeliacore.block.states;
+package com.github.maxopoly.angeliacore.model.block.states;
 
 import java.util.List;
 
 import com.github.maxopoly.angeliacore.model.block.RenderModule;
+import com.github.maxopoly.angeliacore.model.entity.AABB;
 
 public abstract class BlockState {
 
@@ -12,6 +13,7 @@ public abstract class BlockState {
 	protected String texturePackIdentifier;
 	protected String niceName;
 	protected RenderModule render;
+	protected AABB boundingBox;
 
 	public BlockState(int id, byte metaData, float hardness, String texturePackIdentifier, String niceName) {
 		this.id = id;
@@ -19,6 +21,7 @@ public abstract class BlockState {
 		this.hardness = hardness;
 		this.texturePackIdentifier = texturePackIdentifier;
 		this.niceName = niceName;
+		this.boundingBox = null;
 	}
 
 	public abstract BlockState getActualState(byte data);
@@ -54,10 +57,14 @@ public abstract class BlockState {
 	public void setRenderModule(RenderModule renderModule) {
 		this.render = renderModule;
 	}
+	
+	public AABB getBoundingBox() {
+		return boundingBox;
+	}
 
 	@Override
 	public String toString() {
-		return niceName != null ? niceName : id + ":" + metaData;
+		return niceName != null ? niceName : (id + ":" + metaData);
 	}
 
 }

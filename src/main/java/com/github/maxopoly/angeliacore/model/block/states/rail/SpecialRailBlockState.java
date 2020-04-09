@@ -1,6 +1,6 @@
-package com.github.maxopoly.angeliacore.block.states.rail;
+package com.github.maxopoly.angeliacore.model.block.states.rail;
 
-import com.github.maxopoly.angeliacore.block.states.PowerableStateEnum;
+import com.github.maxopoly.angeliacore.model.block.states.PowerableStateEnum;
 
 public class SpecialRailBlockState extends GeneralRailBlockState {
 

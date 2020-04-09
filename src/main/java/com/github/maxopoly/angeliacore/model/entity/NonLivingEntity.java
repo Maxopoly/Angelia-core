@@ -20,4 +20,10 @@ public class NonLivingEntity extends Entity {
 	public void updateLocation(Location loc) {
 		this.location = loc;
 	}
+
+	@Override
+	public AABB getBoundingBox() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -27,6 +27,10 @@ public class Vector {
 	public Vector add(Vector other) {
 		return new Vector(x + other.x, y + other.y, z + other.z);
 	}
+	
+	public Vector add(double x, double y, double z) {
+		return new Vector(x + this.x, y + this.y, z + this.z);
+	}
 
 	public Vector cross(Vector v) {
 		return new Vector(v.getX() * x, v.getY() * y, v.getZ() * z);

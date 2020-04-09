@@ -1,4 +1,4 @@
-package com.github.maxopoly.angeliacore.block.states.rail;
+package com.github.maxopoly.angeliacore.model.block.states.rail;
 
 /**
  * Possible states of a 'special' piece of rail (activator/powered/detector),

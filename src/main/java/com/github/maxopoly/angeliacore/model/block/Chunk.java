@@ -1,6 +1,6 @@
 package com.github.maxopoly.angeliacore.model.block;
 
-import com.github.maxopoly.angeliacore.block.states.BlockState;
+import com.github.maxopoly.angeliacore.model.block.states.BlockState;
 
 public class Chunk {
 

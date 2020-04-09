@@ -22,6 +22,7 @@ public class StartSprinting extends AbstractAction {
 		} catch (IOException e) {
 			connection.getLogger().error("Failed to send start sprint packet ", e);
 		}
+		connection.getPlayerStatus().setSprinting(true);
 	}
 
 	@Override
