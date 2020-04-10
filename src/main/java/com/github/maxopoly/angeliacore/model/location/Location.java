@@ -1,5 +1,8 @@
 package com.github.maxopoly.angeliacore.model.location;
 
+import com.github.maxopoly.angeliacore.connection.ServerConnection;
+import com.github.maxopoly.angeliacore.model.block.states.BlockState;
+
 public class Location extends Vector {
 
 	public Location() {
@@ -120,6 +123,15 @@ public class Location extends Vector {
 	public Location toBlockLocation() {
 		return new Location(Math.floor(x), Math.floor(y), Math.floor(z));
 	}
+
+	/**
+	 * Get the {@link BlockState} at the current location
+	 * 
+	 * @return The block at the current location
+	 */
+	public BlockState getBlockAt(ServerConnection connection) {
+		return connection.getChunkHolder().getBlockAt(this);
+	} 
 
 	/**
 	 * Turns this location into a vector, which represents the locations offset from

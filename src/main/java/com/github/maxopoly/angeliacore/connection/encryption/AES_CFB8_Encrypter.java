@@ -27,10 +27,8 @@ public class AES_CFB8_Encrypter {
 			encodingCipher = Cipher.getInstance("AES/CFB8/NoPadding");
 			encodingCipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
 		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvalidAlgorithmParameterException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
 			throw new SecurityException(e);

@@ -22,4 +22,8 @@ public class ChunkSection {
 	public BlockState getBlock(int x, int y, int z) {
 		return blocks[x + 16 * z + 256 * y];
 	}
+
+	public void setBlock(int x, int y, int z, BlockState st) {
+		blocks[x + 16 * z + 256 * y] = st;
+	}
 }

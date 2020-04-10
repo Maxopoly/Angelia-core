@@ -29,7 +29,7 @@ public class SortIntoInventoryFromCursor extends InventoryAction {
 	public void execute() {
 		Inventory inv = connection.getPlayerStatus().getInventory(windowID);
 		if (inv == null) {
-			successfull = false;
+			successful = false;
 			done = true;
 		}
 		if (invClick != null) {
@@ -40,7 +40,7 @@ public class SortIntoInventoryFromCursor extends InventoryAction {
 			invClick = null;
 		}
 		if (item.getAmount() <= 0) {
-			successfull = true;
+			successful = true;
 			done = true;
 			return;
 		}

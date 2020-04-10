@@ -23,6 +23,7 @@ public class StartSprinting extends AbstractAction {
 			connection.getLogger().error("Failed to send start sprint packet ", e);
 		}
 		connection.getPlayerStatus().setSprinting(true);
+		// Perhaps also send an event here?
 	}
 
 	@Override
@@ -32,7 +33,7 @@ public class StartSprinting extends AbstractAction {
 
 	@Override
 	public boolean isDone() {
-		return true;
+		return true; // Always 1 tick
 	}
 
 }

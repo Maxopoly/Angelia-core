@@ -1,6 +1,7 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
+import com.github.maxopoly.angeliacore.event.events.entity.EntityBreakingBlockEvent;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.model.location.Location;
@@ -17,7 +18,7 @@ public class BlockBreakAnimationPacketHandler extends AbstractIncomingPacketHand
 			int entityID = packet.readVarInt();
 			Location blockPos = packet.readPosition();
 			byte stage = packet.readByte();
-			// TODO?
+			connection.getEventHandler().broadcast(new EntityBreakingBlockEvent(entityID, blockPos, stage));
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse break animation packet", e);
 		}

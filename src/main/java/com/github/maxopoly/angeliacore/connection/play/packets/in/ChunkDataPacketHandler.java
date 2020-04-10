@@ -1,7 +1,7 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.event.events.ChunkLoadEvent;
+import com.github.maxopoly.angeliacore.event.events.world.ChunkLoadEvent;
 import com.github.maxopoly.angeliacore.libs.nbt.NBTCompound;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.BinaryReadOnlyData;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;

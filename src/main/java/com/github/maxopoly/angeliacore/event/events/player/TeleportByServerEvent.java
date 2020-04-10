@@ -1,5 +1,6 @@
-package com.github.maxopoly.angeliacore.event.events;
+package com.github.maxopoly.angeliacore.event.events.player;
 
+import com.github.maxopoly.angeliacore.event.events.AngeliaEvent;
 import com.github.maxopoly.angeliacore.model.location.DirectedLocation;
 
 /**

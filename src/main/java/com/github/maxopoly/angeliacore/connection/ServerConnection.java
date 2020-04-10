@@ -20,7 +20,6 @@ import com.github.maxopoly.angeliacore.connection.compression.MalformedCompresse
 import com.github.maxopoly.angeliacore.connection.encryption.AES_CFB8_Encrypter;
 import com.github.maxopoly.angeliacore.connection.login.Auth403Exception;
 import com.github.maxopoly.angeliacore.connection.login.AuthenticationHandler;
-import com.github.maxopoly.angeliacore.connection.login.EncryptionHandler;
 import com.github.maxopoly.angeliacore.connection.login.GameJoinHandler;
 import com.github.maxopoly.angeliacore.connection.login.HandShake;
 import com.github.maxopoly.angeliacore.connection.play.EntityManager;

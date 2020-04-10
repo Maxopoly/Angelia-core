@@ -1,7 +1,7 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.event.events.ChatMessageReceivedEvent;
+import com.github.maxopoly.angeliacore.event.events.player.ChatMessageReceivedEvent;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.model.chat.ChatComponentParser;

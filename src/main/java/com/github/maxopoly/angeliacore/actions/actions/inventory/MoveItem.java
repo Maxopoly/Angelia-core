@@ -33,14 +33,14 @@ public class MoveItem extends InventoryAction {
 			toMove = connection.getPlayerStatus().getInventory(windowID).getSlot(originSlot);
 			if (toMove.isEmpty()) {
 				done = true;
-				successfull = false;
+				successful = false;
 				return;
 			}
 			this.pickUp = new ClickInventory(connection, windowID, (short) originSlot, (byte) 0, 0, toMove);
 			ItemStack target = connection.getPlayerStatus().getInventory(windowID).getSlot(targetSlot);
 			if (!target.isEmpty()) {
 				done = true;
-				successfull = false;
+				successful = false;
 				return;
 			}
 			this.layDown = new ClickInventory(connection, windowID, (short) targetSlot, (byte) 0, 0,
@@ -55,7 +55,7 @@ public class MoveItem extends InventoryAction {
 		if (!pickUp.wasSuccessfull()) {
 			// pickup failed
 			done = true;
-			successfull = false;
+			successful = false;
 			return;
 		}
 		if (!layDown.isDone()) {
@@ -75,7 +75,7 @@ public class MoveItem extends InventoryAction {
 					// TODO error handling
 				}
 				done = true;
-				successfull = false;
+				successful = false;
 			} else {
 				revert.execute();
 			}
@@ -83,7 +83,7 @@ public class MoveItem extends InventoryAction {
 		}
 		// laydown was successfull, everything worked
 		done = true;
-		successfull = true;
+		successful = true;
 		// update clientside model
 		PlayerInventory inv = connection.getPlayerStatus().getPlayerInventory();
 		inv.updateSlot(originSlot, new ItemStack(Material.EMPTY_SLOT));

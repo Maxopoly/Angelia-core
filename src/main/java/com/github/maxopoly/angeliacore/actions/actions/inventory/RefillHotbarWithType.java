@@ -33,7 +33,7 @@ public class RefillHotbarWithType extends InventoryAction {
 			Inventory storage = playerInv.getPlayerStorageWithoutHotbar();
 			int index = storage.findSlotByType(new ItemStack(mat));
 			if (index == -1) {
-				successfull = false;
+				successful = false;
 				done = true;
 				return;
 			}
@@ -42,7 +42,7 @@ public class RefillHotbarWithType extends InventoryAction {
 			// find empty slot
 			short targetHotbarSlot = playerInv.getHotbar().findSlotByType(new ItemStack(Material.EMPTY_SLOT));
 			if (targetHotbarSlot == -1) {
-				successfull = false;
+				successful = false;
 				done = true;
 				return;
 			}
@@ -53,14 +53,14 @@ public class RefillHotbarWithType extends InventoryAction {
 		} else {
 			move.execute();
 			if (move.isDone()) {
-				if (move.wasSuccessfull()) {
-					successfull = true;
+				if (move.wasSuccessful()) {
+					successful = true;
 					// update clientside model
 					PlayerInventory inv = connection.getPlayerStatus().getPlayerInventory();
 					inv.updateSlot(originSlot, new ItemStack(Material.EMPTY_SLOT));
 					inv.updateSlot(originSlot, movedStack);
 				} else {
-					successfull = false;
+					successful = false;
 				}
 				done = true;
 			}

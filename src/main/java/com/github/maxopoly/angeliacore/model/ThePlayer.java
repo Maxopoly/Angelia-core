@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.event.events.XPChangeEvent;
+import com.github.maxopoly.angeliacore.event.events.player.XPChangeEvent;
 import com.github.maxopoly.angeliacore.model.entity.AABB;
 import com.github.maxopoly.angeliacore.model.entity.LivingEntity;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;

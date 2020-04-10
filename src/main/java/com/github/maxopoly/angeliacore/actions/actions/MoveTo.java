@@ -73,6 +73,13 @@ public class MoveTo extends AbstractAction {
 				current.getPitch());
 	}
 
+	/**
+	 * Checks if the player has reached the destination within an error margin. As
+	 * of right now, it doesn't account for the Y coordinate.
+	 * 
+	 * @param current - The current location of the player
+	 * @return - Whether the player has reached the destination
+	 */
 	public boolean hasReachedDesto(Location current) {
 		return Math.abs(current.getX() - destination.getX()) < errorMargin
 				&& Math.abs(current.getZ() - destination.getZ()) < errorMargin;
@@ -83,6 +90,9 @@ public class MoveTo extends AbstractAction {
 		return hasReachedDesto(connection.getPlayerStatus().getLocation());
 	}
 
+	/**
+	 * Sends the location packet to the server to update the player location.
+	 */
 	public void sendLocationPacket() {
 		Location playerLoc = connection.getPlayerStatus().getLocation();
 		try {

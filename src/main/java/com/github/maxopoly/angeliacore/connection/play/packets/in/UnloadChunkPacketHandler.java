@@ -1,7 +1,7 @@
 package com.github.maxopoly.angeliacore.connection.play.packets.in;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
-import com.github.maxopoly.angeliacore.event.events.ChunkUnloadEvent;
+import com.github.maxopoly.angeliacore.event.events.world.ChunkUnloadEvent;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.model.block.Chunk;

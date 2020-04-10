@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 import com.github.maxopoly.angeliacore.connection.login.Auth403Exception;
 import com.github.maxopoly.angeliacore.event.events.angelia.ReconnectEvent;
 import com.github.maxopoly.angeliacore.event.events.angelia.ServerDisconnectEvent;
-import com.github.maxopoly.angeliacore.libs.yaml.config.GlobalConfig;
 
 public class ActiveConnectionManager {
 
@@ -127,7 +126,7 @@ public class ActiveConnectionManager {
 	}
 
 	/**
-	 * Finishes the connection off completly, ends a plugins and exits the
+	 * Finishes the connection off completely, ends a plugins and exits the
 	 * application if no more connections are running
 	 * 
 	 * @param connection Connection to end
