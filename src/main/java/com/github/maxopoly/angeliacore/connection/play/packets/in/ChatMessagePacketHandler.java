@@ -20,6 +20,7 @@ public class ChatMessagePacketHandler extends AbstractIncomingPacketHandler {
 			ChatMessageReceivedEvent event = new ChatMessageReceivedEvent(jsonChat,
 					ChatComponentParser.getRawText(jsonChat), connection.getLogger());
 			connection.getEventHandler().broadcast(event);
+			// Also justified since it needs to be read even tough it's not used.
 			@SuppressWarnings("unused")
 			ChatMessageLocation location = ChatMessageLocation.fromID(packet.readByte());
 		} catch (EndOfPacketException e) {

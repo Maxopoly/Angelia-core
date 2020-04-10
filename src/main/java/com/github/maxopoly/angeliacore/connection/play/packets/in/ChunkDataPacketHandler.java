@@ -30,6 +30,7 @@ public class ChunkDataPacketHandler extends AbstractIncomingPacketHandler {
 			boolean groundUpContinuos = packet.readBoolean();
 			int containedSectionBitMask = packet.readVarInt();
 			byte[] rawChunkData = packet.readByteArray();
+			@SuppressWarnings("unused")
 			NBTCompound[] blockEntityData = packet.readNBTArray();
 			BinaryReadOnlyData brod = new BinaryReadOnlyData(rawChunkData);
 			Chunk chunk = readChunk(x, z, groundUpContinuos, containedSectionBitMask, brod);
@@ -128,6 +129,7 @@ public class ChunkDataPacketHandler extends AbstractIncomingPacketHandler {
 				for (int z = 0; z < Chunk.CHUNK_WIDTH; z++) {
 					for (int x = 0; x < Chunk.CHUNK_WIDTH; x += 2) {
 						// Note: x += 2 above; we read 2 values along x each time
+						@SuppressWarnings("unused")
 						byte value = data.readByte();
 
 						// section.SetBlockLight(x, y, z, value & 0xF);
@@ -142,6 +144,7 @@ public class ChunkDataPacketHandler extends AbstractIncomingPacketHandler {
 				for (int z = 0; z < Chunk.CHUNK_WIDTH; z++) {
 					for (int x = 0; x < Chunk.CHUNK_WIDTH; x += 2) {
 						// Note: x += 2 above; we read 2 values along x each time
+						@SuppressWarnings("unused")
 						byte value = data.readByte();
 
 						// section.SetSkyLight(x, y, z, value & 0xF);

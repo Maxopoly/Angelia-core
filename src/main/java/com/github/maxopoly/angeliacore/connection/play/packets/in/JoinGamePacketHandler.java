@@ -22,7 +22,8 @@ public class JoinGamePacketHandler extends AbstractIncomingPacketHandler {
 			String lvlType = packet.readString();
 			boolean debugInfo = packet.readBoolean();
 			connection.getPlayerStatus().setPlayerEntityID(playerEntityID);
-			connection.getEventHandler().broadcast(new ConnectedToServerEvent());
+			connection.getEventHandler().broadcast(new ConnectedToServerEvent(playerEntityID, gameMode, dimension,
+					difficulty, maxPlayers, lvlType, debugInfo));
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse Join game packet", e);
 		}
