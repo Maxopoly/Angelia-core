@@ -24,9 +24,13 @@ public class EntityEffectPacketHandler extends AbstractIncomingPacketHandler {
 			byte effectID = packet.readByte();
 			byte amplifier = packet.readByte();
 			int duration = packet.readVarInt();
-			byte flag = packet.readByte();
-			connection.getPlayerStatus()
-					.addPotionEffect(new PotionEffect(PotionType.getById(effectID), amplifier + 1, duration));
+			byte flags = packet.readByte();
+			// TODO proper bit operations. i was a bit lazy here. See
+			// https://wiki.vg/index.php?title=Protocol&oldid=14204#Entity_Effect
+			boolean ambient = (flags % 2 == 1) ? true : false;
+			boolean showsParticles = ((flags / 2) % 2 == 1) ? true : false;
+			connection.getPlayerStatus().addPotionEffect(
+					new PotionEffect(PotionType.getById(effectID), amplifier + 1, duration, showsParticles, ambient));
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse entity effect packet", e);
 		}

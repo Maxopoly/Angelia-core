@@ -17,6 +17,7 @@ public class SpawnPlayerPacketHandler extends AbstractIncomingPacketHandler {
 	@Override
 	public void handlePacket(ReadOnlyPacket packet) {
 		try {
+			@SuppressWarnings("unused")
 			int entityId = packet.readVarInt();
 			UUID uuid = packet.readUUID();
 			double x = packet.readDouble();
@@ -24,9 +25,11 @@ public class SpawnPlayerPacketHandler extends AbstractIncomingPacketHandler {
 			double z = packet.readDouble();
 			byte yaw = packet.readByte();
 			byte pitch = packet.readByte();
+
 			DirectedLocation location = new DirectedLocation(x, y, z, DirectedLocation.translateAngleFrom256Step(yaw),
 					DirectedLocation.translateAngleFrom256Step(pitch));
 			// TODO turn this into a proper entity and shit
+			// TODO A LivingEntityFactory
 			connection.getEventHandler().broadcast(
 					new PlayerSpawnEvent(location, connection.getOtherPlayerManager().getPlayer(uuid), null));
 		} catch (EndOfPacketException e) {
