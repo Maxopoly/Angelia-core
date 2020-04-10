@@ -30,7 +30,7 @@ public class VariableBlockState extends BlockState {
 		throw new IllegalStateException();
 	}
 
-	public int getMetaData(List<Enum> enums) {
+	public int getMetaData(@SuppressWarnings("rawtypes") List<Enum> enums) {
 		throw new IllegalStateException();
 	}
 

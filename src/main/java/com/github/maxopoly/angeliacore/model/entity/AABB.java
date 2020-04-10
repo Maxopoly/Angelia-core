@@ -3,7 +3,6 @@ package com.github.maxopoly.angeliacore.model.entity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.github.maxopoly.angeliacore.model.location.Location;
 import com.github.maxopoly.angeliacore.model.location.Vector;

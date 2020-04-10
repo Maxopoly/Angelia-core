@@ -14,7 +14,7 @@ public abstract class SingleConstBlockState extends BlockState {
 	}
 
 	@Override
-	public int getMetaData(List<Enum> enums) {
+	public int getMetaData(@SuppressWarnings("rawtypes") List<Enum> enums) {
 		return 0;
 	}
 
