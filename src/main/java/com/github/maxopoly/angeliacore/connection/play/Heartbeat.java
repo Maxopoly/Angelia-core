@@ -38,12 +38,10 @@ import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 public class Heartbeat extends TimerTask {
 
 	private static final long TIMEOUT = 60000;
-	private static final long POSITION_UPDATE_INTERVALL = 1000;
 
 	private Map<Integer, AbstractIncomingPacketHandler> handlerMap;
 	private ServerConnection connection;
 	private long lastKeepAlive;
-	private long lastPositionPacket;
 	private long tickCounter;
 
 	public Heartbeat(ServerConnection connection) {
@@ -148,20 +146,6 @@ public class Heartbeat extends TimerTask {
 				connection.close(DisconnectReason.Server_Timed_Out);
 				return;
 			}
-			long now = System.currentTimeMillis();
-			if (now - lastPositionPacket > POSITION_UPDATE_INTERVALL) {
-				// send every second where player is and if he is midair
-				try {
-					connection.sendPacket(new PlayerPositionPacket(connection.getPlayerStatus().getLocation(),
-							connection.getPlayerStatus().isOnGround()));
-					lastPositionPacket = now;
-				} catch (IOException e1) {
-					connection.getLogger().error("Failed to send player state/position packet", e1);
-					connection.getLogger().error("Failed to send player state/position, connection seems to be gone");
-					connection.close(DisconnectReason.Unknown_Connection_Error);
-					return;
-				}
-			}
 			// parse available data
 			try {
 				while (connection.dataAvailable()) {
@@ -176,6 +160,7 @@ public class Heartbeat extends TimerTask {
 			}
 			// tick the action queue
 			connection.getActionQueue().tick();
+			connection.getPhysicsManager().updateState();
 			++tickCounter;
 		}
 	}

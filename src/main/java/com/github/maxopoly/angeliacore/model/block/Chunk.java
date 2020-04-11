@@ -39,7 +39,14 @@ public class Chunk {
 	}
 
 	public BlockState getBlock(int x, int y, int z) {
-		return sections[y / SECTION_HEIGHT].getBlock(x, y % SECTION_HEIGHT, z);
+		if (y > 255 || y < 0) {
+			return null;
+		}
+		ChunkSection section = sections[y / SECTION_HEIGHT];
+		if (section == null) {
+			return null;
+		}
+		return section.getBlock(x, y % SECTION_HEIGHT, z);
 	}
 
 	public int getX() {

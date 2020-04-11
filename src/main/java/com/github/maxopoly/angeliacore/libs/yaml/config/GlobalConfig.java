@@ -46,6 +46,34 @@ public class GlobalConfig extends YAMLFileConfig {
 		chunkHolder.setActivationState(state);
 		setDirty(true);
 	}
+	
+	public double getPhysicsDelta() {
+		return config.getDouble("physics.delta", 1E-9);
+	}
+	
+	public double getGravity() {
+		return config.getDouble("physics.gravity", 32);
+	}
+	
+	public double getPhysicsDrag() {
+		return config.getDouble("physics.drag", 0.02);
+	}
+	
+	public double getTerminalVelocity() {
+		return config.getDouble("physics.terminal_velocity", -20);
+	}
+	
+	public double getPhysicsWalkingSpeed() {
+		return config.getDouble("physics.walking_speed", 4.317);
+	}
+	
+	public double getPhysicsSprintingMultiplier() {
+		return config.getDouble("physics.sprinting_multiplier", 1.3);
+	}
+	
+	public double getPhysicsPlayerHeight() {
+		return config.getDouble("physics.player_height", 1.74);
+	}
 
 	public boolean useAutoReconnect() {
 		return config.getBoolean("connection.autoReconnect", false);

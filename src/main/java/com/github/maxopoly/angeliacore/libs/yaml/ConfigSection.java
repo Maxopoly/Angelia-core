@@ -130,6 +130,18 @@ public class ConfigSection {
 		}
 		return string;
 	}
+	
+	public double getDouble(String key) {
+		return retrieve(key, Double.class, true);
+	}
+	
+	public double getDouble(String key, double defaultValue) {
+		Double val = retrieve(key, Double.class, false);
+		if (val == null) {
+			return defaultValue;
+		}
+		return val;
+	}
 
 	public boolean hasBoolean(String key) {
 		return retrieve(key, Boolean.class, false) != null;
@@ -241,6 +253,7 @@ public class ConfigSection {
 		return result;
 	}
 
+	@Override
 	public String toString() {
 		return print("");
 	}

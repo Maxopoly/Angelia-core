@@ -33,7 +33,9 @@ public class ChunkHolder {
 			//TODO exception?
 			return null;
 		}
-		return chunk.getBlock(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+		BlockState bs = chunk.getBlock(mod(location.getBlockX(), 16), location.getBlockY(), mod(location.getBlockZ(),16));
+		System.out.println(bs == null ? "null" : bs.toString());
+		return bs;
 	}
 	
 	private static int convertToChunkCoord(int rawCoord) {
@@ -100,6 +102,19 @@ public class ChunkHolder {
 			loadedChunks = null;
 			System.gc();
 		}
+	}
+	
+	/**
+	 * Javas modulo sucks and -2 % 5 will return -2
+	 * So we use this implementation instead to always get positive modulo results
+	 * @return num modulo mod
+	 */
+	private static int mod(int num, int mod) {
+		int res = num % mod;
+		if (res < 0) {
+			return res + mod;
+		}
+		return res;
 	}
 
 }

@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import com.github.maxopoly.angeliacore.model.location.DirectedLocation;
 import com.github.maxopoly.angeliacore.model.location.Location;
-import com.github.maxopoly.angeliacore.model.location.Velocity;
+import com.github.maxopoly.angeliacore.model.location.Vector;
 import com.github.maxopoly.angeliacore.model.potion.PotionEffect;
 
 public abstract class LivingEntity extends Entity {
@@ -19,9 +19,9 @@ public abstract class LivingEntity extends Entity {
 	private UUID uuid;
 	protected DirectedLocation location;
 	private Map<PotionEffect, Long> potionEffects;
-	private float health = 20.f;
+	private float health = 20.F;
 
-	public LivingEntity(int id, UUID uuid, DirectedLocation location, Velocity velocity) {
+	public LivingEntity(int id, UUID uuid, DirectedLocation location, Vector velocity) {
 		// TODO meta data
 		super(id, velocity);
 		this.uuid = uuid;

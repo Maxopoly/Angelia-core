@@ -1,19 +1,19 @@
 package com.github.maxopoly.angeliacore.model.entity;
 
 import com.github.maxopoly.angeliacore.model.location.Location;
-import com.github.maxopoly.angeliacore.model.location.Velocity;
+import com.github.maxopoly.angeliacore.model.location.Vector;
 
 public abstract class Entity {
 
 	protected int id;
-	private Velocity velocity;
+	private Vector velocity;
 	private boolean onGround;
 
 	public Entity(int id) {
-		this(id, new Velocity(0, 0, 0));
+		this(id, new Vector(0, 0, 0));
 	}
 
-	public Entity(int id, Velocity velocity) {
+	public Entity(int id, Vector velocity) {
 		this.id = id;
 		this.velocity = velocity;
 		this.onGround = true;
@@ -27,7 +27,7 @@ public abstract class Entity {
 	
 	public abstract AABB getBoundingBox();
 
-	public Velocity getVelocity() {
+	public Vector getVelocity() {
 		return velocity;
 	}
 
@@ -39,7 +39,7 @@ public abstract class Entity {
 		this.onGround = onGround;
 	}
 
-	public void setVelocity(Velocity velocity) {
+	public void setVelocity(Vector velocity) {
 		this.velocity = velocity;
 	}
 

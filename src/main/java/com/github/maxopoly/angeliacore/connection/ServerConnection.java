@@ -20,7 +20,6 @@ import com.github.maxopoly.angeliacore.connection.compression.MalformedCompresse
 import com.github.maxopoly.angeliacore.connection.encryption.AES_CFB8_Encrypter;
 import com.github.maxopoly.angeliacore.connection.login.Auth403Exception;
 import com.github.maxopoly.angeliacore.connection.login.AuthenticationHandler;
-import com.github.maxopoly.angeliacore.connection.login.EncryptionHandler;
 import com.github.maxopoly.angeliacore.connection.login.GameJoinHandler;
 import com.github.maxopoly.angeliacore.connection.login.HandShake;
 import com.github.maxopoly.angeliacore.connection.play.EntityManager;
@@ -29,6 +28,7 @@ import com.github.maxopoly.angeliacore.connection.play.ItemTransactionManager;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.ClientSettingPacket;
 import com.github.maxopoly.angeliacore.event.EventBroadcaster;
 import com.github.maxopoly.angeliacore.event.events.angelia.ServerDisconnectEvent;
+import com.github.maxopoly.angeliacore.gamelogic.physics.PlayerPhysicsManager;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.WriteOnlyPacket;
 import com.github.maxopoly.angeliacore.libs.yaml.config.GlobalConfig;
@@ -67,6 +67,7 @@ public class ServerConnection {
 	private GlobalConfig config;
 	private boolean localHost;
 	private File dataFolder;
+	private PlayerPhysicsManager physicsManager;
 
 	private boolean encryptionEnabled;
 	private boolean compressionEnabled;
@@ -212,6 +213,7 @@ public class ServerConnection {
 		otherPlayerManager = new OtherPlayerManager();
 		chunkHolder = new ChunkHolder(config);
 		entityManager = new EntityManager();
+		physicsManager = new PlayerPhysicsManager(this, playerStatus);
 		tickTimer = new Timer("Angelia tick");
 		tickTimer.schedule(playPacketHandler, tickDelay, tickDelay);
 		// still have to do this
@@ -417,6 +419,13 @@ public class ServerConnection {
 	public int getPort() {
 		return port;
 	}
+	
+	/**
+	 * @return Manager for player gravity and movement
+	 */
+	public PlayerPhysicsManager getPhysicsManager() {
+		return physicsManager;
+	}
 
 	/**
 	 * @return How often the connection is ticked per second
@@ -520,6 +529,7 @@ public class ServerConnection {
 		}
 	}
 	
+	@Override
 	public String toString() {
 		return String.format("%s connected to %s:%d", authHandler.getPlayerName(), serverAdress, port);
 	}

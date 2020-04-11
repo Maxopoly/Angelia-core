@@ -21,7 +21,7 @@ public abstract class BlockState {
 		this.hardness = hardness;
 		this.texturePackIdentifier = texturePackIdentifier;
 		this.niceName = niceName;
-		this.boundingBox = null;
+		this.boundingBox = new AABB(0,1,0,1,0,1);
 	}
 
 	public abstract BlockState getActualState(byte data);

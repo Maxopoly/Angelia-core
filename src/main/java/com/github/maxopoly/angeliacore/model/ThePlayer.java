@@ -37,7 +37,7 @@ public class ThePlayer extends LivingEntity {
 	private ServerConnection connection;
 
 	public ThePlayer(ServerConnection connection) {
-		super(0, connection.getPlayerUUID(), new DirectedLocation(), new Velocity());
+		super(0, connection.getPlayerUUID(), new DirectedLocation(), new Vector());
 		this.openInventories = new TreeMap<>();
 		this.openInventories.put((byte) 0, new PlayerInventory());
 		this.connection = connection;
