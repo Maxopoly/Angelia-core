@@ -6,9 +6,9 @@ import com.github.maxopoly.angeliacore.model.block.states.BlockState;
 import com.github.maxopoly.angeliacore.model.location.Location;
 
 public class EntityBreakingBlockEvent implements AngeliaEvent {
-	int entityID;
-	Location blockPos;
-	byte stage;
+	private int entityID;
+	private Location blockPos;
+	private byte stage;
 
 	public EntityBreakingBlockEvent(int entityID, Location blockPos, byte stage) {
 		super();

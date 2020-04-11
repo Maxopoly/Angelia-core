@@ -21,7 +21,7 @@ public class BlockChangePacketHandler extends AbstractIncomingPacketHandler {
 			int data = packet.readVarInt();
 			BlockState oldState = position.getBlockAt(connection);
 			BlockState newState = BlockStateFactory.getStateByData(data);
-			 connection.getEventHandler().broadcast(new BlockChangeEvent(oldState,
+			 connection.getEventHandler().broadcast(new BlockChangeEvent(position, oldState,
 					 newState));
 			 connection.getChunkHolder().setBlock(position, newState);
 		} catch (EndOfPacketException e) {

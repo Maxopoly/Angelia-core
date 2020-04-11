@@ -9,19 +9,11 @@ public class PotionEffect {
 	private boolean isAmbient;
 
 	public PotionEffect(PotionType type, int strength, int duration) {
-		this.type = type;
-		this.strength = strength;
-		this.duration = duration;
-		this.showParticles = true;
-		this.isAmbient = false;
+		this(type, strength, duration, true);
 	}
 
 	public PotionEffect(PotionType type, int strength, int duration, boolean showParticles) {
-		this.type = type;
-		this.strength = strength;
-		this.duration = duration;
-		this.showParticles = showParticles;
-		this.isAmbient = false;
+		this(type, strength, duration, showParticles, false);
 	}
 
 	public PotionEffect(PotionType type, int strength, int duration, boolean showParticles, boolean isAmbient) {

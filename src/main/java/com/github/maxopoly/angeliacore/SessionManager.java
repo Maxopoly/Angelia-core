@@ -76,7 +76,7 @@ public class SessionManager {
 	 * Retrieves the {@link AuthenticationHandler} for an account based on their
 	 * email. Returns null if no account exists.
 	 * 
-	 * @param auth - The {@link AuthenticationHandler} to remove
+	 * @param auth - The {@link AuthenticationHandler} to retrieve
 	 * @return - The {@link AuthenticationHandler} for the account
 	 */
 	public AuthenticationHandler getAccountByEmail(String email) {
@@ -119,10 +119,9 @@ public class SessionManager {
 	}
 
 	/**
-	 * Reloads the file content and returns a list of {@link AuthenticationHandler}
-	 * with the accounts.
+	 * Reloads auth tokens from the token file and initializes an AuthenticationHandler for each
 	 * 
-	 * @return A list of the accounts.
+	 * @return AuthenticationHandlers for the accounts loaded from the token file
 	 */
 	private List<AuthenticationHandler> reloadFileContent() {
 		List<AuthenticationHandler> auths = new LinkedList<>();
