@@ -23,6 +23,7 @@ public class StopSprinting extends AbstractAction {
 			connection.getLogger().error("Failed to send stop sprint packet ", e);
 		}
 		connection.getPlayerStatus().setSprinting(false);
+		// Perhaps also send an event here?
 	}
 
 	@Override

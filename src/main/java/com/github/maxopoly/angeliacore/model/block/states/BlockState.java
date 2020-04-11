@@ -38,7 +38,7 @@ public abstract class BlockState {
 		return metaData;
 	}
 
-	public abstract int getMetaData(List<Enum> enums);
+	public abstract int getMetaData(@SuppressWarnings("rawtypes") List<Enum> enums);
 
 	public RenderModule getRenderModule() {
 		return render;
@@ -57,7 +57,7 @@ public abstract class BlockState {
 	public void setRenderModule(RenderModule renderModule) {
 		this.render = renderModule;
 	}
-	
+
 	public AABB getBoundingBox() {
 		return boundingBox;
 	}

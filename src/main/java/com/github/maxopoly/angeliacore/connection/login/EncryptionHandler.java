@@ -7,19 +7,25 @@ import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.encryption.PKCSEncrypter;
-import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.WriteOnlyPacket;
 
 public class EncryptionHandler {
 
-	private static byte[] digestOperation(String algorithm, byte[]... data) {
+	/**
+	 * Passes the data through the given algorithm
+	 * 
+	 * @param algorithm - The algorithm
+	 * @param data      - The data to pass through
+	 * @return The result of the operation
+	 */
+	private byte[] digestOperation(String algorithm, byte[]... data) {
 		try {
+			/* no need to make it static, since it's only used once, and it hogs memory */
 			MessageDigest messagedigest = MessageDigest.getInstance(algorithm);
 
 			for (byte[] abyte : data) {
@@ -27,8 +33,8 @@ public class EncryptionHandler {
 			}
 
 			return messagedigest.digest();
-		} catch (NoSuchAlgorithmException nosuchalgorithmexception) {
-			nosuchalgorithmexception.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -46,6 +52,12 @@ public class EncryptionHandler {
 		this.connection = connection;
 	}
 
+	/**
+	 * Generates the SHA-1 hash of the key
+	 * 
+	 * @return The hash needed
+	 * @throws IOException If something goes wrong
+	 */
 	public String generateKeyHash() throws IOException {
 		try {
 			String mc = new BigInteger(digestOperation("SHA-1",
@@ -57,6 +69,9 @@ public class EncryptionHandler {
 		}
 	}
 
+	/**
+	 * Creates a secure random key
+	 */
 	public void genSecretKey() {
 		SecureRandom rng = new SecureRandom();
 		sharedSecret = new byte[16];
@@ -67,6 +82,13 @@ public class EncryptionHandler {
 		return sharedSecret;
 	}
 
+	/**
+	 * Parses the encryption request
+	 * 
+	 * @param packet - The packet received
+	 * @return If the request was parsed successfully
+	 * @throws IOException - If it didn't work
+	 */
 	public boolean parseEncryptionRequest(ReadOnlyPacket packet) throws IOException {
 		try {
 			byte packetID = packet.getPacketID();
@@ -91,7 +113,14 @@ public class EncryptionHandler {
 			return false;
 		}
 	}
-	
+
+	/**
+	 * Parses the encryption request from the next packet available on the
+	 * connection
+	 * 
+	 * @return {@link EncryptionHandler#parseEncryptionRequest(ReadOnlyPacket)}
+	 * @throws IOException {@link EncryptionHandler#parseEncryptionRequest(ReadOnlyPacket)}
+	 */
 	public boolean parseEncryptionRequest() throws IOException {
 		try {
 			ReadOnlyPacket packet = connection.getPacket();
@@ -102,6 +131,11 @@ public class EncryptionHandler {
 		}
 	}
 
+	/**
+	 * Sends the encryption response, confirming everything went fine
+	 * 
+	 * @throws IOException - If something goes wrong
+	 */
 	public void sendEncryptionResponse() throws IOException {
 		WriteOnlyPacket encPacket = new WriteOnlyPacket(0x01);
 		byte[] encryptedSharedSecret = PKCSEncrypter.encrypt(sharedSecret, serverPubKey);

@@ -35,16 +35,16 @@ public class Craft2x2 extends InventoryAction {
 		PlayerInventory inv = (PlayerInventory) connection.getPlayerStatus().getInventory((byte) 0);
 		if (inv == null) {
 			this.done = true;
-			this.successfull = false;
+			this.successful = false;
 			return;
 		}
 		if (takeResult != null) {
 			// in the process of taking the result
 			if (takeResult.isDone()) {
 				System.out.println("Done");
-				if (takeResult.wasSuccessfull()) {
+				if (takeResult.wasSuccessful()) {
 					// worked
-					successfull = true;
+					successful = true;
 					done = true;
 				} else {
 					// try again
@@ -64,7 +64,7 @@ public class Craft2x2 extends InventoryAction {
 					|| -1 == inv.getPlayerStorage().findSlotByType(new ItemStack(Material.EMPTY_SLOT))) {
 				// do initial checks
 				this.done = true;
-				this.successfull = false;
+				this.successful = false;
 				return;
 			}
 		}
@@ -97,7 +97,7 @@ public class Craft2x2 extends InventoryAction {
 			moveAction.execute();
 			return;
 		}
-		if (!moveAction.wasSuccessfull()) {
+		if (!moveAction.wasSuccessful()) {
 			resetMoveAction(inv);
 			// retry
 			if (!isDone()) {
@@ -131,7 +131,7 @@ public class Craft2x2 extends InventoryAction {
 			// around, but oh well
 			connection.getLogger().warn("Crafting action ran out of materials half way through?");
 			done = true;
-			successfull = false;
+			successful = false;
 			return;
 		}
 		ItemStack foundStack = storage.getSlot(slot);

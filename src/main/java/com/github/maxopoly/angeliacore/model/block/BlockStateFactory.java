@@ -72,7 +72,7 @@ public class BlockStateFactory {
 		register(new SolidStaticBlockState(24, (byte) 1, 0.8f, "chiseled_sandstone", "Chiseled Sandstone"));
 		register(new SolidStaticBlockState(24, (byte) 2, 0.8f, "smooth_sandstone", "Smooth Sandstone"));
 		register(new SolidStaticBlockState(25, 0.8f, "noteblock", "Note Block"));
-		// TODO Bed does not have a block state in texure packs
+		// TODO Bed does not have a block state in texture packs
 		multiRegister(new VariableBlockState(SpecialRailBlockState.class, 27, 0.7f, "golden_rail", "Powered Rail"));
 		multiRegister(new VariableBlockState(SpecialRailBlockState.class, 28, 0.7f, "detector_rail", "Detector Rail"));
 

@@ -49,6 +49,10 @@ public class Chunk {
 		return section.getBlock(x, y % SECTION_HEIGHT, z);
 	}
 
+	public void setBlock(int x, int y, int z, BlockState st) {
+		sections[y / SECTION_HEIGHT].setBlock(x, y % SECTION_HEIGHT, z, st);
+	}
+
 	public int getX() {
 		return x;
 	}

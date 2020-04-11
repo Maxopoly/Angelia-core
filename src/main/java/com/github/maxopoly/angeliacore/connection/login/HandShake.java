@@ -16,6 +16,16 @@ public class HandShake {
 		this.connection = connection;
 	}
 
+	/**
+	 * Creates a handshake message for the server
+	 * 
+	 * @param host            - The host of the server
+	 * @param port            - The port of the server
+	 * @param beginLogin      - If login has begun
+	 * @param protocolVersion - The protocol version
+	 * @return The generated packet
+	 * @throws IOException - If anything goes wrong
+	 */
 	private WriteOnlyPacket createHandshakeMessage(String host, int port, boolean beginLogin, int protocolVersion)
 			throws IOException {
 		WriteOnlyPacket handshakePacket = new WriteOnlyPacket(0x00);
@@ -27,6 +37,12 @@ public class HandShake {
 		return handshakePacket;
 	}
 
+	/**
+	 * Gets the protocol version from the server
+	 * 
+	 * @return The protocol version read
+	 * @throws IOException If anything goes wrong
+	 */
 	public int requestProtocolVersion() throws IOException {
 		String json = send(false, -1);
 		JSONObject jsonObject = new JSONObject(json);
@@ -38,6 +54,14 @@ public class HandShake {
 		return protocolNumber;
 	}
 
+	/**
+	 * Executes the entire handshake process
+	 * 
+	 * @param requestConnection - Whether to request a connection
+	 * @param protocolVersion   - The protocol version
+	 * @return The response to the handshake
+	 * @throws IOException - If anything goes wrong
+	 */
 	public String send(boolean requestConnection, int protocolVersion) throws IOException {
 		String json = null;
 		try {
@@ -70,8 +94,10 @@ public class HandShake {
 				if (packetId != 0x01) {
 					throw new IOException("Invalid packetID in server pong packet");
 				}
+				// The suppress warnings here is justified, since despite not needing the value,
+				// we still need to read it from the packet.
+				@SuppressWarnings("unused")
 				long pingtime = pongPacket.readLong(); // read response
-				// Main.logger.info("Received handshake reply: " + json);
 			}
 		} catch (Exception e) {
 			connection.getLogger().error("Exception occured", e);
@@ -80,6 +106,12 @@ public class HandShake {
 		return json;
 	}
 
+	/**
+	 * Sends a login start message for a specific player
+	 * 
+	 * @param playerName - The name of the player
+	 * @throws IOException - If anything goes wrong.
+	 */
 	public void sendLoginStartMessage(String playerName) throws IOException {
 		WriteOnlyPacket loginStart = new WriteOnlyPacket(0x00);
 		loginStart.writeString(playerName);

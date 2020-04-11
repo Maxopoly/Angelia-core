@@ -8,6 +8,9 @@ import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.CloseWindowPacket;
 import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 
+/**
+ * Closes the currently open window
+ */
 public class CloseInventoryWindow extends SingleExecutionAction {
 
 	private byte windowID;

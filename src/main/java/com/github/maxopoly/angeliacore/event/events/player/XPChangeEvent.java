@@ -1,4 +1,6 @@
-package com.github.maxopoly.angeliacore.event.events;
+package com.github.maxopoly.angeliacore.event.events.player;
+
+import com.github.maxopoly.angeliacore.event.events.AngeliaEvent;
 
 /**
  * Called when the players experience level/progress is updated

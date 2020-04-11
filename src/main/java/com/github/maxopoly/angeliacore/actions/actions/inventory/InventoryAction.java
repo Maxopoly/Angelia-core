@@ -6,11 +6,11 @@ import com.github.maxopoly.angeliacore.connection.ServerConnection;
 
 public abstract class InventoryAction extends AbstractAction {
 
-	protected boolean successfull;
+	protected boolean successful;
 
 	public InventoryAction(ServerConnection connection) {
 		super(connection);
-		this.successfull = false;
+		this.successful = false;
 	}
 
 	@Override
@@ -19,10 +19,10 @@ public abstract class InventoryAction extends AbstractAction {
 	}
 
 	/**
-	 * @return Whether the item transaction completly worked
+	 * @return Whether the item transaction completely worked
 	 */
-	public boolean wasSuccessfull() {
-		return successfull;
+	public boolean wasSuccessful() {
+		return successful;
 	}
 
 }

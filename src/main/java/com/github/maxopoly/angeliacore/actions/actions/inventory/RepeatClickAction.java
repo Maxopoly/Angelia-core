@@ -11,7 +11,6 @@ public class RepeatClickAction extends InventoryAction {
 	private byte button;
 	private int mode;
 	private ClickInventory currentClick;
-	private int howOftenTotal;
 	private int howOftenLeft;
 	private boolean done;
 
@@ -23,7 +22,6 @@ public class RepeatClickAction extends InventoryAction {
 		this.button = button;
 		this.mode = mode;
 		this.howOftenLeft = howOften;
-		this.howOftenTotal = howOften;
 	}
 
 	@Override
@@ -31,13 +29,13 @@ public class RepeatClickAction extends InventoryAction {
 		Inventory inv = connection.getPlayerStatus().getInventory(windowID);
 		if (inv == null) {
 			done = true;
-			successfull = false;
+			successful = false;
 		}
 		if (currentClick != null) {
 			if (currentClick.isDone()) {
 				if (--howOftenLeft <= 0) {
 					done = true;
-					successfull = true;
+					successful = true;
 					return;
 				}
 			} else {

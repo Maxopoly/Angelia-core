@@ -14,7 +14,6 @@ import com.github.maxopoly.angeliacore.model.entity.AABB;
 import com.github.maxopoly.angeliacore.model.location.BlockFace;
 import com.github.maxopoly.angeliacore.model.location.Location;
 import com.github.maxopoly.angeliacore.model.location.Vector;
-import com.github.maxopoly.angeliacore.model.location.Velocity;
 
 /**
  * Heavy inspiration for this class has been taken from mineflayers physics
@@ -171,8 +170,7 @@ public class PlayerPhysicsManager {
 			multiplier = Math.min(speedVectorLength, multiplier);
 			onGroundDeceleration = onGroundDeceleration.multiply(multiplier);
 			velocity = velocity.add(onGroundDeceleration);
-		}
-		
+		}		
 		//revert velocity to m/s
 		velocity.multiply(1 / tickInverse);
 		

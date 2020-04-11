@@ -7,6 +7,7 @@ import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.BreakAnimationPacket;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerDiggingPacket;
+import com.github.maxopoly.angeliacore.model.block.states.BlockState;
 import com.github.maxopoly.angeliacore.model.location.BlockFace;
 import com.github.maxopoly.angeliacore.model.location.Location;
 
@@ -23,6 +24,7 @@ public class BreakBlock extends AbstractAction {
 		this.breakingTicksTotal = breakingTicks;
 		this.remainingTicks = breakingTicks;
 		this.face = face;
+		this.connection = connection;
 	}
 
 	@Override
@@ -49,11 +51,17 @@ public class BreakBlock extends AbstractAction {
 	}
 
 	/**
-	 * 
 	 * @return Face the block is being broken from
 	 */
 	public BlockFace getFace() {
 		return face;
+	}
+
+	/**
+	 * @return The block being broken
+	 */
+	public BlockState getBlock() {
+		return getBlockLocation().getBlockAt(connection);
 	}
 
 	@Override
@@ -61,6 +69,9 @@ public class BreakBlock extends AbstractAction {
 		return remainingTicks < 0;
 	}
 
+	/**
+	 * Send the break animation for the block
+	 */
 	private void sendBreakAnimation() {
 		try {
 			BreakAnimationPacket packet2 = new BreakAnimationPacket();
@@ -70,6 +81,11 @@ public class BreakBlock extends AbstractAction {
 		}
 	}
 
+	/**
+	 * Send the actual digging packet
+	 * 
+	 * @param status The current status of the digging
+	 */
 	private void sendDiggingPacket(int status) {
 		try {
 			PlayerDiggingPacket packet = new PlayerDiggingPacket(status, blockLocation, face);

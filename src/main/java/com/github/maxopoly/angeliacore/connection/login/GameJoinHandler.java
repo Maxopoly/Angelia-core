@@ -1,8 +1,6 @@
 package com.github.maxopoly.angeliacore.connection.login;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 
 import org.apache.logging.log4j.Logger;
 

@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionAndLookPacket;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.TeleportConfirmPacket;
-import com.github.maxopoly.angeliacore.event.events.TeleportByServerEvent;
+import com.github.maxopoly.angeliacore.event.events.player.TeleportByServerEvent;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.model.location.DirectedLocation;

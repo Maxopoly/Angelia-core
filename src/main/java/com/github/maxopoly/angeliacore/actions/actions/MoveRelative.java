@@ -12,7 +12,7 @@ import com.github.maxopoly.angeliacore.model.location.Location;
 import com.github.maxopoly.angeliacore.model.location.Vector;
 
 public class MoveRelative extends AbstractAction {
-	
+
 	private int remainingTicks;
 	private Vector direction;
 	private double speed;
@@ -34,7 +34,15 @@ public class MoveRelative extends AbstractAction {
 			connection.getPlayerStatus().setOnGround(true);
 		}
 	}
-	
+
+	/**
+	 * Get the next location in the chain for movement
+	 * 
+	 * @param current        - The current location
+	 * @param movementSpeed  - The movement speed
+	 * @param ticksPerSecond - The TPS of the server
+	 * @return The next location in the movement chain
+	 */
 	public DirectedLocation getNextLocation(DirectedLocation current, double movementSpeed, double ticksPerSecond) {
 		double movementPerTick = movementSpeed / ticksPerSecond;
 		double xDiff = direction.getX() * movementPerTick;
@@ -52,7 +60,10 @@ public class MoveRelative extends AbstractAction {
 	public boolean isDone() {
 		return remainingTicks <= 0;
 	}
-	
+
+	/**
+	 * Sends the packet which handles the location
+	 */
 	public void sendLocationPacket() {
 		Location playerLoc = connection.getPlayerStatus().getLocation();
 		try {

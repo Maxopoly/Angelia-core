@@ -26,18 +26,32 @@ public class ChunkHolder {
 			loadedChunks = new TreeMap<>();
 		}
 	}
-	
+
 	public BlockState getBlockAt(Location location) {
 		Chunk chunk = getChunk(convertToChunkCoord(location.getBlockX()), convertToChunkCoord(location.getBlockZ()));
 		if (chunk == null) {
-			//TODO exception?
+			// No exception should be raised. As to the protocol, any outside loaded chunks
+			// operations should be ignored. See:
+			// https://wiki.vg/index.php?title=Protocol&oldid=14204#Block_Change
 			return null;
 		}
 		BlockState bs = chunk.getBlock(mod(location.getBlockX(), 16), location.getBlockY(), mod(location.getBlockZ(),16));
 		System.out.println(bs == null ? "null" : bs.toString());
 		return bs;
 	}
-	
+
+	public void setBlock(Location location, BlockState state) {
+		Chunk chunk = getChunk(convertToChunkCoord(location.getBlockX()), convertToChunkCoord(location.getBlockZ()));
+		if (chunk == null) {
+			// No exception should be raised. As to the protocol, any outside loaded chunks
+			// operations should be ignored. See:
+			// https://wiki.vg/index.php?title=Protocol&oldid=14204#Block_Change
+			return;
+		}
+		chunk.setBlock(location.getBlockX(), location.getBlockY(), location.getBlockZ(), state);
+		this.putChunk(chunk);
+	}
+
 	private static int convertToChunkCoord(int rawCoord) {
 		int div = rawCoord / 16;
 		if (rawCoord < 0) {

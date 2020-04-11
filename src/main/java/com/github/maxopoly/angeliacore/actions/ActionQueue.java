@@ -19,14 +19,25 @@ public class ActionQueue {
 		this.connection = connection;
 	}
 
+	/**
+	 * Remove all the currently queued actions.
+	 */
 	public synchronized void clear() {
 		actions.clear();
 	}
 
+	/**
+	 * Adds a new {@link AbstractAction} to the queue
+	 * 
+	 * @param action - The action to add
+	 */
 	public synchronized void queue(AbstractAction action) {
 		actions.add(action);
 	}
 
+	/**
+	 * Executes a minecraft tick, normally this should only be called internally
+	 */
 	public synchronized void tick() {
 		connection.getEventHandler()
 				.broadcast(new AngeliaTickEvent(connection.getIncomingPlayPacketHandler().getTickCounter()));
@@ -36,12 +47,17 @@ public class ActionQueue {
 		boolean allDone = false;
 		Set<ActionLock> locksTaken = new HashSet<>();
 		Iterator<AbstractAction> iter = actions.iterator();
-		outer: while (!allDone && iter.hasNext()) {
+		while (!allDone && iter.hasNext()) {
 			AbstractAction action = iter.next();
+
 			for (ActionLock lock : action.getActionLocks()) {
 				if (locksTaken.contains(lock)) {
-					allDone = true;
-					break outer;
+					/**
+					 * Since the loop is the last thing in this function, there is no need to
+					 * actually make a labelled loop so we can just end the function with a return.
+					 * There is also no need update the allDone variable
+					 */
+					return;
 				} else {
 					locksTaken.add(lock);
 					if (lock == ActionLock.EVERYTHING) {

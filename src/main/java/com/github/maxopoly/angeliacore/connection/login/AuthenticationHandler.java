@@ -20,6 +20,14 @@ public class AuthenticationHandler {
 	private final static String authServerAdress = "https://authserver.mojang.com";
 	private final static String sessionServerAdress = "https://sessionserver.mojang.com/session/minecraft/join";
 
+	/**
+	 * Creates the JSON payload to be sent to the API
+	 * 
+	 * @param userName    - The username of the player
+	 * @param password    - The password of the player
+	 * @param clientToken - The client token
+	 * @return - The payload
+	 */
 	private static String constructAuthenticationJSON(String userName, String password, String clientToken) {
 		JSONObject json1 = new JSONObject();
 		json1.put("name", "Minecraft");
@@ -33,6 +41,15 @@ public class AuthenticationHandler {
 		return json.toString();
 	}
 
+	/**
+	 * Creates a refresh JSON payload to be sent to Mojang
+	 * 
+	 * @param oldToken    - The old token
+	 * @param playerUUID  - The UUID of the player
+	 * @param playerName  - The name of the player
+	 * @param clientToken - The client token
+	 * @return - The payload
+	 */
 	private static String constructRefreshJSON(String oldToken, String playerUUID, String playerName,
 			String clientToken) {
 		JSONObject json = new JSONObject();
@@ -41,6 +58,13 @@ public class AuthenticationHandler {
 		return json.toString();
 	}
 
+	/**
+	 * Creates a validation JSON payload to be sent to the API
+	 * 
+	 * @param accessToken - The access token
+	 * @param clientToken - The client token
+	 * @return - The payload
+	 */
 	private static String constructValidationJSON(String accessToken, String clientToken) {
 		JSONObject json = new JSONObject();
 		json.put("accessToken", accessToken);
@@ -112,6 +136,12 @@ public class AuthenticationHandler {
 		this.logger = logger;
 	}
 
+	/**
+	 * Attempts validation
+	 * 
+	 * @throws IOException      - If something goes wrong
+	 * @throws Auth403Exception - If you are being rate limited
+	 */
 	public void attemptValidation() throws IOException, Auth403Exception {
 		try {
 			if (!validateToken(logger)) {
@@ -124,6 +154,14 @@ public class AuthenticationHandler {
 		}
 	}
 
+	/**
+	 * Authenticates against the session server
+	 * 
+	 * @param sha    - The server id
+	 * @param logger - The logger
+	 * @throws IOException      - If something goes wrong
+	 * @throws Auth403Exception - If rate limit occurs
+	 */
 	public void authAgainstSessionServer(String sha, Logger logger) throws IOException, Auth403Exception {
 		if (accessToken == null || playerUUID == null) {
 			throw new IOException("Access token isn't available yet");
@@ -140,15 +178,24 @@ public class AuthenticationHandler {
 		}
 	}
 
-	private boolean authenticate(String userName, String password, Logger logger) throws IOException {
+	/**
+	 * Attempts authentication
+	 * 
+	 * @param username - Username of the player
+	 * @param password - Password of the player
+	 * @param logger   - The logger
+	 * @return Whether the account authenticated with success
+	 * @throws IOException - If anything goes wrong
+	 */
+	private boolean authenticate(String username, String password, Logger logger) throws IOException {
 		this.lastRefresh = System.currentTimeMillis();
 		String result;
 		try {
-			result = sendPost(constructAuthenticationJSON(userName, password, clientToken),
+			result = sendPost(constructAuthenticationJSON(username, password, clientToken),
 					authServerAdress + "/authenticate", logger);
 		} catch (Auth403Exception e) {
 			logger.info(
-					"Failed to auth account " + userName + ". Either you are rate limited or the auth server is down");
+					"Failed to auth account " + username + ". Either you are rate limited or the auth server is down");
 			return false;
 		}
 		JSONObject jsonResult = new JSONObject(result);
@@ -199,8 +246,9 @@ public class AuthenticationHandler {
 	 * might no longer be valid, it may still be possible to refresh it
 	 *
 	 * @param logger Logger used
-	 * @throws IOException In case of connection problems
-	 * @throws Auth403Exception In case the auth server rejects, likely due to rate limiting
+	 * @throws IOException      In case of connection problems
+	 * @throws Auth403Exception In case the auth server rejects, likely due to rate
+	 *                          limiting
 	 */
 	private void refreshToken(Logger logger) throws IOException, Auth403Exception {
 		String result;
@@ -217,6 +265,16 @@ public class AuthenticationHandler {
 		sessionManager.updateAuth(this);
 	}
 
+	/**
+	 * Sends a post request to the specified URL
+	 * 
+	 * @param content - The content of the body
+	 * @param url     - The URL of the payload
+	 * @param logger  - The logger where to output this
+	 * @return The reponse
+	 * @throws IOException      - If a non 2XX reponse code is received
+	 * @throws Auth403Exception - If 403 (rate limit) occurs
+	 */
 	private String sendPost(String content, String url, Logger logger) throws IOException, Auth403Exception {
 		byte[] contentBytes = content.getBytes("UTF-8");
 		URL obj = new URL(url);
@@ -250,6 +308,13 @@ public class AuthenticationHandler {
 		return response.toString();
 	}
 
+	/**
+	 * Checks if the given token is valid
+	 * 
+	 * @param - The logger
+	 * @return The information requested
+	 * @throws IOException If anything goes wrong
+	 */
 	public boolean validateToken(Logger logger) throws IOException {
 		if (getRefreshDelay(logger) > (System.currentTimeMillis() - lastRefresh)) {
 			// assume valid

@@ -20,6 +20,7 @@ public class UseBlockAction extends AbstractAction {
 	@Override
 	public void execute() {
 		try {
+			// Shouldn't this also have 2 separate actions?
 			new LookAt(connection, location).execute();
 			connection.sendPacket(new BreakAnimationPacket());
 		} catch (IOException e) {
@@ -34,7 +35,7 @@ public class UseBlockAction extends AbstractAction {
 
 	@Override
 	public boolean isDone() {
-		return true; // always 1 tick
+		return true; // Always 1 tick
 	}
 
 }

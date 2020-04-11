@@ -10,6 +10,9 @@ public abstract class AbstractAction {
 		this.connection = connection;
 	}
 
+	/**
+	 * Execute the Action
+	 */
 	public abstract void execute();
 
 	/**
@@ -21,6 +24,9 @@ public abstract class AbstractAction {
 	 */
 	public abstract ActionLock[] getActionLocks();
 
+	/**
+	 * @return - Whether the action has been completed
+	 */
 	public abstract boolean isDone();
 
 }

@@ -8,7 +8,6 @@ import com.github.maxopoly.angeliacore.model.item.Material;
 /**
  * Takes a given ItemStack and moves a partial amount of it into a different
  * slot
- *
  */
 public class MoveItemAmount extends InventoryAction {
 
@@ -41,7 +40,7 @@ public class MoveItemAmount extends InventoryAction {
 		Inventory inv = connection.getPlayerStatus().getInventory(windowID);
 		if (inv == null) {
 			this.done = true;
-			this.successfull = false;
+			this.successful = false;
 			return;
 		}
 		if (pickUp == null) {
@@ -52,14 +51,14 @@ public class MoveItemAmount extends InventoryAction {
 				// it means the execution either
 				// completly works or it doesnt
 				this.done = true;
-				this.successfull = false;
+				this.successful = false;
 				return;
 			}
 			this.pickUp = new ClickInventory(connection, windowID, (short) originSlot, (byte) 0, 0, toMove);
 			targetStack = connection.getPlayerStatus().getInventory(windowID).getSlot(targetSlot);
 			if (!(targetStack.equals(toMove) || targetStack.isEmpty())) {
 				done = true;
-				successfull = false;
+				successful = false;
 				return;
 			}
 			if (toMove.getAmount() == amount) {
@@ -82,7 +81,7 @@ public class MoveItemAmount extends InventoryAction {
 		if (!pickUp.wasSuccessfull()) {
 			// pickup failed
 			done = true;
-			successfull = false;
+			successful = false;
 			return;
 		}
 		if (!layDown.isDone()) {
@@ -96,7 +95,7 @@ public class MoveItemAmount extends InventoryAction {
 			fails++;
 			if (fails > 10) {
 				done = true;
-				successfull = false;
+				successful = false;
 				return;
 			}
 			// reset pickup object after fail
@@ -146,7 +145,7 @@ public class MoveItemAmount extends InventoryAction {
 			toMove = new ItemStack(Material.EMPTY_SLOT);
 		}
 		done = true;
-		successfull = true;
+		successful = true;
 		// update clientside model
 		inv.updateSlot(originSlot, toMove);
 		inv.updateSlot(targetSlot, targetStack);

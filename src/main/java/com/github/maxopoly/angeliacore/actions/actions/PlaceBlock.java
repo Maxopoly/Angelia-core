@@ -7,9 +7,14 @@ import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.BlockPlacementPacket;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.BreakAnimationPacket;
+import com.github.maxopoly.angeliacore.model.block.states.BlockState;
 import com.github.maxopoly.angeliacore.model.location.BlockFace;
 import com.github.maxopoly.angeliacore.model.location.Location;
 
+/**
+ * Sends a {@link PlaceBlock} to the server and places a block.
+ *
+ */
 public class PlaceBlock extends AbstractAction {
 
 	private Location location;
@@ -19,6 +24,19 @@ public class PlaceBlock extends AbstractAction {
 		super(connection);
 		this.location = loc;
 		this.face = face;
+	}
+
+	/**
+	 * Gets the block that was placed. If the action isn't done then it will return
+	 * null
+	 * 
+	 * @return The block placed
+	 */
+	public BlockState getBlockPlaced() {
+		if (!isDone())
+			return null;
+		else
+			return this.location.getBlockAt(this.connection);
 	}
 
 	@Override

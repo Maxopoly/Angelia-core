@@ -14,6 +14,28 @@ import com.github.maxopoly.angeliacore.model.chat.hover.ShowTextHoverEvent;
 
 public class ChatComponentParser {
 
+	public enum ChatMessageLocation {
+		CHAT(0), SYSTEM_MESSAGE(1), ACTION_BAR(2), UNKNOWN(-1);
+
+		private int id;
+
+		private ChatMessageLocation(int id) {
+			this.id = id;
+		}
+
+		public int getID() {
+			return id;
+		}
+
+		public static ChatMessageLocation fromID(int id) {
+			for (ChatMessageLocation d : ChatMessageLocation.values())
+				if (d.getID() == id)
+					return d;
+			return UNKNOWN;
+		}
+
+	}
+
 	private static final boolean defaultBoldValue = false;
 	private static final boolean defaultItalicValue = false;
 	private static final boolean defaultUnderlinedValue = false;

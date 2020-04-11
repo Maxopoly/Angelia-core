@@ -32,6 +32,13 @@ public class SessionManager {
 		}
 	}
 
+	/**
+	 * Creates an {@link AuthenticationHandler} for the given account
+	 * 
+	 * @param userName - The username of the account
+	 * @param password - The password of the account
+	 * @return The required authentication handler
+	 */
 	public synchronized AuthenticationHandler authNewAccount(String userName, String password) {
 		AuthenticationHandler authHandler;
 		try {
@@ -43,6 +50,12 @@ public class SessionManager {
 		return authHandler;
 	}
 
+	/**
+	 * Wipes the {@link AuthenticationHandler} from the session manager
+	 * 
+	 * @param auth - The {@link AuthenticationHandler} to remove
+	 * 
+	 */
 	public synchronized void deleteAuth(AuthenticationHandler auth) {
 		logger.info("Deleting access tokens for " + auth.getPlayerName() + " from save file");
 		JSONObject json = loadAuthJson(saveFile);
@@ -59,6 +72,13 @@ public class SessionManager {
 		saveJSON(saveFile, json);
 	}
 
+	/**
+	 * Retrieves the {@link AuthenticationHandler} for an account based on their
+	 * email. Returns null if no account exists.
+	 * 
+	 * @param auth - The {@link AuthenticationHandler} to remove
+	 * @return - The {@link AuthenticationHandler} for the account
+	 */
 	public AuthenticationHandler getAccountByEmail(String email) {
 		for (AuthenticationHandler auth : getAvailableAccounts()) {
 			if (auth.getEmail().equalsIgnoreCase(email)) {
@@ -68,10 +88,21 @@ public class SessionManager {
 		return null;
 	}
 
+	/**
+	 * Gets all the {@link AuthenticationHandler} currently registered
+	 * 
+	 * @return A list of the information requested.
+	 */
 	public List<AuthenticationHandler> getAvailableAccounts() {
 		return reloadFileContent();
 	}
 
+	/**
+	 * Loads the JSON within file and gets the accounts indside
+	 * 
+	 * @param file - The file to search for accounts in
+	 * @return The JSON object within the file
+	 */
 	private JSONObject loadAuthJson(File file) {
 		if (!saveFile.exists()) {
 			logger.info("Could not load auth token file because it didnt exist?");
@@ -87,6 +118,12 @@ public class SessionManager {
 		return new JSONObject(content);
 	}
 
+	/**
+	 * Reloads the file content and returns a list of {@link AuthenticationHandler}
+	 * with the accounts.
+	 * 
+	 * @return A list of the accounts.
+	 */
 	private List<AuthenticationHandler> reloadFileContent() {
 		List<AuthenticationHandler> auths = new LinkedList<>();
 		JSONObject json = loadAuthJson(saveFile);
@@ -144,6 +181,12 @@ public class SessionManager {
 		return auths;
 	}
 
+	/**
+	 * Saves the {@link JSONObject} inside the file for further use.
+	 * 
+	 * @param file - The file to save the JSON in
+	 * @param json - The JSON representing the data
+	 */
 	private void saveJSON(File file, JSONObject json) {
 		File parent = file.getParentFile();
 		if (!parent.isDirectory()) {
@@ -170,6 +213,11 @@ public class SessionManager {
 		}
 	}
 
+	/**
+	 * Refreshes a token if the token expired or just needed a new one.
+	 * 
+	 * @param auth - The {@link AuthenticationHandler} to refresh
+	 */
 	public synchronized void updateAuth(AuthenticationHandler auth) {
 		logger.info("Updating access tokens for " + auth.getPlayerName() + " in save file");
 		JSONObject json = loadAuthJson(saveFile);
