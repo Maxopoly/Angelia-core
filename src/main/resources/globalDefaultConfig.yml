@@ -1,23 +1,28 @@
 block:
-   holdModel: false
+  holdModel: false
 auth:
-   refreshDelay: 300000
+  refreshDelay: 300000
 connection:
-   reconnectDelay: 30000
-   autoReconnect: false
+  reconnectDelay: 30000
+  autoReconnect: false
 physics:
 #Delta used when determining whether we're on top of a block or adjacent to one
-   delta: 1.0E-8
+  delta: 1.0E-8
 #Acceleration in m/s², 32 is closest to Minecraft default. Set to 0 to disable gravity
-   gravity: 32
+  gravity: 32
 #How fast we can move downwards at maximum in m/s², Minecraft physics is -20
-   terminal_velocity: -20
+  terminal_velocity: -20
 #Ground friction is calculated by reducing velocity by this ground movement speed every tick, 
 # defaults to 4.317. Set to 0 to disable friction, but be aware that movement is implemented as accereleration
-   walking_speed: 4.317
+  walking_speed: 4.317
 #Sprinting speed multiplier, slowdown through friction is bigger if the player is sprinting, default 1.3
-   sprinting_multiplier: 1.3
+  sprinting_multiplier: 1.3
 #Height of the player used for collision checks
-   player_height: 1.74
+  player_height: 1.74
 #Drag applied based on total velocity, default 0.02
-   drag: 0.02
+  drag: 0.02
+
+#Various stuff for debugging purposes
+dev:
+#Outputs information on all packets received and sent
+  packet_debug: false
