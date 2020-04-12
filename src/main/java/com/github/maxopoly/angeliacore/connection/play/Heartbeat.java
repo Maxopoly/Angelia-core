@@ -32,7 +32,6 @@ import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityL
 import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityRelativeMovePacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.entity.EntityTeleportPacketHandler;
-import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionPacket;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 
 public class Heartbeat extends TimerTask {

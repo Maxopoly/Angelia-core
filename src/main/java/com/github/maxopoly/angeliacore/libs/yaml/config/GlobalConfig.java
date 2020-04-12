@@ -48,7 +48,7 @@ public class GlobalConfig extends YAMLFileConfig {
 	}
 	
 	public double getPhysicsDelta() {
-		return config.getDouble("physics.delta", 1E-9);
+		return config.getDouble("physics.delta", 1E-8);
 	}
 	
 	public double getGravity() {

@@ -103,6 +103,10 @@ public class AABB {
 		if (location.getY() >= upperY) {
 			double lowerYIntersect = (upperY - location.getY()) / direction.getY();
 			Location possibleIntersect = location.add(direction.multiply(lowerYIntersect));
+			System.out.println("Intersect loc : " + possibleIntersect);
+			System.out.println(location);
+			System.out.println(direction);
+			System.out.println(upperY);
 			if (isInside(possibleIntersect)) {
 				closestMatch = Math.min(closestMatch, lowerYIntersect);
 			}
@@ -121,6 +125,7 @@ public class AABB {
 				closestMatch = Math.min(closestMatch, upperZIntersect);
 			}
 		}
+		System.out.println("t: " + closestMatch);
 		if (innerBoxes == null) {
 			return closestMatch;
 		}

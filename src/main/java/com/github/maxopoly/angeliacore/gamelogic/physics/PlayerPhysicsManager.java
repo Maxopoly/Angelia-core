@@ -8,10 +8,8 @@ import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionPacket;
 import com.github.maxopoly.angeliacore.libs.yaml.config.GlobalConfig;
 import com.github.maxopoly.angeliacore.model.ThePlayer;
-import com.github.maxopoly.angeliacore.model.block.ChunkHolder;
 import com.github.maxopoly.angeliacore.model.block.states.BlockState;
 import com.github.maxopoly.angeliacore.model.entity.AABB;
-import com.github.maxopoly.angeliacore.model.location.BlockFace;
 import com.github.maxopoly.angeliacore.model.location.Location;
 import com.github.maxopoly.angeliacore.model.location.Vector;
 
@@ -24,9 +22,9 @@ import com.github.maxopoly.angeliacore.model.location.Vector;
 public class PlayerPhysicsManager {
 
 	private double delta;
-	private double gravity ;
-	private double terminalVelocity ;
-	private double walkingSpeed ;
+	private double gravity;
+	private double terminalVelocity;
+	private double walkingSpeed;
 	private double sprintingMultiplier;
 	private double playerHeight;
 	private double drag;
@@ -77,30 +75,29 @@ public class PlayerPhysicsManager {
 			return;
 		}
 		double tickInverse = 1.0 / connection.getTicksPerSecond();
-		//in m/s
+		// in m/s
 		Vector velocity = player.getVelocity();
-		//convert velocity to m/tick
+		// convert velocity to m/tick
 		velocity.multiply(tickInverse);
 		Vector acceleration = new Vector();
-		
+
 		Location playerLoc = player.getLocation();
 		AABB offSetPlayerAABB = player.getBoundingBox().move(playerLoc);
-		
-		//converting gravity from meter/s^2 to meter/tick^2 required dividing by tick/second twice 
+		AABB downwardsOffsetPlayerAABB = offSetPlayerAABB.move(new Vector(0, - delta, 0));
+
+		// converting gravity from meter/s^2 to meter/tick^2 required dividing by
+		// tick/second twice
 		double meterPerTickGravity = gravity * tickInverse * tickInverse;
 		boolean onGround;
 
 		// apply gravity
 		Location offSetBlockStandingOnLoc = playerLoc.add(0, -delta, 0);
-		
+
 		BlockState blockStandingOn = offSetBlockStandingOnLoc.getBlockAt(connection);
-		System.out.println("aaa :" + blockStandingOn.getBoundingBox().move(offSetBlockStandingOnLoc).intersects(offSetPlayerAABB));
-		System.out.println(blockStandingOn != null);
-		System.out.println(blockStandingOn.getID() != 0);
+
 		if (blockStandingOn != null && blockStandingOn.getID() != 0
-				&& blockStandingOn.getBoundingBox().move(offSetBlockStandingOnLoc).intersects(offSetPlayerAABB)) {
+				&& blockStandingOn.getOffsetBoundingBox(offSetBlockStandingOnLoc).intersects(downwardsOffsetPlayerAABB)) {
 			// standing on a block
-			
 			onGround = true;
 		} else {
 			onGround = false;
@@ -114,73 +111,95 @@ public class PlayerPhysicsManager {
 
 		// acceleration and velocity are both in m/s²
 		velocity = velocity.add(acceleration);
-		
-		//apply drag
+
+		// apply drag
 		velocity = velocity.multiply(1.0 - drag);
-		
+
 		// bound terminal velocity, which is a negative number
 		if (velocity.getY() < terminalVelocity) {
 			velocity = new Vector(velocity.getX(), terminalVelocity, velocity.getZ());
 		}
 
-		System.out.println("---");
-		System.out.println("Moved " + velocity.toString());
-
 		// collision check with blocks at target location
 		Location target = playerLoc.add(velocity);
-		System.out.println("target " + target);
 		boolean wouldMoveIntoBlock = false;
 		if (velocity.getLength() > delta) {
-			//only do collision checks if we actually moved
+			// only do collision checks if we actually moved
+			double multiplier = 1.0;
 			BlockState lowerTargetBlock = target.getBlockAt(connection);
-			if (lowerTargetBlock != null && lowerTargetBlock.getID() != 0
-					&& lowerTargetBlock.getBoundingBox().move(target).intersects(offSetPlayerAABB)) {
-				System.out.println("lower collision");
-				wouldMoveIntoBlock = true;
+			if (lowerTargetBlock != null && lowerTargetBlock.getID() != 0) {
+				AABB offsetLowerAABB = lowerTargetBlock.getBoundingBox().move(target.toBlockLocation());
+				double distMultiplier = offsetLowerAABB.intersectRay(velocity, playerLoc);
+				if (distMultiplier > 0) {
+					multiplier = Math.min(multiplier, distMultiplier - delta);
+				}
+				Location updatedTargetLoc = playerLoc.add(velocity.multiply(multiplier));
+				if (offsetLowerAABB.intersects(player.getBoundingBox().move(updatedTargetLoc))) {
+					wouldMoveIntoBlock = true;
+				} else {
+					// recheck whether we're standing on a block now
+					offSetBlockStandingOnLoc = updatedTargetLoc.add(0, -delta, 0);
+					blockStandingOn = offSetBlockStandingOnLoc.getBlockAt(connection);
+					if (blockStandingOn != null && blockStandingOn.getID() != 0
+							&& blockStandingOn.getOffsetBoundingBox(offSetBlockStandingOnLoc)
+									.intersects(player.getBoundingBox().move(updatedTargetLoc))) {
+						onGround = true;
+					}
+				}
 			}
-			Location upperTarget = target.add(0, playerHeight, 0);
-			BlockState upperTargetBlock = upperTarget.getBlockAt(connection);
 			// only do second collision check if first one passed
-			if (upperTargetBlock != null && !wouldMoveIntoBlock && upperTargetBlock.getID() != 0
-					&& upperTargetBlock.getBoundingBox().move(upperTarget).intersects(offSetPlayerAABB)) {
-				System.out.println("upperCollision");
+			if (!wouldMoveIntoBlock) {
+				Location upperTarget = target.add(0, playerHeight, 0);
+				BlockState upperTargetBlock = upperTarget.getBlockAt(connection);
+				if (upperTargetBlock != null && upperTargetBlock.getID() != 0) {
+					AABB offsetUpperAABB = upperTargetBlock.getBoundingBox().move(upperTarget.toBlockLocation());
+					double distMultiplier = offsetUpperAABB.intersectRay(velocity, playerLoc);
+					if (distMultiplier > 0) {
+						multiplier = Math.min(multiplier, distMultiplier - delta);
+					}
+					Location updatedTargetLoc = playerLoc.add(velocity.multiply(multiplier));
+					if (offsetUpperAABB.intersects(player.getBoundingBox().move(updatedTargetLoc))) {
+						wouldMoveIntoBlock = true;
+					}
+				}
+			}
+			if (multiplier < delta) {
 				wouldMoveIntoBlock = true;
+			} else {
+				target = playerLoc.add(velocity.multiply(multiplier));
 			}
 		}
-		System.out.println("collision: " + wouldMoveIntoBlock);
 		Location result;
 		if (wouldMoveIntoBlock) {
 			result = playerLoc;
 			// reset velocity, so it doesn't build up infinitely while running into a wall
 			velocity = new Vector();
 		} else {
-			result = playerLoc.add(velocity);
+			result = target;
 		}
 
 		// ground friction, we decrease velocity by walking speed
 		if (onGround) {
 			// remove Y component
-			Vector onGroundDeceleration = velocity.add(0, -velocity.getY(), 0);
-			double speedVectorLength = onGroundDeceleration.getLength();
-			onGroundDeceleration = onGroundDeceleration.getOpposite();
-			onGroundDeceleration = onGroundDeceleration.normalize();
+			velocity = new Vector(velocity.getX(), 0, velocity.getZ());
+			double speedVectorLength = velocity.getLength();
+			Vector slowDownVec = velocity.getOpposite();
+			slowDownVec = slowDownVec.normalize();
 			double multiplier = player.isSprinting() ? walkingSpeed * sprintingMultiplier : walkingSpeed;
+			multiplier *= tickInverse;
 			// prevent negative overshooting, so our friction doesn't accelerate us
 			// backwards
 			multiplier = Math.min(speedVectorLength, multiplier);
-			onGroundDeceleration = onGroundDeceleration.multiply(multiplier);
-			velocity = velocity.add(onGroundDeceleration);
-		}		
-		//revert velocity to m/s
+			slowDownVec = slowDownVec.multiply(multiplier);
+			velocity = velocity.add(slowDownVec);
+		}
+		// revert velocity to m/s
 		velocity.multiply(1 / tickInverse);
-		
-		//write out finished values
+
+		// write out finished values
 		player.updateLocation(result);
 		player.setVelocity(velocity);
 		player.setOnGround(onGround);
-		System.out.println(result);
-		System.out.println(onGround);
-		System.out.println(velocity);
 	}
 
 }

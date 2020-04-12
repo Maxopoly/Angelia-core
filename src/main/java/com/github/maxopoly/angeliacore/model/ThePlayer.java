@@ -11,7 +11,6 @@ import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
 import com.github.maxopoly.angeliacore.model.location.DirectedLocation;
 import com.github.maxopoly.angeliacore.model.location.Vector;
-import com.github.maxopoly.angeliacore.model.location.Velocity;
 
 public class ThePlayer extends LivingEntity {
 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.github.maxopoly.angeliacore.model.block.RenderModule;
 import com.github.maxopoly.angeliacore.model.entity.AABB;
+import com.github.maxopoly.angeliacore.model.location.Location;
 
 public abstract class BlockState {
 
@@ -60,6 +61,10 @@ public abstract class BlockState {
 
 	public AABB getBoundingBox() {
 		return boundingBox;
+	}
+	
+	public AABB getOffsetBoundingBox(Location loc) {
+		return boundingBox.move(loc.toBlockLocation());
 	}
 
 	@Override
