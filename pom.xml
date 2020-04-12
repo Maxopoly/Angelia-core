@@ -37,8 +37,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>8</source>
-					<target>8</target>
+					<source>11</source>
+					<target>11</target>
 					<!-- Needed to compile, because of the annotation processor -->
 					<compilerArgument>-proc:none</compilerArgument>
 				</configuration>
@@ -58,8 +58,11 @@
 					</execution>
 				</executions>
 				<configuration>
+					<encoding>UTF-8</encoding>
 					<additionalOptions>-html5</additionalOptions>
-					<destDir>docs</destDir>
+					<outputDirectory>docs</outputDirectory>
+					<reportOutputDirectory>docs</reportOutputDirectory>
+					<useStandardDocletOptions>false</useStandardDocletOptions>
 				</configuration>
 			</plugin>
 		</plugins>
