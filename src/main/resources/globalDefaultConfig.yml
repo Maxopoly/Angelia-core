@@ -1,10 +1,10 @@
 block:
-  holdModel: false
+  hold_model: false
 auth:
-  refreshDelay: 300000
+  refresh_delay: 300000
 connection:
-  reconnectDelay: 30000
-  autoReconnect: false
+  reconnect_delay: 30000
+  auto_reconnect: false
 physics:
 #Delta used when determining whether we're on top of a block or adjacent to one
   delta: 1.0E-8

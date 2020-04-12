@@ -324,5 +324,29 @@ public class BinaryReadOnlyData {
 		}
 		return i;
 	}
+	
+	/**
+	 * @return Length of the packet in bytes
+	 */
+	public int getLength() {
+		return data.length;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.getClass().getSimpleName());
+		sb.append(", length: ");
+		sb.append(getLength());
+		sb.append(", data pointer: ");
+		sb.append(dataPointer);
+		sb.append("|| [ ");
+		for (byte b : data) {
+			sb.append(b);
+			sb.append(" ");
+		}
+		sb.append("]");
+		return sb.toString();
+	}
 
 }

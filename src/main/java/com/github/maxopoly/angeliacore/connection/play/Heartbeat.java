@@ -10,6 +10,7 @@ import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.compression.MalformedCompressedDataException;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.AbstractIncomingPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.BlockBreakAnimationPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.BlockChangePacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.ChatMessagePacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.ChunkDataPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.DestroyEntitiesPacketHandler;
@@ -23,6 +24,7 @@ import com.github.maxopoly.angeliacore.connection.play.packets.in.PlayerListItem
 import com.github.maxopoly.angeliacore.connection.play.packets.in.PlayerPositionLookPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.SetSlotPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.SpawnPlayerPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.TimeUpdatePacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.TransActionConfirmationPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.WindowItemsPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.XPChangeHandler;
@@ -42,12 +44,14 @@ public class Heartbeat extends TimerTask {
 	private ServerConnection connection;
 	private long lastKeepAlive;
 	private long tickCounter;
+	private boolean packetDebug;
 
 	public Heartbeat(ServerConnection connection) {
 		this.connection = connection;
 		this.handlerMap = new TreeMap<>();
 		registerAllHandler();
 		this.tickCounter = 0;
+		this.packetDebug = connection.getConfig().getPacketDebug();
 	}
 
 	/**
@@ -80,6 +84,10 @@ public class Heartbeat extends TimerTask {
 		int packetID = packet.getPacketID();
 		AbstractIncomingPacketHandler properHandler = handlerMap.get(packetID);
 		if (properHandler != null) {
+			if (packetDebug) {
+				connection.getLogger()
+						.info(String.format("Processing packet %s in handler %s", packet.toString(), properHandler));
+			}
 			try {
 				properHandler.handlePacket(packet);
 			} catch (Exception e) {
@@ -90,6 +98,13 @@ public class Heartbeat extends TimerTask {
 			}
 		}
 		// we just skip the packet if we dont have a proper handler
+		else {
+			if (packetDebug) {
+				connection.getLogger()
+						.info(String.format("Skipping packet %s, no handler was found", packet.toString()));
+			}
+		}
+
 	}
 
 	/**
@@ -119,6 +134,8 @@ public class Heartbeat extends TimerTask {
 		registerPacketHandler(new WindowItemsPacketHandler(connection));
 		registerPacketHandler(new XPChangeHandler(connection));
 		registerPacketHandler(new ChunkDataPacketHandler(connection));
+		registerPacketHandler(new TimeUpdatePacketHandler(connection));
+		registerPacketHandler(new BlockChangePacketHandler(connection));
 	}
 
 	/**

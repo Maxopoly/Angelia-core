@@ -35,6 +35,7 @@ import com.github.maxopoly.angeliacore.libs.yaml.config.GlobalConfig;
 import com.github.maxopoly.angeliacore.model.ThePlayer;
 import com.github.maxopoly.angeliacore.model.block.ChunkHolder;
 import com.github.maxopoly.angeliacore.model.player.OtherPlayerManager;
+import com.github.maxopoly.angeliacore.model.world.WorldStatusHandler;
 import com.github.maxopoly.angeliacore.plugin.PluginManager;
 
 /**
@@ -68,6 +69,7 @@ public class ServerConnection {
 	private boolean localHost;
 	private File dataFolder;
 	private PlayerPhysicsManager physicsManager;
+	private WorldStatusHandler worldStatusHandler;
 
 	private boolean encryptionEnabled;
 	private boolean compressionEnabled;
@@ -213,6 +215,7 @@ public class ServerConnection {
 		otherPlayerManager = new OtherPlayerManager();
 		chunkHolder = new ChunkHolder(config);
 		entityManager = new EntityManager();
+		worldStatusHandler = new WorldStatusHandler();
 		physicsManager = new PlayerPhysicsManager(this, playerStatus);
 		tickTimer = new Timer("Angelia tick");
 		tickTimer.schedule(playPacketHandler, tickDelay, tickDelay);
@@ -411,6 +414,13 @@ public class ServerConnection {
 	 */
 	public PluginManager getPluginManager() {
 		return pluginManager;
+	}
+	
+	/**
+	 * @return Handler for general information regarding the world the player is in
+	 */
+	public WorldStatusHandler getWorldStatusHandler() {
+		return worldStatusHandler;
 	}
 
 	/**

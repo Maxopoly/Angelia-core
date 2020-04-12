@@ -35,9 +35,7 @@ public class ChunkHolder {
 			// https://wiki.vg/index.php?title=Protocol&oldid=14204#Block_Change
 			return null;
 		}
-		BlockState bs = chunk.getBlock(mod(location.getBlockX(), 16), location.getBlockY(), mod(location.getBlockZ(),16));
-		System.out.println(bs == null ? "null" : bs.toString());
-		return bs;
+		return chunk.getBlock(mod(location.getBlockX(), 16), location.getBlockY(), mod(location.getBlockZ(),16));
 	}
 
 	public void setBlock(Location location, BlockState state) {
@@ -48,7 +46,7 @@ public class ChunkHolder {
 			// https://wiki.vg/index.php?title=Protocol&oldid=14204#Block_Change
 			return;
 		}
-		chunk.setBlock(location.getBlockX(), location.getBlockY(), location.getBlockZ(), state);
+		chunk.setBlock(mod(location.getBlockX(), 16), location.getBlockY(), mod(location.getBlockZ(), 16), state);
 		this.putChunk(chunk);
 	}
 

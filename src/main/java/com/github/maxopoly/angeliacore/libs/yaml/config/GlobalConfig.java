@@ -22,22 +22,22 @@ public class GlobalConfig extends YAMLFileConfig {
 	}
 
 	public long getAuthReconnectDelay() {
-		return config.getInt("connection.reconnectDelay", 30 * 1000);
+		return config.getInt("connection.reconnect_delay", 30 * 1000);
 	}
 
 	public long getTokenRefreshDelay() {
-		return config.getInt("auth.refreshDelay", 60 * 5 * 1000);
+		return config.getInt("auth.refresh_delay", 60 * 5 * 1000);
 	}
 
 	public boolean holdBlockModel() {
-		return config.getBoolean("block.holdModel", false);
+		return config.getBoolean("block.hold_model", false);
 	}
 
 	public void setHoldBlockModel(boolean state) {
 		if (holdBlockModel() == state) {
 			return;
 		}
-		config.putBoolean("block.holdModel", state);
+		config.putBoolean("block.hold_model", state);
 		ChunkHolder chunkHolder = connection.getChunkHolder();
 		if (chunkHolder == null) {
 			// connection isnt setup yet
@@ -76,7 +76,11 @@ public class GlobalConfig extends YAMLFileConfig {
 	}
 
 	public boolean useAutoReconnect() {
-		return config.getBoolean("connection.autoReconnect", false);
+		return config.getBoolean("connection.auto_reconnect", false);
+	}
+	
+	public boolean getPacketDebug() {
+		return config.getBoolean("dev.packet_debug", false);
 	}
 
 }
