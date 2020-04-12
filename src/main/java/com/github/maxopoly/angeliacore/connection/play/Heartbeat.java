@@ -22,6 +22,7 @@ import com.github.maxopoly.angeliacore.connection.play.packets.in.KeepAlivePacke
 import com.github.maxopoly.angeliacore.connection.play.packets.in.OpenInventoryPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.PlayerListItemPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.PlayerPositionLookPacketHandler;
+import com.github.maxopoly.angeliacore.connection.play.packets.in.PlayerRespawnPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.SetSlotPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.SpawnPlayerPacketHandler;
 import com.github.maxopoly.angeliacore.connection.play.packets.in.TimeUpdatePacketHandler;
@@ -136,6 +137,7 @@ public class Heartbeat extends TimerTask {
 		registerPacketHandler(new ChunkDataPacketHandler(connection));
 		registerPacketHandler(new TimeUpdatePacketHandler(connection));
 		registerPacketHandler(new BlockChangePacketHandler(connection));
+		registerPacketHandler(new PlayerRespawnPacketHandler(connection));
 	}
 
 	/**
@@ -144,6 +146,9 @@ public class Heartbeat extends TimerTask {
 	 * @param handler Handler to register
 	 */
 	private void registerPacketHandler(AbstractIncomingPacketHandler handler) {
+		if (handlerMap.containsKey(handler.getIDHandled())) {
+			throw new IllegalStateException("Attempted to register a handler with the id " + handler.getIDHandled() + " twice");
+		}
 		// handler should only be registered in the method for registering all handlers,
 		// not during runtime
 		handlerMap.put(handler.getIDHandled(), handler);

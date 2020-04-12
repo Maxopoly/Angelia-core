@@ -15,13 +15,15 @@ public class WorldStatusHandler {
 		this.dimension = -100;
 		this.difficulty = -100;
 		this.maxPlayers = -100;
+		this.worldAge = -1;
+		this.timeOfDay = -1;
 	}
 
 	/**
 	 * Updates the world time will calculate the time of day by taking the world age
 	 * modulo 24000. World age is in seconds, time of day in ticks
 	 * 
-	 * @param worldAge Age of the world in seconds
+	 * @param worldAge  Age of the world in seconds
 	 * @param timeOfDay Time of the day in ticks, usually on a scale from 0 to 23999
 	 */
 	public void updateWorldTime(long worldAge, long timeOfDay) {
@@ -49,17 +51,33 @@ public class WorldStatusHandler {
 		this.lvlType = lvlType;
 		this.debugInfo = debugInfo;
 	}
-	
+
+	/**
+	 * Sent by the server when the player is sent to a new world/respawning
+	 * 
+	 * @param dimension  -1 = nether, 0 = overworld, 1 = end
+	 * @param difficulty difficulty
+	 * @param lvlType    generation type, examples include: default, flat,
+	 *                   largeBiomes, amplified, default_1_1
+	 */
+	public void updateOnRespawn(int dimension, byte difficulty, String lvlType) {
+		this.dimension = dimension;
+		this.difficulty = difficulty;
+		this.lvlType = lvlType;
+	}
+
 	/**
 	 * Time of day is measured in ticks on a scale from 0 to 23999
+	 * 
 	 * @return Time of day in ticks
 	 */
 	public long getTimeOfDay() {
 		return timeOfDay;
 	}
-	
+
 	/**
 	 * World age is measured in seconds, servers increment it by one every 20 ticks
+	 * 
 	 * @return World age in seconds
 	 */
 	public long getWorldAge() {

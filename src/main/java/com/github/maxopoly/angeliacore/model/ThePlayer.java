@@ -11,11 +11,12 @@ import com.github.maxopoly.angeliacore.model.inventory.Inventory;
 import com.github.maxopoly.angeliacore.model.inventory.PlayerInventory;
 import com.github.maxopoly.angeliacore.model.location.DirectedLocation;
 import com.github.maxopoly.angeliacore.model.location.Vector;
+import com.github.maxopoly.angeliacore.model.player.GameMode;
 
 public class ThePlayer extends LivingEntity {
 
-	public static final double headDelta = 1.62; // how far the head is above the player location
-	private static final Vector headOffSet = new Vector(0, headDelta, 0);
+	public static final double HEAD_DELTA = 1.62; // how far the center of the head is above the player location
+	private static final Vector headOffSet = new Vector(0, HEAD_DELTA, 0);
 
 	private boolean initialized = false;
 	private Map<Byte, Inventory> openInventories;
@@ -32,6 +33,8 @@ public class ThePlayer extends LivingEntity {
 	private float saturation;
 	private boolean isSprinting;
 	private boolean isSneaking;
+	private GameMode gamemode;
+	private boolean hardCore;
 
 	private ServerConnection connection;
 
@@ -166,6 +169,36 @@ public class ThePlayer extends LivingEntity {
 	
 	public void setSneaking(boolean sneaking) {
 		this.isSneaking = sneaking;
+	}
+	
+	/**
+	 * Updates the players game mode
+	 * @param gameMode Game mode to update to
+	 */
+	public void setGameMode(GameMode gameMode) {
+		this.gamemode = gameMode;
+	}
+	
+	/**
+	 * @return Game mode the player is in
+	 */
+	public GameMode getGameMode() {
+		return gamemode;
+	}
+	
+	/**
+	 * @return Whether the player is playing hard core (perma death)
+	 */
+	public boolean isHardCore() {
+		return hardCore;
+	}
+	
+	/**
+	 * Updates whether the player is playing hard core (perma death)
+	 * @param hardCore Updated hard core state
+	 */
+	public void setHardcore(boolean hardCore) {
+		this.hardCore = hardCore;
 	}
 
 	@Override

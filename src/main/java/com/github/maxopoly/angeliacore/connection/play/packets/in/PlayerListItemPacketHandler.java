@@ -39,7 +39,7 @@ public class PlayerListItemPacketHandler extends AbstractIncomingPacketHandler {
 					// add player
 					String name = packet.readString();
 					int propertyCount = packet.readVarInt();
-					List<PlayerProperty> properties = new LinkedList<PlayerProperty>();
+					List<PlayerProperty> properties = new LinkedList<>();
 					for (int k = 0; k < propertyCount; k++) {
 						String propName = packet.readString();
 						String propValue = packet.readString();
