@@ -8,11 +8,11 @@ public class FancySpecialBlockState extends SingleConstBlockState {
 
 	public FancySpecialBlockState(int id, byte metaData, float hardness, String texturePackIdentifier,
 			String niceName) {
-		super(id, metaData, hardness, texturePackIdentifier, niceName);
+		super(id, metaData, hardness, texturePackIdentifier, niceName, false);
 	}
 
 	public FancySpecialBlockState(int id, float hardness, String texturePackIdentifier, String niceName) {
-		super(id, (byte) 0, hardness, texturePackIdentifier, niceName);
+		this(id, (byte) 0, hardness, texturePackIdentifier, niceName);
 	}
 
 	@Override

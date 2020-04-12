@@ -11,8 +11,8 @@ public class VariableBlockState extends BlockState {
 	private Class<? extends BlockState> instanceClass;
 
 	public VariableBlockState(Class<? extends BlockState> instanceClass, int id, float hardness,
-			String texturePackIdentifier, String niceName) {
-		super(id, (byte) 0, hardness, texturePackIdentifier, niceName);
+			String texturePackIdentifier, String niceName, boolean hasCollision) {
+		super(id, (byte) 0, hardness, texturePackIdentifier, niceName, hasCollision);
 		this.instanceClass = instanceClass;
 		stateMapping = new WeakHashMap<>();
 	}
@@ -22,14 +22,17 @@ public class VariableBlockState extends BlockState {
 		return getState((byte) (data & 0xf));
 	}
 
+	@Override
 	public double getHardness() {
 		throw new IllegalStateException();
 	}
 
+	@Override
 	public byte getMetaData() {
 		throw new IllegalStateException();
 	}
 
+	@Override
 	public int getMetaData(@SuppressWarnings("rawtypes") List<Enum> enums) {
 		throw new IllegalStateException();
 	}

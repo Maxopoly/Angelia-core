@@ -95,7 +95,7 @@ public class PlayerPhysicsManager {
 
 		BlockState blockStandingOn = offSetBlockStandingOnLoc.getBlockAt(connection);
 
-		if (blockStandingOn != null && blockStandingOn.getID() != 0
+		if (blockStandingOn != null && blockStandingOn.hasCollision()
 				&& blockStandingOn.getOffsetBoundingBox(offSetBlockStandingOnLoc).intersects(downwardsOffsetPlayerAABB)) {
 			// standing on a block
 			onGround = true;
@@ -127,7 +127,7 @@ public class PlayerPhysicsManager {
 			// only do collision checks if we actually moved
 			double multiplier = 1.0;
 			BlockState lowerTargetBlock = target.getBlockAt(connection);
-			if (lowerTargetBlock != null && lowerTargetBlock.getID() != 0) {
+			if (lowerTargetBlock != null && lowerTargetBlock.hasCollision()) {
 				AABB offsetLowerAABB = lowerTargetBlock.getBoundingBox().move(target.toBlockLocation());
 				double distMultiplier = offsetLowerAABB.intersectRay(velocity, playerLoc);
 				if (distMultiplier > 0) {
@@ -140,7 +140,7 @@ public class PlayerPhysicsManager {
 					// recheck whether we're standing on a block now
 					offSetBlockStandingOnLoc = updatedTargetLoc.add(0, -delta, 0);
 					blockStandingOn = offSetBlockStandingOnLoc.getBlockAt(connection);
-					if (blockStandingOn != null && blockStandingOn.getID() != 0
+					if (blockStandingOn != null && blockStandingOn.hasCollision()
 							&& blockStandingOn.getOffsetBoundingBox(offSetBlockStandingOnLoc)
 									.intersects(player.getBoundingBox().move(updatedTargetLoc))) {
 						onGround = true;
@@ -151,7 +151,7 @@ public class PlayerPhysicsManager {
 			if (!wouldMoveIntoBlock) {
 				Location upperTarget = target.add(0, playerHeight, 0);
 				BlockState upperTargetBlock = upperTarget.getBlockAt(connection);
-				if (upperTargetBlock != null && upperTargetBlock.getID() != 0) {
+				if (upperTargetBlock != null && upperTargetBlock.hasCollision()) {
 					AABB offsetUpperAABB = upperTargetBlock.getBoundingBox().move(upperTarget.toBlockLocation());
 					double distMultiplier = offsetUpperAABB.intersectRay(velocity, playerLoc);
 					if (distMultiplier > 0) {

@@ -67,7 +67,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
- 
+
 		<resources>
 			<resource>
 				<directory>${basedir}</directory>

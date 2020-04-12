@@ -4,8 +4,8 @@ import java.util.List;
 
 public abstract class SingleConstBlockState extends BlockState {
 
-	public SingleConstBlockState(int id, byte metaData, float hardness, String texturePackIdentifier, String niceName) {
-		super(id, metaData, hardness, texturePackIdentifier, niceName);
+	public SingleConstBlockState(int id, byte metaData, float hardness, String texturePackIdentifier, String niceName, boolean hasCollision) {
+		super(id, metaData, hardness, texturePackIdentifier, niceName, hasCollision);
 	}
 
 	@Override

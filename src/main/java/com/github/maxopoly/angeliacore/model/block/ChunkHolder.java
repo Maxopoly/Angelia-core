@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.libs.yaml.config.GlobalConfig;
 import com.github.maxopoly.angeliacore.model.block.states.BlockState;
 import com.github.maxopoly.angeliacore.model.location.Location;
@@ -20,9 +21,10 @@ public class ChunkHolder {
 	private Map<Long, Chunk> loadedChunks;
 	private boolean active;
 
-	public ChunkHolder(GlobalConfig config) {
+	public ChunkHolder(ServerConnection conn, GlobalConfig config) {
 		active = config.holdBlockModel();
 		if (active) {
+			BlockStateFactory.initialize(conn);
 			loadedChunks = new TreeMap<>();
 		}
 	}

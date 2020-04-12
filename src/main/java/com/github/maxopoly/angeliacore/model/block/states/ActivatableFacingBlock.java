@@ -9,8 +9,8 @@ import com.github.maxopoly.angeliacore.model.location.BlockFace;
 public class ActivatableFacingBlock extends SingleConstBlockState {
 
 	public ActivatableFacingBlock(int id, byte metaData, float hardness, String texturePackIdentifier,
-			String niceName) {
-		super(id, metaData, hardness, texturePackIdentifier, niceName);
+			String niceName, boolean hasCollision) {
+		super(id, metaData, hardness, texturePackIdentifier, niceName, hasCollision);
 	}
 
 	/**

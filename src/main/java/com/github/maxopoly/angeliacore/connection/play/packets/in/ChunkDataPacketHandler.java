@@ -36,9 +36,8 @@ public class ChunkDataPacketHandler extends AbstractIncomingPacketHandler {
 			Chunk chunk = readChunk(x, z, groundUpContinuos, containedSectionBitMask, brod);
 			connection.getEventHandler().broadcast(new ChunkLoadEvent(chunk));
 			connection.getChunkHolder().putChunk(chunk);
-			connection.getLogger().info("Loaded chunk " + chunk.getX() + "  " + chunk.getZ());
 		} catch (EndOfPacketException e) {
-			e.printStackTrace();
+			connection.getLogger().error("Failed to read chunk data packet", e);
 		}
 
 	}

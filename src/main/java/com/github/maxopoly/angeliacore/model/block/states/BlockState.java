@@ -15,14 +15,20 @@ public abstract class BlockState {
 	protected String niceName;
 	protected RenderModule render;
 	protected AABB boundingBox;
+	protected boolean hasCollision;
 
-	public BlockState(int id, byte metaData, float hardness, String texturePackIdentifier, String niceName) {
+	public BlockState(int id, byte metaData, float hardness, String texturePackIdentifier, String niceName, boolean hasCollision) {
 		this.id = id;
 		this.metaData = metaData;
 		this.hardness = hardness;
 		this.texturePackIdentifier = texturePackIdentifier;
 		this.niceName = niceName;
+		this.hasCollision = hasCollision;
 		this.boundingBox = new AABB(0,1,0,1,0,1);
+	}
+	
+	public void setBoundingBoxs(AABB aabb) {
+		this.boundingBox = aabb;
 	}
 
 	public abstract BlockState getActualState(byte data);
@@ -65,6 +71,10 @@ public abstract class BlockState {
 	
 	public AABB getOffsetBoundingBox(Location loc) {
 		return boundingBox.move(loc.toBlockLocation());
+	}
+	
+	public boolean hasCollision() {
+		return hasCollision;
 	}
 
 	@Override

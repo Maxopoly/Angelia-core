@@ -1,8 +1,13 @@
 package com.github.maxopoly.angeliacore.model.block;
 
+import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
+
+import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.model.block.states.ActivatableFacingBlock;
 import com.github.maxopoly.angeliacore.model.block.states.AirBlockState;
 import com.github.maxopoly.angeliacore.model.block.states.BlockState;
@@ -11,17 +16,16 @@ import com.github.maxopoly.angeliacore.model.block.states.SolidStaticBlockState;
 import com.github.maxopoly.angeliacore.model.block.states.VariableBlockState;
 import com.github.maxopoly.angeliacore.model.block.states.rail.NormalRailBlockState;
 import com.github.maxopoly.angeliacore.model.block.states.rail.SpecialRailBlockState;
+import com.github.maxopoly.angeliacore.model.entity.AABB;
 
 public class BlockStateFactory {
 
 	private static Map<Integer, BlockState> blockStatesById = new ConcurrentHashMap<>();
 	private static Map<String, BlockState> blockStatesByTextureName = new ConcurrentHashMap<>();
+	private static TexturePackLoader packLoader;
+	private static boolean initialized;
 
 	private static BlockState placeHolder;
-
-	static {
-		initialize();
-	}
 
 	public static BlockState getStateByData(int data) {
 		BlockState state = blockStatesById.get(data);
@@ -34,8 +38,24 @@ public class BlockStateFactory {
 	public static BlockState getStateByTextureIdentifier(String texture) {
 		return blockStatesByTextureName.get(texture);
 	}
+	
+	private static void loadTexturePack(File folder, Logger logger) {
+		packLoader = new TexturePackLoader(logger);
+		packLoader.ensureExistsAt(folder);
+		try {
+			packLoader.load(logger, folder);
+		} catch (ResourcePackParseException e) {
+			logger.error("Failed to load resource pack", e);
+			packLoader = null;
+		}
+	}
 
-	private static void initialize() {
+	public static synchronized void initialize(ServerConnection conn) {
+		if (initialized) {
+			return;
+		}
+		initialized = true;
+		loadTexturePack(conn.getDataFolder(), conn.getLogger());
 		register(new AirBlockState());
 		SolidStaticBlockState stone = new SolidStaticBlockState(1, 1.5f, "stone", "Stone");
 		placeHolder = stone;
@@ -67,16 +87,16 @@ public class BlockStateFactory {
 		register(new SolidStaticBlockState(15, 3f, "iron_ore", "Iron Ore"));
 
 		register(new SolidStaticBlockState(22, 3f, "lapis_block", "Lapis Lazuli Block"));
-		multiRegister(new VariableBlockState(ActivatableFacingBlock.class, 23, 3.5f, "dispenser", "Dispenser"));
+		multiRegister(new VariableBlockState(ActivatableFacingBlock.class, 23, 3.5f, "dispenser", "Dispenser", true));
 		register(new SolidStaticBlockState(24, 0.8f, "sandstone", "Sandstone"));
 		register(new SolidStaticBlockState(24, (byte) 1, 0.8f, "chiseled_sandstone", "Chiseled Sandstone"));
 		register(new SolidStaticBlockState(24, (byte) 2, 0.8f, "smooth_sandstone", "Smooth Sandstone"));
 		register(new SolidStaticBlockState(25, 0.8f, "noteblock", "Note Block"));
 		// TODO Bed does not have a block state in texture packs
-		multiRegister(new VariableBlockState(SpecialRailBlockState.class, 27, 0.7f, "golden_rail", "Powered Rail"));
-		multiRegister(new VariableBlockState(SpecialRailBlockState.class, 28, 0.7f, "detector_rail", "Detector Rail"));
+		multiRegister(new VariableBlockState(SpecialRailBlockState.class, 27, 0.7f, "golden_rail", "Powered Rail", false));
+		multiRegister(new VariableBlockState(SpecialRailBlockState.class, 28, 0.7f, "detector_rail", "Detector Rail", false));
 
-		multiRegister(new VariableBlockState(NormalRailBlockState.class, 66, 0.7f, "rail", "Rail"));
+		multiRegister(new VariableBlockState(NormalRailBlockState.class, 66, 0.7f, "rail", "Rail", false));
 
 		registerWoodVariations(125, 2.0f, "_double_slab", " Double Slab");
 		registerWoodVariations(126, 2.0f, "_slab", " Slab");
@@ -84,8 +104,8 @@ public class BlockStateFactory {
 		register(new SolidStaticBlockState(133, 5f, "emerald_block", "Emerald Block"));
 
 		multiRegister(
-				new VariableBlockState(SpecialRailBlockState.class, 157, 0.7f, "activator_rail", "Activator Rail"));
-		multiRegister(new VariableBlockState(ActivatableFacingBlock.class, 158, 3.5f, "dropper", "Dropper"));
+				new VariableBlockState(SpecialRailBlockState.class, 157, 0.7f, "activator_rail", "Activator Rail", false));
+		multiRegister(new VariableBlockState(ActivatableFacingBlock.class, 158, 3.5f, "dropper", "Dropper", true));
 	}
 
 	private static void internalRegister(int id, byte metaData, BlockState state) {
@@ -93,6 +113,12 @@ public class BlockStateFactory {
 		data |= metaData & 0xf;
 		blockStatesById.put(data, state);
 		blockStatesByTextureName.put(state.getTexturePackIdentifier(), state);
+		if (packLoader != null) {
+			AABB aabb = packLoader.convertModelToAABB(state.getTexturePackIdentifier());
+			if (aabb != null) {
+				state.setBoundingBoxs(aabb);
+			}
+		}
 	}
 
 	private static void multiRegister(BlockState state) {

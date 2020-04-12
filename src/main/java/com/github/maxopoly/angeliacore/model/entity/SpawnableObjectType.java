@@ -42,7 +42,7 @@ public enum SpawnableObjectType {
 	private static Map<Integer, SpawnableObjectType> types;
 
 	static {
-		types = new TreeMap<Integer, SpawnableObjectType>();
+		types = new TreeMap<>();
 		for (SpawnableObjectType type : SpawnableObjectType.values()) {
 			types.put(type.getID(), type);
 		}
@@ -54,7 +54,7 @@ public enum SpawnableObjectType {
 
 	private int id;
 
-	private SpawnableObjectType(int id) {
+	SpawnableObjectType(int id) {
 		this.id = id;
 	}
 

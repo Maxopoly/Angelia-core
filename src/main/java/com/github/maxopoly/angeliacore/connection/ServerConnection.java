@@ -213,7 +213,7 @@ public class ServerConnection {
 		pluginManager = new PluginManager(this);
 		actionQueue = new ActionQueue(this);
 		otherPlayerManager = new OtherPlayerManager();
-		chunkHolder = new ChunkHolder(config);
+		chunkHolder = new ChunkHolder(this, config);
 		entityManager = new EntityManager();
 		worldStatusHandler = new WorldStatusHandler();
 		physicsManager = new PlayerPhysicsManager(this, playerStatus);
