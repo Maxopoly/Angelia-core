@@ -60,13 +60,14 @@
 				<configuration>
 					<encoding>UTF-8</encoding>
 					<additionalOptions>-html5</additionalOptions>
-					<outputDirectory>docs</outputDirectory>
-					<reportOutputDirectory>docs</reportOutputDirectory>
-					<useStandardDocletOptions>false</useStandardDocletOptions>
+					<outputDirectory>${basedir}</outputDirectory>
+					<reportOutputDirectory>${basedir}</reportOutputDirectory>
+					<destDir>docs</destDir>
+					<author>false</author>
 				</configuration>
 			</plugin>
 		</plugins>
-
+ 
 		<resources>
 			<resource>
 				<directory>${basedir}</directory>
