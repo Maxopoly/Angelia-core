@@ -24,6 +24,7 @@ public abstract class BlockState {
 		this.texturePackIdentifier = texturePackIdentifier;
 		this.niceName = niceName;
 		this.hasCollision = hasCollision;
+		//default to full block, will be overriden if an actual model can be found
 		this.boundingBox = new AABB(0,1,0,1,0,1);
 	}
 	

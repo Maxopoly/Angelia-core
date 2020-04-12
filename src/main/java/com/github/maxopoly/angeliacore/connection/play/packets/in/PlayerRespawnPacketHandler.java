@@ -18,6 +18,7 @@ public class PlayerRespawnPacketHandler extends AbstractIncomingPacketHandler {
 			byte gameMode = packet.readByte();
 			String lvlType = packet.readString();
 			connection.getWorldStatusHandler().updateOnRespawn(dimension, difficulty, lvlType);
+			connection.getPlayerStatus().setDead(false);
 		} catch (EndOfPacketException e) {
 			connection.getLogger().error("Failed to parse set slot packet", e);
 		}

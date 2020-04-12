@@ -26,7 +26,7 @@ public class ThePlayer extends LivingEntity {
 	private int totalEXP;
 	private float xpProgress;
 	private int level;
-	
+
 	private AABB boundingBox;
 
 	private int hunger;
@@ -35,6 +35,7 @@ public class ThePlayer extends LivingEntity {
 	private boolean isSneaking;
 	private GameMode gamemode;
 	private boolean hardCore;
+	private boolean isDead;
 
 	private ServerConnection connection;
 
@@ -43,7 +44,7 @@ public class ThePlayer extends LivingEntity {
 		this.openInventories = new TreeMap<>();
 		this.openInventories.put((byte) 0, new PlayerInventory());
 		this.connection = connection;
-		this.boundingBox = new AABB(-0.3, 0.3, 0,0.8, -0.3,0.3);
+		this.boundingBox = new AABB(-0.3, 0.3, 0, 0.8, -0.3, 0.3);
 	}
 
 	public void addInventory(Inventory inv, byte id) {
@@ -154,51 +155,74 @@ public class ThePlayer extends LivingEntity {
 		this.xpProgress = progress;
 		this.totalEXP = totalXP;
 	}
-	
+
 	public void setSprinting(boolean sprinting) {
 		this.isSprinting = sprinting;
 	}
-	
+
 	public boolean isSprinting() {
 		return isSprinting;
 	}
-	
+
 	public boolean isSneaking() {
 		return isSneaking;
 	}
-	
+
 	public void setSneaking(boolean sneaking) {
 		this.isSneaking = sneaking;
 	}
-	
+
 	/**
 	 * Updates the players game mode
+	 * 
 	 * @param gameMode Game mode to update to
 	 */
 	public void setGameMode(GameMode gameMode) {
 		this.gamemode = gameMode;
 	}
-	
+
 	/**
 	 * @return Game mode the player is in
 	 */
 	public GameMode getGameMode() {
 		return gamemode;
 	}
-	
+
 	/**
 	 * @return Whether the player is playing hard core (perma death)
 	 */
 	public boolean isHardCore() {
 		return hardCore;
 	}
-	
+
 	/**
 	 * Updates whether the player is playing hard core (perma death)
+	 * 
 	 * @param hardCore Updated hard core state
 	 */
 	public void setHardcore(boolean hardCore) {
 		this.hardCore = hardCore;
+	}
+
+	/**
+	 * Updates whether the player is currently dead
+	 * 
+	 * @param dead Is the player dead
+	 */
+	public void setDead(boolean dead) {
+		this.isDead = dead;
+	}
+
+	/**
+	 * A player may be dead even if their HP are not <= 0, because the server may
+	 * change their HP after dying, but before respawning. This check properly
+	 * respects that and should be used to determine whether a player is dead, not
+	 * the current health
+	 * 
+	 * @return Whether the player is currently dead
+	 */
+	public boolean isDead() {
+		return isDead;
 	}
 
 	@Override
