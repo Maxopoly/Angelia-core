@@ -4,6 +4,7 @@ import com.github.maxopoly.angeliacore.actions.AbstractAction;
 import com.github.maxopoly.angeliacore.actions.ActionLock;
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.gamelogic.physics.PlayerPhysicsManager;
+import com.github.maxopoly.angeliacore.model.ThePlayer;
 import com.github.maxopoly.angeliacore.model.location.DirectedLocation;
 import com.github.maxopoly.angeliacore.model.location.Location;
 import com.github.maxopoly.angeliacore.model.location.Vector;
@@ -23,7 +24,17 @@ public class MoveTo extends AbstractAction {
 
 	@Override
 	public void execute() {
-		physicsManager.addAcceleration(getAccelerationToApply(connection.getPlayerStatus().getLocation(), movementSpeed));
+		double movementPerTick = movementSpeed / connection.getTicksPerSecond();
+		ThePlayer player = connection.getPlayerStatus();
+		if (destination.removeComponent(1).subtract(player.getLocation().removeComponent(1))
+				.getLength() < movementPerTick) {
+			// Approaching a location by setting the acceleration is a differential equation
+			// and complicated, so we just teleport once we are less than a tick away
+			player.updateLocation(new Location(destination.getX(), player.getLocation().getY(), destination.getZ()));
+		} else {
+			physicsManager
+					.addAcceleration(getAccelerationToApply(connection.getPlayerStatus().getLocation(), movementSpeed));
+		}
 	}
 
 	@Override
@@ -59,7 +70,7 @@ public class MoveTo extends AbstractAction {
 	 */
 	public boolean hasReachedDesto(Location current) {
 		return Math.abs(current.getX() - destination.getX()) < connection.getConfig().getPhysicsDelta()
-				&& Math.abs(current.getZ() - destination.getZ()) <  connection.getConfig().getPhysicsDelta();
+				&& Math.abs(current.getZ() - destination.getZ()) < connection.getConfig().getPhysicsDelta();
 	}
 
 	@Override

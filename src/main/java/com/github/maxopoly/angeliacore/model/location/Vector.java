@@ -7,6 +7,7 @@ public class Vector {
 	public static Vector calcLocationDifference(Location start, Location target) {
 		return target.toVector().subtract(start.toVector());
 	}
+
 	protected final double x;
 	protected final double y;
 
@@ -27,13 +28,31 @@ public class Vector {
 	public Vector add(Vector other) {
 		return new Vector(x + other.x, y + other.y, z + other.z);
 	}
-	
+
 	public Vector add(double x, double y, double z) {
 		return new Vector(x + this.x, y + this.y, z + this.z);
 	}
 
 	public Vector cross(Vector v) {
 		return new Vector(v.getX() * x, v.getY() * y, v.getZ() * z);
+	}
+
+	/**
+	 * Removes a component by setting it to 0
+	 * 
+	 * @param index Index of the component, x=0, y=1, z=2
+	 */
+	public Vector removeComponent(int index) {
+		switch (index) {
+		case 0:
+			return new Vector(0, y, z);
+		case 1:
+			return new Vector(x, 0, z);
+		case 2:
+			return new Vector(x, y, 0);
+		default:
+			throw new IllegalArgumentException(String.format("%d is a valid component index", index));
+		}
 	}
 
 	public double getLength() {
