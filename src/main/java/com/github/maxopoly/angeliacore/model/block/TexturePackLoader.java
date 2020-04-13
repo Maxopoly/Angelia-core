@@ -198,8 +198,8 @@ public class TexturePackLoader {
 				logger.warn("Malformed model entry for " + texturePackIdentifier);
 				continue;
 			}
-			result.add(new AABB(fromArray.getDouble(0), toArray.getDouble(0), fromArray.getDouble(1),
-					toArray.getDouble(1), fromArray.getDouble(2), toArray.getDouble(2)));
+			result.add(new AABB(fromArray.getDouble(0) / 16, toArray.getDouble(0) / 16, fromArray.getDouble(1) / 16,
+					toArray.getDouble(1) / 16, fromArray.getDouble(2) / 16, toArray.getDouble(2) / 16));
 		}
 		if (result.isEmpty()) {
 			logger.warn("Could not load model entries for " + texturePackIdentifier);

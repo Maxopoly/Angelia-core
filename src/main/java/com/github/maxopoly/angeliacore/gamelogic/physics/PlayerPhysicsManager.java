@@ -1,11 +1,10 @@
 package com.github.maxopoly.angeliacore.gamelogic.physics;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.connection.play.packets.out.PlayerPositionPacket;
+import com.github.maxopoly.angeliacore.event.events.angelia.ClientPhysicsEvent;
 import com.github.maxopoly.angeliacore.libs.yaml.config.GlobalConfig;
 import com.github.maxopoly.angeliacore.model.ThePlayer;
 import com.github.maxopoly.angeliacore.model.block.states.BlockState;
@@ -31,12 +30,11 @@ public class PlayerPhysicsManager {
 
 	private ThePlayer player;
 	private ServerConnection connection;
-	private List<Vector> queuedMovement;
+	private Vector queuedMovement;
 
 	public PlayerPhysicsManager(ServerConnection connection, ThePlayer player) {
 		this.player = player;
 		this.connection = connection;
-		this.queuedMovement = new LinkedList<>();
 		GlobalConfig config = connection.getConfig();
 		this.delta = config.getPhysicsDelta();
 		this.gravity = config.getGravity();
@@ -47,8 +45,41 @@ public class PlayerPhysicsManager {
 		this.drag = config.getPhysicsDrag();
 	}
 
-	public void queueVelocity(Vector movement) {
-		this.queuedMovement.add(movement);
+	/**
+	 * A single acceleration value may be queued, which is added to the players
+	 * current velocity upon the next tick. After each physics tick this value is
+	 * set to null This value is in m/s^2. Calls to this method will overwrite any
+	 * preexisting value
+	 * 
+	 * @param acceleration New acceleration value to apply to player on next physics
+	 *                     tick
+	 */
+	public void queueAcceleration(Vector acceleration) {
+		this.queuedMovement = acceleration;
+	}
+
+	/**
+	 * A single acceleration value may be queued, which is added to the players
+	 * current velocity upon the next tick. After each physics tick this value is
+	 * set to null This value is in m/s^2. Values passed through this method will be
+	 * added to any preexisting acceleration
+	 * 
+	 * @param acceleration New acceleration value to apply to player on next physics
+	 *                     tick
+	 */
+	public void addAcceleration(Vector acceleration) {
+		if (this.queuedMovement == null) {
+			this.queuedMovement = acceleration;
+		} else {
+			this.queuedMovement.add(acceleration);
+		}
+	}
+
+	/**
+	 * @return Acceleration applied to the player on next physics tick in m/s^2
+	 */
+	public Vector getQueuedAcceleration() {
+		return queuedMovement;
 	}
 
 	/**
@@ -77,13 +108,13 @@ public class PlayerPhysicsManager {
 		double tickInverse = 1.0 / connection.getTicksPerSecond();
 		// in m/s
 		Vector velocity = player.getVelocity();
+		Vector startingVelocity = velocity;
+		boolean onGroundBefore = player.isOnGround();
 		// convert velocity to m/tick
 		velocity.multiply(tickInverse);
 		Vector acceleration = new Vector();
 
 		Location playerLoc = player.getLocation();
-		AABB offSetPlayerAABB = player.getBoundingBox().move(playerLoc);
-		AABB downwardsOffsetPlayerAABB = offSetPlayerAABB.move(new Vector(0, - delta, 0));
 
 		// converting gravity from meter/s^2 to meter/tick^2 required dividing by
 		// tick/second twice
@@ -91,25 +122,39 @@ public class PlayerPhysicsManager {
 		boolean onGround;
 
 		// apply gravity
-		Location offSetBlockStandingOnLoc = playerLoc.add(0, -delta, 0);
+		onGround = standingOnBlock(playerLoc);
 
-		BlockState blockStandingOn = offSetBlockStandingOnLoc.getBlockAt(connection);
-
-		if (blockStandingOn != null && blockStandingOn.hasCollision()
-				&& blockStandingOn.getOffsetBoundingBox(offSetBlockStandingOnLoc).intersects(downwardsOffsetPlayerAABB)) {
-			// standing on a block
-			onGround = true;
+		if (onGround) {
+			// remove y component if facing downwards, effectively stopping an ongoing fall
+			if (velocity.getY() < 0) {
+				velocity = velocity.add(0, -velocity.getY(), 0);
+			}
 		} else {
-			onGround = false;
+			// accelerate downwards
 			acceleration = acceleration.add(0, -meterPerTickGravity, 0);
 		}
 
+		// apply ground friction as inverse walking acceleration, even when midair
+		// remove Y component
+		Vector slowDownVec = new Vector(velocity.getX(), 0, velocity.getZ());
+		double speedVectorLength = slowDownVec.getLength();
+		slowDownVec = slowDownVec.getOpposite();
+		slowDownVec = slowDownVec.normalize();
+		double tickWalkingSpeed = walkingSpeed * tickInverse;
+		double walkSpeedMultiplier = player.isSprinting() ? tickWalkingSpeed * sprintingMultiplier : tickWalkingSpeed;
+		// prevent negative overshooting, so our friction doesn't accelerate us
+		// backwards
+		walkSpeedMultiplier = Math.min(speedVectorLength, walkSpeedMultiplier);
+		slowDownVec = slowDownVec.multiply(walkSpeedMultiplier);
+		velocity = velocity.add(slowDownVec);
+
 		// movement generated clientside
-		for (Vector movement : queuedMovement) {
-			acceleration = acceleration.add(movement);
+		if (queuedMovement != null) {
+			velocity = velocity.add(queuedMovement.multiply(tickInverse));
+			queuedMovement = null;
 		}
 
-		// acceleration and velocity are both in m/s²
+		// acceleration and velocity are both in m/ticks
 		velocity = velocity.add(acceleration);
 
 		// apply drag
@@ -128,6 +173,8 @@ public class PlayerPhysicsManager {
 			double multiplier = 1.0;
 			BlockState lowerTargetBlock = target.getBlockAt(connection);
 			if (lowerTargetBlock != null && lowerTargetBlock.hasCollision()) {
+				// would move into block, so attempt to do a shorter step and find how far we
+				// can go based on ray tracing
 				AABB offsetLowerAABB = lowerTargetBlock.getBoundingBox().move(target.toBlockLocation());
 				double distMultiplier = offsetLowerAABB.intersectRay(velocity, playerLoc);
 				if (distMultiplier > 0) {
@@ -138,13 +185,7 @@ public class PlayerPhysicsManager {
 					wouldMoveIntoBlock = true;
 				} else {
 					// recheck whether we're standing on a block now
-					offSetBlockStandingOnLoc = updatedTargetLoc.add(0, -delta, 0);
-					blockStandingOn = offSetBlockStandingOnLoc.getBlockAt(connection);
-					if (blockStandingOn != null && blockStandingOn.hasCollision()
-							&& blockStandingOn.getOffsetBoundingBox(offSetBlockStandingOnLoc)
-									.intersects(player.getBoundingBox().move(updatedTargetLoc))) {
-						onGround = true;
-					}
+					onGround = standingOnBlock(updatedTargetLoc);
 				}
 			}
 			// only do second collision check if first one passed
@@ -178,28 +219,33 @@ public class PlayerPhysicsManager {
 			result = target;
 		}
 
-		// ground friction, we decrease velocity by walking speed
-		if (onGround) {
-			// remove Y component
-			velocity = new Vector(velocity.getX(), 0, velocity.getZ());
-			double speedVectorLength = velocity.getLength();
-			Vector slowDownVec = velocity.getOpposite();
-			slowDownVec = slowDownVec.normalize();
-			double multiplier = player.isSprinting() ? walkingSpeed * sprintingMultiplier : walkingSpeed;
-			multiplier *= tickInverse;
-			// prevent negative overshooting, so our friction doesn't accelerate us
-			// backwards
-			multiplier = Math.min(speedVectorLength, multiplier);
-			slowDownVec = slowDownVec.multiply(multiplier);
-			velocity = velocity.add(slowDownVec);
-		}
 		// revert velocity to m/s
 		velocity.multiply(1 / tickInverse);
+
+		connection.getEventHandler().broadcast(
+				new ClientPhysicsEvent(playerLoc, result, startingVelocity, velocity, onGroundBefore, onGround));
 
 		// write out finished values
 		player.updateLocation(result);
 		player.setVelocity(velocity);
 		player.setOnGround(onGround);
+	}
+
+	private boolean standingOnBlock(Location playerLoc) {
+		double playerAABBRange = connection.getConfig().getPlayerAABBRadius();
+		AABB offsetPlayerAABB = player.getBoundingBox().move(new Vector(0, -delta, 0));
+		for (int i = 0; i < 4; i++) {
+			// cycle through all 4 possible combinations
+			double x = i < 2 ? playerAABBRange : -playerAABBRange;
+			double z = i % 2 == 0 ? playerAABBRange : -playerAABBRange;
+			Location offSetLoc = playerLoc.add(x, -delta, z);
+			BlockState block = offSetLoc.getBlockAt(connection);
+			if (block != null && block.hasCollision()
+					&& block.getOffsetBoundingBox(offSetLoc).intersects(offsetPlayerAABB)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

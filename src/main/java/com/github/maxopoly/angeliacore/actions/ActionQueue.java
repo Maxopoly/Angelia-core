@@ -41,7 +41,7 @@ public class ActionQueue {
 	public synchronized void tick() {
 		connection.getEventHandler()
 				.broadcast(new AngeliaTickEvent(connection.getIncomingPlayPacketHandler().getTickCounter()));
-		if (actions.size() == 0) {
+		if (actions.isEmpty()) {
 			return;
 		}
 		boolean allDone = false;
@@ -52,11 +52,6 @@ public class ActionQueue {
 
 			for (ActionLock lock : action.getActionLocks()) {
 				if (locksTaken.contains(lock)) {
-					/**
-					 * Since the loop is the last thing in this function, there is no need to
-					 * actually make a labelled loop so we can just end the function with a return.
-					 * There is also no need update the allDone variable
-					 */
 					return;
 				} else {
 					locksTaken.add(lock);
@@ -69,10 +64,26 @@ public class ActionQueue {
 			if (action.isDone()) {
 				iter.remove();
 			}
-			if (actions.size() == 0) {
+			if (actions.isEmpty()) {
 				connection.getEventHandler().broadcast(new ActionQueueEmptiedEvent());
 				allDone = true;
 			}
 		}
+	}
+	
+	@Override
+	public synchronized String toString() {
+		StringBuilder sb = new StringBuilder();
+		int i = 0;
+		for(AbstractAction action : actions) {
+			sb.append(i);
+			sb.append(": ");
+			sb.append(action.toString());
+			sb.append('\n');
+		}
+		if (actions.isEmpty()) {
+			sb.append("Action queue is empty");
+		}
+		return sb.toString();
 	}
 }

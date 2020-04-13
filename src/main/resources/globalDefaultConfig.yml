@@ -21,6 +21,8 @@ physics:
   player_height: 1.74
 #Drag applied based on total velocity, default 0.02
   drag: 0.02
+#Radius of the player AABB, default 0.3
+  player_radius: 0.3
 
 #Various stuff for debugging purposes
 dev:

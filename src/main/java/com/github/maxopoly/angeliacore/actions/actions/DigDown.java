@@ -20,7 +20,6 @@ public class DigDown extends SequentialActionExecution {
 		for (int i = 0; i < howFar; i++) {
 			Location block = new Location(loc.getBlockX(), loc.getBlockY() - (i + 1), loc.getBlockZ());
 			actions[(i * 2)] = new LookAtAndBreakBlock(connection, block, blockBreakTime);
-			actions[(i * 2) + 1] = new MoveTo(connection, block.getBlockCenterXZ(), MoveTo.FALLING);
 		}
 		return actions;
 	}

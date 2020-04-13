@@ -67,12 +67,20 @@ public class GlobalConfig extends YAMLFileConfig {
 		return config.getDouble("physics.walking_speed", 4.317);
 	}
 	
+	public double getSprintingSpeed() {
+		return getPhysicsWalkingSpeed() * getPhysicsSprintingMultiplier();
+	}
+	
 	public double getPhysicsSprintingMultiplier() {
 		return config.getDouble("physics.sprinting_multiplier", 1.3);
 	}
 	
 	public double getPhysicsPlayerHeight() {
 		return config.getDouble("physics.player_height", 1.74);
+	}
+	
+	public double getPlayerAABBRadius() {
+		return config.getDouble("physics.player_radius", 0.3);
 	}
 
 	public boolean useAutoReconnect() {

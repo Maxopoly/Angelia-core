@@ -13,7 +13,7 @@ import com.github.maxopoly.angeliacore.model.location.Location;
 public class SprintTo extends SequentialActionExecution {
 
 	public SprintTo(ServerConnection connection, Location desto) {
-		super(new StartSprinting(connection), new MoveTo(connection, desto, MoveTo.SPRINTING_SPEED),
+		super(new StartSprinting(connection), new MoveTo(connection, desto, connection.getConfig().getSprintingSpeed()),
 				new StopSprinting(connection));
 	}
 

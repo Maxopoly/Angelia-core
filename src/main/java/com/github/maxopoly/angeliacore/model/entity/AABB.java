@@ -28,6 +28,19 @@ public class AABB {
 	}
 
 	public AABB(AABB... aabbs) {
+		if (aabbs.length == 0) {
+			throw new IllegalArgumentException("Can not instanciate empty nested AABB");
+		}
+		if (aabbs.length == 1) {
+			AABB toCopy = aabbs [0];
+			this.lowerX = toCopy.lowerX;
+			this.upperX = toCopy.upperX;
+			this.lowerY = toCopy.lowerY;
+			this.upperY = toCopy.upperY;
+			this.lowerZ = toCopy.lowerZ;
+			this.upperZ = toCopy.upperZ;
+			return;
+		}
 		innerBoxes = new ArrayList<>();
 		innerBoxes.addAll(Arrays.asList(aabbs));
 		innerBoxes.forEach(this::adjustBoundForBox);
@@ -43,11 +56,11 @@ public class AABB {
 
 	private void adjustBoundForBox(AABB inner) {
 		lowerX = Math.min(lowerX, inner.lowerX);
-		upperX = Math.min(upperX, inner.upperX);
+		upperX = Math.max(upperX, inner.upperX);
 		lowerY = Math.min(lowerY, inner.lowerY);
-		upperY = Math.min(upperY, inner.upperY);
+		upperY = Math.max(upperY, inner.upperY);
 		lowerZ = Math.min(lowerZ, inner.lowerZ);
-		upperZ = Math.min(upperZ, inner.upperZ);
+		upperZ = Math.max(upperZ, inner.upperZ);
 	}
 
 	public boolean intersects(AABB other) {
@@ -150,6 +163,19 @@ public class AABB {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(String.format("AABB; x: %f to %f, y: %f to %f, z: %f to %f", lowerX,
+				upperX, lowerY, upperY, lowerZ, upperZ));
+		if (innerBoxes != null) {
+			sb.append("\nInner boxes:\n");
+			for (AABB box : innerBoxes) {
+				sb.append(box.toString());
+			}
+		}
+		return sb.toString();
 	}
 
 }

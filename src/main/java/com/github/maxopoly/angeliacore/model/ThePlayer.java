@@ -44,7 +44,9 @@ public class ThePlayer extends LivingEntity {
 		this.openInventories = new TreeMap<>();
 		this.openInventories.put((byte) 0, new PlayerInventory());
 		this.connection = connection;
-		this.boundingBox = new AABB(-0.3, 0.3, 0, 0.8, -0.3, 0.3);
+		double playerRadius = connection.getConfig().getPlayerAABBRadius();
+		this.boundingBox = new AABB(-playerRadius, playerRadius, 0, connection.getConfig().getPhysicsPlayerHeight(),
+				-playerRadius, playerRadius);
 	}
 
 	public void addInventory(Inventory inv, byte id) {

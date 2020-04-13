@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.Logger;
-import org.json.JSONObject;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.model.block.states.ActivatableFacingBlock;
@@ -96,6 +95,8 @@ public class BlockStateFactory {
 		multiRegister(new VariableBlockState(SpecialRailBlockState.class, 27, 0.7f, "golden_rail", "Powered Rail", false));
 		multiRegister(new VariableBlockState(SpecialRailBlockState.class, 28, 0.7f, "detector_rail", "Detector Rail", false));
 
+		register(new FancySpecialBlockState(31, (byte) 1, 0, "tall_grass", "Tall grass"));
+		
 		multiRegister(new VariableBlockState(NormalRailBlockState.class, 66, 0.7f, "rail", "Rail", false));
 
 		registerWoodVariations(125, 2.0f, "_double_slab", " Double Slab");

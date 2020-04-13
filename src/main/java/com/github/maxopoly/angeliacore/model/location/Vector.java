@@ -2,7 +2,7 @@ package com.github.maxopoly.angeliacore.model.location;
 
 public class Vector {
 
-	protected static final double ACCURACY = 0.0000001;
+	protected static final double ACCURACY = 1E-9;
 
 	public static Vector calcLocationDifference(Location start, Location target) {
 		return target.toVector().subtract(start.toVector());
