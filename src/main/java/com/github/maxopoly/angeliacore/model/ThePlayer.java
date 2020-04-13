@@ -2,6 +2,7 @@ package com.github.maxopoly.angeliacore.model;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 
 import com.github.maxopoly.angeliacore.connection.ServerConnection;
 import com.github.maxopoly.angeliacore.event.events.player.XPChangeEvent;
@@ -39,8 +40,8 @@ public class ThePlayer extends LivingEntity {
 
 	private ServerConnection connection;
 
-	public ThePlayer(ServerConnection connection) {
-		super(0, connection.getPlayerUUID(), new DirectedLocation(), new Vector());
+	public ThePlayer(ServerConnection connection, String uuid) {
+		super(0, convertUUIDFromDashless(uuid), new DirectedLocation(), new Vector());
 		this.openInventories = new TreeMap<>();
 		this.openInventories.put((byte) 0, new PlayerInventory());
 		this.connection = connection;
@@ -230,5 +231,11 @@ public class ThePlayer extends LivingEntity {
 	@Override
 	public AABB getBoundingBox() {
 		return boundingBox;
+	}
+
+	public static UUID convertUUIDFromDashless(String withoutDash) {
+		return UUID.fromString(
+				withoutDash.substring(0, 8) + "-" + withoutDash.substring(8, 12) + "-" + withoutDash.substring(12, 16)
+						+ "-" + withoutDash.substring(16, 24) + "-" + withoutDash.substring(24, 32));
 	}
 }

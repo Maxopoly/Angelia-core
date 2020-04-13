@@ -4,13 +4,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Timer;
-import java.util.UUID;
 
 import org.apache.logging.log4j.Logger;
 
@@ -139,7 +137,7 @@ public class ServerConnection {
 	public void close(DisconnectReason reason) {
 		ServerDisconnectEvent event = new ServerDisconnectEvent(reason, config.useAutoReconnect(), config.getAuthReconnectDelay());
 		try {
-			logger.info("Closing socket with " + serverAdress);
+			logger.info("Closing socket with {}", serverAdress);
 			if (!socket.isClosed()) {
 				socket.close();
 			}
@@ -181,22 +179,22 @@ public class ServerConnection {
 		reestablishConnection();
 		HandShake shake = new HandShake(this);
 		if (protocolVersion == -1) {
-			logger.info("Connected socket to " + serverAdress);
+			logger.info("Connected socket to {}", serverAdress);
 			// handshake
-			logger.info("Requesting protocol version from " + serverAdress);
+			logger.info("Requesting protocol version from {}", serverAdress);
 			protocolVersion = shake.requestProtocolVersion();
 			// we need to set up a new socket after protocol test handshaking as we want to
 			// properly connect now, which
 			// the server wouldnt allow right away on the same connection
 			reestablishConnection();
 		}
-		logger.info("Sending handshake to " + serverAdress);
+		logger.info("Sending handshake to {}", serverAdress);
 		shake.send(true, protocolVersion);
 		authHandler.attemptValidation();
 		logger.info("Initializing connection process for account " + authHandler.getPlayerName() + " to " + serverAdress
 				+ ":" + port);
 		// begin login
-		logger.info("Beginning login to " + serverAdress);
+		logger.info("Beginning login to {}", serverAdress);
 		shake.sendLoginStartMessage(authHandler.getPlayerName());
 		
 		// Encryption or game join		
@@ -208,7 +206,7 @@ public class ServerConnection {
 		// switches to PLAY, so from now on
 		// everything is handled by our standard packet handler
 		logger.info("Switching connection to play state");
-		playerStatus = new ThePlayer(this);
+		playerStatus = new ThePlayer(this, authHandler.getPlayerUUID());
 		playPacketHandler = new Heartbeat(this);
 		pluginManager = new PluginManager(this);
 		actionQueue = new ActionQueue(this);
@@ -400,16 +398,6 @@ public class ServerConnection {
 	}
 
 	/**
-	 * @return The UUID of the player connected
-	 */
-	public UUID getPlayerUUID() {
-		String withoutDash = authHandler.getPlayerUUID();
-		return UUID.fromString(
-				withoutDash.substring(0, 8) + "-" + withoutDash.substring(8, 12) + "-" + withoutDash.substring(12, 16)
-						+ "-" + withoutDash.substring(16, 24) + "-" + withoutDash.substring(24, 32));
-	}
-
-	/**
 	 * @return This connection's plugin manager
 	 */
 	public PluginManager getPluginManager() {
@@ -487,11 +475,9 @@ public class ServerConnection {
 			socket.connect(host, 3000);
 			input = new DataInputStream(socket.getInputStream());
 			output = new DataOutputStream(socket.getOutputStream());
-		} catch (ConnectException e) {
-			throw new IOException("Failed to connect to " + serverAdress + ":" + port);
 		} catch (IOException e) {
-			logger.error("Exception occured", e);
-			throw new IOException("Failed to connect to " + serverAdress + ":" + port);
+			logger.error("Failed to reestablish connection", e);
+			throw new IOException(String.format("Failed to connect to %s:%d", serverAdress, port));
 		}
 	}
 
