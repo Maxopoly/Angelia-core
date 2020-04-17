@@ -6,7 +6,7 @@ import com.github.maxopoly.angeliacore.model.location.BlockFace;
  * Dropper or Dispenser
  *
  */
-public class ActivatableFacingBlock extends SingleConstBlockState {
+public class ActivatableFacingBlock extends FullSingleConstBlockState {
 
 	public ActivatableFacingBlock(int id, byte metaData, float hardness, String texturePackIdentifier,
 			String niceName, boolean hasCollision) {

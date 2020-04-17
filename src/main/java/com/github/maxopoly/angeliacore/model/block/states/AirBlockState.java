@@ -1,6 +1,6 @@
 package com.github.maxopoly.angeliacore.model.block.states;
 
-public class AirBlockState extends SingleConstBlockState {
+public class AirBlockState extends FullSingleConstBlockState {
 
 	public AirBlockState() {
 		super(0, (byte) 0, 0f, "air", "Air", false);

@@ -9,6 +9,10 @@ public class ChunkSection {
 	public ChunkSection(BlockState[] blocks) {
 		this.blocks = blocks;
 	}
+	
+	public ChunkSection() {
+		this.blocks = new BlockState[16*256];
+	}
 
 	/**
 	 * Dumps entire content array. Should only be used by rendering code

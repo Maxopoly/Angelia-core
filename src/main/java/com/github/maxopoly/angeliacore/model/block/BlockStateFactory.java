@@ -11,6 +11,7 @@ import com.github.maxopoly.angeliacore.model.block.states.ActivatableFacingBlock
 import com.github.maxopoly.angeliacore.model.block.states.AirBlockState;
 import com.github.maxopoly.angeliacore.model.block.states.BlockState;
 import com.github.maxopoly.angeliacore.model.block.states.FancySpecialBlockState;
+import com.github.maxopoly.angeliacore.model.block.states.NonfullSingleConstBlockState;
 import com.github.maxopoly.angeliacore.model.block.states.SolidStaticBlockState;
 import com.github.maxopoly.angeliacore.model.block.states.VariableBlockState;
 import com.github.maxopoly.angeliacore.model.block.states.rail.NormalRailBlockState;
@@ -99,6 +100,8 @@ public class BlockStateFactory {
 		
 		multiRegister(new VariableBlockState(NormalRailBlockState.class, 66, 0.7f, "rail", "Rail", false));
 
+		register(new NonfullSingleConstBlockState(120, -1, "end_portal_frame_empty", "End portal frame"));
+		
 		registerWoodVariations(125, 2.0f, "_double_slab", " Double Slab");
 		registerWoodVariations(126, 2.0f, "_slab", " Slab");
 
