@@ -11,9 +11,9 @@ import com.github.maxopoly.angeliacore.model.location.Vector;
 
 public class MoveTo extends AbstractAction {
 
-	private Location destination;
-	private double movementSpeed;
-	private PlayerPhysicsManager physicsManager;
+	protected Location destination;
+	protected double movementSpeed;
+	protected PlayerPhysicsManager physicsManager;
 
 	public MoveTo(ServerConnection connection, Location desto, double movementSpeed) {
 		super(connection);
