@@ -11,7 +11,7 @@ public class ClientSettingPacket extends WriteOnlyPacket {
 		// locale
 		writeString("en_US");
 		// render distance clientside
-		writeByte((byte) 1);
+		writeByte((byte) 3);
 		// chat mode
 		writeVarInt(0);
 		// do we want chat colors?

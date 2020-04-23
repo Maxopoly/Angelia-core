@@ -72,5 +72,10 @@ public class Chunk {
 		}
 		sections[index] = section;
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("{Chunk: %d,%d}", x,z);
+	}
 
 }

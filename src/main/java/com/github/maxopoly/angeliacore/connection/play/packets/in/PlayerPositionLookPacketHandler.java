@@ -9,6 +9,7 @@ import com.github.maxopoly.angeliacore.event.events.player.TeleportByServerEvent
 import com.github.maxopoly.angeliacore.libs.packetEncoding.EndOfPacketException;
 import com.github.maxopoly.angeliacore.libs.packetEncoding.ReadOnlyPacket;
 import com.github.maxopoly.angeliacore.model.location.DirectedLocation;
+import com.github.maxopoly.angeliacore.model.location.Vector;
 
 public class PlayerPositionLookPacketHandler extends AbstractIncomingPacketHandler {
 
@@ -42,6 +43,8 @@ public class PlayerPositionLookPacketHandler extends AbstractIncomingPacketHandl
 			connection.getEventHandler().broadcast(new TeleportByServerEvent(oldLocation, newLocation));
 			connection.getPlayerStatus().updateLocation(newLocation);
 			connection.getPlayerStatus().updateLookingDirection(newLocation.getPitch(), newLocation.getYaw());
+			//teleporting resets velocity
+			connection.getPlayerStatus().setVelocity(new Vector());
 			connection.sendPacket(new TeleportConfirmPacket(teleID));
 			connection.sendPacket(new PlayerPositionAndLookPacket(x, y, z, yaw, pitch, true));
 			connection.getPlayerStatus().setInitialized();

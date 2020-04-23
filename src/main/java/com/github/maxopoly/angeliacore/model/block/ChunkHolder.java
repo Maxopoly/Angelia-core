@@ -54,7 +54,7 @@ public class ChunkHolder {
 
 	private static int convertToChunkCoord(int rawCoord) {
 		int div = rawCoord / 16;
-		if (rawCoord < 0) {
+		if (rawCoord < 0 && (rawCoord % 16) != 0) {
 			return div - 1;
 		}
 		return div;
@@ -74,6 +74,11 @@ public class ChunkHolder {
 	public Chunk getChunk(int x, int z) {
 		ensureActive();
 		return loadedChunks.get(encodeCoords(x, z));
+	}
+	
+	public Chunk getChunkFor(Location loc) {
+		ensureActive();
+		return loadedChunks.get(encodeCoords(convertToChunkCoord(loc.getBlockX()), convertToChunkCoord(loc.getBlockZ())));
 	}
 
 	public Collection<Chunk> getLoadedChunks() {

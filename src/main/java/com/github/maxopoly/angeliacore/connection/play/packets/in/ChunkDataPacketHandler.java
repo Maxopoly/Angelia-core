@@ -116,6 +116,7 @@ public class ChunkDataPacketHandler extends AbstractIncomingPacketHandler {
 										+ palette.length + " index: " + blockNumber + "  " + read);
 							}
 						}
+						
 
 						BlockState state = BlockStateFactory.getStateByData(blockData);
 						blocks[blockNumber] = state;
@@ -123,6 +124,7 @@ public class ChunkDataPacketHandler extends AbstractIncomingPacketHandler {
 					}
 				}
 			}
+			
 
 			for (int y = 0; y < Chunk.SECTION_HEIGHT; y++) {
 				for (int z = 0; z < Chunk.CHUNK_WIDTH; z++) {

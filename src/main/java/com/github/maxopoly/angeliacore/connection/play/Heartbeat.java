@@ -96,6 +96,7 @@ public class Heartbeat extends TimerTask {
 				// if an exception occurs here and there are just way too many that possibly
 				// could occur
 				connection.getLogger().warn("Exception occured handling packet", e);
+				e.printStackTrace();
 			}
 		}
 		// we just skip the packet if we dont have a proper handler
