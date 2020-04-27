@@ -61,8 +61,9 @@ public class ChunkHolder {
 	}
 
 	private static long encodeCoords(int x, int z) {
-		return (((long) x) << 32) | (z & 0xFF_FF_FF_FF);
+		return (((long) x) << 32) | ((long) z & Integer.MAX_VALUE);
 	}
+
 
 	private void ensureActive() {
 		if (!active) {
